@@ -20,6 +20,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
 import FeedbackWidget from "@/components/FeedbackWidget";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ export const AppRoutes = () => (
     <Route path="/profile-review" element={<ProfileReview />} />
     <Route path="/subscription-plans" element={<SubscriptionPlans />} />
     <Route path="/partnership-hub" element={<PartnershipHub />} />
+    <Route path="/about" element={<About />} />
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
     <Route path="/messages" element={<Messages />} />
