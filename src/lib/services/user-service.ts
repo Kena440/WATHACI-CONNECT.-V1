@@ -133,7 +133,7 @@ export class ProfileService extends BaseService<Profile> {
    */
   async getByUserId(userId: string): Promise<DatabaseResponse<Profile>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
@@ -285,7 +285,7 @@ export class ProfileService extends BaseService<Profile> {
    */
   async getProfileWithSubscription(userId: string) {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('profiles')
         .select(`
           *,
@@ -373,7 +373,9 @@ export class ProfileService extends BaseService<Profile> {
 
         const allRequiredFields = [
           ...requiredFields,
-          ...(profile.account_type ? accountTypeSpecificFields[profile.account_type] || [] : [])
+          ...(profile.account_type && profile.account_type in accountTypeSpecificFields 
+              ? accountTypeSpecificFields[profile.account_type as keyof typeof accountTypeSpecificFields] || [] 
+              : [])
         ];
 
         const completedFields = allRequiredFields.filter(field => {

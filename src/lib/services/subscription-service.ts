@@ -22,7 +22,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
    */
   async getPlansByAccountType(accountType: AccountType): Promise<DatabaseResponse<SubscriptionPlan[]>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('subscription_plans')
         .select('*')
         .contains('user_types', [accountType])
@@ -36,7 +36,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
    */
   async getAllPlans(): Promise<DatabaseResponse<SubscriptionPlan[]>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('subscription_plans')
         .select('*')
         .order('category', { ascending: true })
@@ -50,7 +50,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
    */
   async getPlanById(planId: string): Promise<DatabaseResponse<SubscriptionPlan>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('subscription_plans')
         .select('*')
         .eq('id', planId)
@@ -64,7 +64,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
    */
   async getCurrentUserSubscription(userId: string): Promise<DatabaseResponse<UserSubscription | null>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('user_subscriptions')
         .select(`
           *,
@@ -91,7 +91,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
    */
   async getUserSubscriptions(userId: string): Promise<DatabaseResponse<UserSubscription[]>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('user_subscriptions')
         .select(`
           *,
@@ -164,7 +164,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
    */
   async activateSubscription(subscriptionId: string): Promise<DatabaseResponse<UserSubscription>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('user_subscriptions')
         .update({
           status: 'active',
@@ -194,7 +194,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
    */
   async cancelSubscription(subscriptionId: string): Promise<DatabaseResponse<UserSubscription>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('user_subscriptions')
         .update({
           status: 'cancelled',
@@ -348,11 +348,11 @@ export class SubscriptionService extends BaseService<UserSubscription> {
    */
   async getExpiringSubscriptions(): Promise<DatabaseResponse<UserSubscription[]>> {
     return withErrorHandling(
-      () => {
+      async () => {
         const sevenDaysFromNow = new Date();
         sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
 
-        return supabase
+        return await supabase
           .from('user_subscriptions')
           .select(`
             *,
@@ -377,7 +377,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     paymentStatus: 'pending' | 'paid' | 'failed'
   ): Promise<DatabaseResponse<UserSubscription>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('user_subscriptions')
         .update({
           status,
@@ -451,7 +451,7 @@ export class TransactionService extends BaseService<Transaction> {
    */
   async getUserTransactions(userId: string): Promise<DatabaseResponse<Transaction[]>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('transactions')
         .select(`
           *,
@@ -471,7 +471,7 @@ export class TransactionService extends BaseService<Transaction> {
    */
   async getByReference(referenceNumber: string): Promise<DatabaseResponse<Transaction>> {
     return withErrorHandling(
-      () => supabase
+      async () => await supabase
         .from('transactions')
         .select('*')
         .eq('reference_number', referenceNumber)
