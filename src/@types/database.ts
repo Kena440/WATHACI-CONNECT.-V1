@@ -270,3 +270,14 @@ export interface ServiceFilters extends PaginationParams {
   skills?: string[];
   search?: string;
 }
+// ================================
+// Notification Types
+// ================================
+
+export interface Notification {
+  id: string;
+  recipient_id: string;
+  type: string;
+  read: boolean;
+  created_at: string;
+}

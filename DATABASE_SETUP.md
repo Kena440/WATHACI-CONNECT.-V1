@@ -130,6 +130,15 @@ Manages payment transactions:
 - updated_at: TIMESTAMP
 ```
 
+#### `notifications` Table
+```sql
+- id: UUID (Primary Key)
+- recipient_id: UUID (references auth.users)
+- type: TEXT
+- read: BOOLEAN
+- created_at: TIMESTAMP
+```
+
 #### `subscription_plans` Table
 ```sql
 - id: UUID (Primary Key)
