@@ -25,3 +25,17 @@
     <div id="root"></div>
   </body>
 </html>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+      fetch('/api/services')
+        .then((res) => res.json())
+        .then((data) => console.log('Services:', data));
+      fetch('/api/users')
+        .then((res) => res.json())
+        .then((data) => console.log('Users:', data));
+    </script>
+  </body>
+</html>
