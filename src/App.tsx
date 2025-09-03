@@ -19,6 +19,8 @@ import FreelancerHub from "./pages/FreelancerHub";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import TestError from "./pages/TestError";
 
 const queryClient = new QueryClient();
 
@@ -30,22 +32,25 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/marketplace" element={<Marketplace />} />
-              <Route path="/freelancer-hub" element={<FreelancerHub />} />
-              <Route path="/resources" element={<Resources />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/get-started" element={<GetStarted />} />
-              <Route path="/profile-setup" element={<ProfileSetup />} />
-              <Route path="/profile-review" element={<ProfileReview />} />
-              <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-              <Route path="/partnership-hub" element={<PartnershipHub />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/freelancer-hub" element={<FreelancerHub />} />
+                <Route path="/resources" element={<Resources />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/get-started" element={<GetStarted />} />
+                <Route path="/profile-setup" element={<ProfileSetup />} />
+                <Route path="/profile-review" element={<ProfileReview />} />
+                <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+                <Route path="/partnership-hub" element={<PartnershipHub />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/test-error" element={<TestError />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ErrorBoundary>
           </BrowserRouter>
         </AppProvider>
       </TooltipProvider>
