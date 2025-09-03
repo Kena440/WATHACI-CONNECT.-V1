@@ -6,6 +6,7 @@ import { Badge } from './ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { supabase } from '../lib/supabase';
 import { useAppContext } from '../contexts/AppContext';
+import { logger } from '@/utils/logger';
 
 interface Notification {
   id: string;
@@ -44,7 +45,7 @@ export const NotificationCenter: React.FC = () => {
       setNotifications(data || []);
       setUnreadCount(data?.filter(n => !n.read).length || 0);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      logger.error('Error fetching notifications', error, 'NotificationCenter');
     }
   }, [user?.id]);
 
@@ -80,7 +81,7 @@ export const NotificationCenter: React.FC = () => {
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      logger.error('Error marking notification as read', error, 'NotificationCenter');
     }
   };
 

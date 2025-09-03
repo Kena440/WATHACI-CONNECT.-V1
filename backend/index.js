@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const errorHandler = require('./middleware/errorHandler');
+const logger = require('./utils/logger');
 
 const app = express();
 
@@ -18,14 +19,14 @@ app.use('/auth', authRoutes);
 app.use(errorHandler);
 
 process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Rejection:', reason);
+  logger.error('Unhandled Rejection', reason, 'ProcessEvents');
 });
 
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+  logger.error('Uncaught Exception', err, 'ProcessEvents');
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.info(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`, null, 'Server');
 });

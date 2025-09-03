@@ -3,6 +3,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { logger } from '@/utils/logger';
 
 // Environment validation
 const validateEnvironment = (): { url: string; key: string } => {
@@ -74,7 +75,7 @@ let supabaseClient: SupabaseClient;
 try {
   supabaseClient = createSupabaseClient();
 } catch (error) {
-  console.error('Failed to initialize Supabase client:', error);
+  logger.error('Failed to initialize Supabase client', error, 'SupabaseClient');
   throw error;
 }
 
@@ -87,13 +88,13 @@ export const testConnection = async (): Promise<boolean> => {
       .limit(1);
 
     if (error) {
-      console.error('Supabase connection test failed:', error);
+      logger.error('Supabase connection test failed', error, 'SupabaseClient');
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Supabase connection test error:', error);
+    logger.error('Supabase connection test error', error, 'SupabaseClient');
     return false;
   }
 };
@@ -108,14 +109,14 @@ export const withErrorHandling = async <T>(
     
     if (result.error) {
       const error = new Error(`${context}: ${result.error.message}`);
-      console.error(error);
+      logger.error('Supabase operation failed', error, context);
       return { data: null, error };
     }
 
     return { data: result.data, error: null };
   } catch (error) {
     const wrappedError = new Error(`${context}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    console.error(wrappedError);
+    logger.error('Supabase operation exception', wrappedError, context);
     return { data: null, error: wrappedError };
   }
 };

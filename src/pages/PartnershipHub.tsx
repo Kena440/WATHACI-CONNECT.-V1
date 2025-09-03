@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
+import { logger } from '@/utils/logger';
 import { Footer } from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
 import IndustryMatcher from '@/components/industry/IndustryMatcher';
@@ -86,7 +87,7 @@ export const PartnershipHub = () => {
       if (error) throw error;
       setSubmitted(true);
     } catch (error) {
-      console.error('Error submitting application:', error);
+      logger.error('Error submitting application', error, 'PartnershipHub');
     } finally {
       setLoading(false);
     }
