@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { MapPin, Check, AlertCircle } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface AddressInputProps {
   onAddressChange: (address: string, coordinates?: { lat: number; lng: number }) => void;
@@ -66,7 +67,7 @@ export const AddressInput = ({ onAddressChange, value }: AddressInputProps) => {
         }
       );
     } catch (error) {
-      console.error('Geocoding error:', error);
+      logger.error('Geocoding error', error, 'AddressInput');
       setIsValid(false);
       setIsValidating(false);
     }

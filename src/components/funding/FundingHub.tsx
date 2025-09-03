@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { OpportunityCard } from './OpportunityCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Sparkles } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface FundingOpportunity {
   id: string;
@@ -41,7 +42,7 @@ export const FundingHub = () => {
       if (error) throw error;
       setOpportunities(data.opportunities || []);
     } catch (error) {
-      console.error('Error fetching opportunities:', error);
+      logger.error('Error fetching opportunities', error, 'FundingHub');
       // Show empty state for launch - no mock data
       setOpportunities([]);
     } finally {

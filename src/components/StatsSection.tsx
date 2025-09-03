@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Building2, Users, Briefcase, TrendingUp, Heart, DollarSign, Target, Award, Globe } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface Stats {
   smes: number;
@@ -86,7 +87,7 @@ const StatsSection = () => {
         countriesServed: 3
       });
     } catch (error) {
-      console.error('Error fetching impact stats:', error);
+      logger.error('Error fetching impact stats', error, 'StatsSection');
       // Set to zero for launch - real data will populate as users join
       setStats({
         smes: 0,

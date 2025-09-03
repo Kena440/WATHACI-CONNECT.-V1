@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, TrendingUp, Users, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface Recommendation {
   id: string;
@@ -54,7 +55,7 @@ const AIRecommendations = ({
         setRecommendations(data.recommendations);
       }
     } catch (error) {
-      console.error('Failed to fetch recommendations:', error);
+      logger.error('Failed to fetch recommendations', error, 'AIRecommendations');
       // Fallback mock data
       setRecommendations([
         {

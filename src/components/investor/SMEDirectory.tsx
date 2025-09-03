@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 import { Search, MapPin, Users, TrendingUp, Heart, DollarSign } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface SME {
   id: string;
@@ -42,7 +43,7 @@ const SMEDirectory = () => {
       if (error) throw error;
       setSmes(data || []);
     } catch (error) {
-      console.error('Error fetching SMEs:', error);
+      logger.error('Error fetching SMEs', error, 'SMEDirectory');
     } finally {
       setLoading(false);
     }

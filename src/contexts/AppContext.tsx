@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { userService, profileService, supabase } from '@/lib/services';
 import { toast } from '@/components/ui/use-toast';
+import { logger } from '@/utils/logger';
 import type { User, Profile } from '@/@types/database';
 
 interface AppContextType {
@@ -61,7 +62,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const { data: userProfile, error: profileError } = await profileService.getByUserId(authUser.id);
       
       if (profileError) {
-        console.error('Error fetching user profile:', profileError);
+        logger.error('Error fetching user profile', profileError, 'AppContext');
         setProfile(null);
       } else {
         setProfile(userProfile);
@@ -76,7 +77,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       }
     } catch (error) {
-      console.error('Error refreshing user:', error);
+      logger.error('Error refreshing user', error, 'AppContext');
       setUser(null);
       setProfile(null);
     } finally {

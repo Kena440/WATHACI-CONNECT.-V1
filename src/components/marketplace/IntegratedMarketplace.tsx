@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ServiceProviderCard } from './ServiceProviderCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Grid, List, Loader2, Users, Building, BookOpen } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface Service {
   id: string;
@@ -70,7 +71,7 @@ export const IntegratedMarketplace = () => {
       if (error) throw error;
       setServices((data.data || []) as Service[]);
     } catch (error) {
-      console.error('Error loading services:', error);
+      logger.error('Error loading services', error, 'IntegratedMarketplace');
       setServices([]);
     } finally {
       setLoading(false);

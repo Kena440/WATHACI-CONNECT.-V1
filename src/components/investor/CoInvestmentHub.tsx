@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
 import { useAppContext } from '@/contexts/AppContext';
+import { logger } from '@/utils/logger';
 import { Users, TrendingUp, Calendar, Plus, DollarSign } from 'lucide-react';
 
 interface CoInvestment {
@@ -53,7 +54,7 @@ const CoInvestmentHub = () => {
       if (error) throw error;
       setCoInvestments(data || []);
     } catch (error) {
-      console.error('Error fetching co-investments:', error);
+      logger.error('Error fetching co-investments', error, 'CoInvestmentHub');
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,7 @@ const CoInvestmentHub = () => {
       fetchCoInvestments();
       setParticipationAmount('');
     } catch (error) {
-      console.error('Error participating in co-investment:', error);
+      logger.error('Error participating in co-investment', error, 'CoInvestmentHub');
     }
   };
 

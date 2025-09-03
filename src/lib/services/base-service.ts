@@ -4,6 +4,7 @@
  */
 
 import { supabase, withErrorHandling, withRetry } from '@/lib/supabase-enhanced';
+import { logger } from '@/utils/logger';
 import type { DatabaseResponse, PaginatedResponse, PaginationParams } from '@/@types/database';
 
 export abstract class BaseService<T = any> {
@@ -63,7 +64,7 @@ export abstract class BaseService<T = any> {
 
       if (result.error) {
         const error = new Error(`${this.tableName}.findMany: ${result.error.message}`);
-        console.error(error);
+        logger.error('Database query failed', error, `${this.tableName}.findMany`);
         return { data: null, error };
       }
 
@@ -82,7 +83,7 @@ export abstract class BaseService<T = any> {
       };
     } catch (error) {
       const wrappedError = new Error(`${this.tableName}.findMany: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      console.error(wrappedError);
+      logger.error('Database operation exception', wrappedError, `${this.tableName}.findMany`);
       return { data: null, error: wrappedError };
     }
   }

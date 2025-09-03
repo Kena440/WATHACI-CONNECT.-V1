@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Clock, Crown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '@/utils/logger';
 
 export const TrialBanner = () => {
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
@@ -52,7 +53,7 @@ export const TrialBanner = () => {
         }
       }
     } catch (error) {
-      console.error('Error checking trial status:', error);
+      logger.error('Error checking trial status', error, 'TrialBanner');
     }
   };
 

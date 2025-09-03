@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/lib/supabase';
 import { Upload, FileText, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface Document {
   id: string;
@@ -58,7 +59,7 @@ export const DueDiligenceUpload = ({ onComplianceChange }: { onComplianceChange?
       if (error) throw error;
       setDocuments(data || []);
     } catch (error) {
-      console.error('Error loading documents:', error);
+      logger.error('Error loading documents', error, 'DueDiligenceUpload');
     }
   };
 
@@ -119,7 +120,7 @@ export const DueDiligenceUpload = ({ onComplianceChange }: { onComplianceChange?
       // Reload documents
       await loadDocuments();
     } catch (error) {
-      console.error('Error uploading document:', error);
+      logger.error('Error uploading document', error, 'DueDiligenceUpload');
     } finally {
       setUploading(false);
     }

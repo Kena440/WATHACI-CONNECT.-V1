@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Search, Sparkles, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface AISearchProps {
   onSearch: (query: string, filters: any) => void;
@@ -47,7 +48,7 @@ const AISearch = ({ onSearch, onAIRecommendations }: AISearchProps) => {
 
       onSearch(query, { categories: activeFilters });
     } catch (error) {
-      console.error('AI search error:', error);
+      logger.error('AI search error', error, 'AISearch');
     } finally {
       setIsLoading(false);
     }

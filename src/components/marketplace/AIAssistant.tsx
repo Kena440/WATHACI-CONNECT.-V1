@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Send, Bot, User, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface Message {
   id: string;
@@ -73,7 +74,7 @@ const AIAssistant = ({ isOpen, onClose, context }: AIAssistantProps) => {
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('AI Assistant error:', error);
+      logger.error('AI Assistant error', error, 'AIAssistant');
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
