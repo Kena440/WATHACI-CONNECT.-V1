@@ -19,6 +19,9 @@ app.use('/auth', authRoutes);
 const proposalHelperRoutes = require('./routes/proposalHelper');
 app.use('/proposal', proposalHelperRoutes);
 
+const serviceRequestRoutes = require('./routes/serviceRequests');
+app.use('/service-requests', serviceRequestRoutes);
+
 app.use(errorHandler);
 
 process.on('unhandledRejection', (reason) => {

@@ -20,6 +20,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
 import FeedbackWidget from "@/components/FeedbackWidget";
+import ServiceRequestsPage from "./pages/ServiceRequestsPage";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ export const AppRoutes = () => (
     <Route path="/" element={<Index />} />
     <Route path="/marketplace" element={<Marketplace />} />
     <Route path="/freelancer-hub" element={<FreelancerHub />} />
+    <Route path="/service-requests" element={<ServiceRequestsPage />} />
     <Route path="/resources" element={<Resources />} />
     <Route path="/signin" element={<SignIn />} />
     <Route path="/get-started" element={<GetStarted />} />

@@ -8,7 +8,7 @@ module.exports = {
   },
   testMatch: [
     '<rootDir>/jest-tests/**/*.(test|spec).(ts|tsx)',
-    '<rootDir>/src/__tests__/(accessibility|navigation|forms).test.tsx'
+    '<rootDir>/src/__tests__/(accessibility|navigation|forms|ServiceRequestsPage).test.tsx'
   ],
   collectCoverageFrom: [
     'src/**/*.(ts|tsx)',

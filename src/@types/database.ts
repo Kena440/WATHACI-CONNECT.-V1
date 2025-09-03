@@ -189,14 +189,16 @@ export interface Service {
 
 export interface ServiceRequest {
   id: string;
-  user_id: string;
-  title: string;
+  user_id?: string;
+  title?: string;
   description: string;
   skills: string[];
-  willing_to_pay: boolean;
+  location?: string;
+  willing_to_pay?: boolean;
   budget?: number;
+  status?: 'active' | 'completed' | 'cancelled';
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
 
 // ================================
