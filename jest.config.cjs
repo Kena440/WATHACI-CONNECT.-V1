@@ -6,7 +6,10 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  testMatch: ['<rootDir>/jest-tests/**/*.(test|spec).(ts|tsx)'],
+  testMatch: [
+    '<rootDir>/jest-tests/**/*.(test|spec).(ts|tsx)',
+    '<rootDir>/src/__tests__/(accessibility|navigation|forms).test.tsx'
+  ],
   collectCoverageFrom: [
     'src/**/*.(ts|tsx)',
     '!src/**/*.d.ts',
