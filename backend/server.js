@@ -1,35 +1,42 @@
-import http from 'http';
+import express from 'express';
+import cors from 'cors';
 import { randomBytes, scryptSync } from 'crypto';
 
-const port = process.env.PORT || 3000;
+const app = express();
+const port = process.env.PORT || 3001;
 
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/hash') {
-    let body = '';
-    req.on('data', chunk => { body += chunk; });
-    req.on('end', () => {
-      try {
-        const { password } = JSON.parse(body || '{}');
-        if (!password) {
-          res.statusCode = 400;
-          res.end(JSON.stringify({ error: 'Password required' }));
-          return;
-        }
-        const salt = randomBytes(16).toString('hex');
-        const hash = scryptSync(password, salt, 64).toString('hex');
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ hash: `${salt}:${hash}` }));
-      } catch (err) {
-        res.statusCode = 400;
-        res.end(JSON.stringify({ error: 'Invalid JSON' }));
-      }
-    });
-  } else {
-    res.statusCode = 404;
-    res.end();
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Express server is running' });
+});
+
+// Password hashing endpoint (existing functionality)
+app.post('/hash', (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ error: 'Password required' });
+    }
+    const salt = randomBytes(16).toString('hex');
+    const hash = scryptSync(password, salt, 64).toString('hex');
+    res.json({ hash: `${salt}:${hash}` });
+  } catch (err) {
+    res.status(400).json({ error: 'Invalid request' });
   }
 });
 
-server.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+// Basic API endpoint for testing frontend connectivity
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    message: 'Hello from Express backend!', 
+    timestamp: new Date().toISOString() 
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Express server running on http://localhost:${port}`);
 });
