@@ -37,9 +37,11 @@ const Header = () => {
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center space-x-3 cursor-pointer group">
-            <img 
-              src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png" 
-              alt="WATHACI CONNECT" 
+            <img
+              src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png"
+              alt="WATHACI CONNECT"
+              loading="lazy"
+              decoding="async"
               className="h-24 w-auto drop-shadow-lg group-hover:scale-105 transition-transform duration-200"
             />
           </Link>

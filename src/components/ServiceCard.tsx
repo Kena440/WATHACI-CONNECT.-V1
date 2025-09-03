@@ -28,9 +28,11 @@ export const ServiceCard = ({
     <Card className={`${color} hover:shadow-lg transition-all transform hover:-translate-y-1`}>
       <CardHeader>
         <div className="w-full h-48 mb-4 rounded-lg overflow-hidden">
-          <img 
-            src={image} 
+          <img
+            src={image}
             alt={title}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover"
           />
         </div>

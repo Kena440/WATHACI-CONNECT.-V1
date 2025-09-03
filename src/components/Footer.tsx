@@ -8,9 +8,11 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link to="/" className="inline-block cursor-pointer group">
-              <img 
-                src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png" 
-                alt="WATHACI CONNECT" 
+              <img
+                src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png"
+                alt="WATHACI CONNECT"
+                loading="lazy"
+                decoding="async"
                 className="h-18 w-auto brightness-0 invert drop-shadow-lg group-hover:scale-105 transition-transform duration-200"
               />
             </Link>

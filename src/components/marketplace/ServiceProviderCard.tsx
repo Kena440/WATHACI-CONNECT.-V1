@@ -67,9 +67,11 @@ export const ServiceProviderCard = ({ service, onSelect }: ServiceProviderCardPr
     <Card className="hover:shadow-lg transition-all duration-200 group cursor-pointer" onClick={() => onSelect(service)}>
       <CardHeader className="p-0">
         <div className="relative">
-          <img 
-            src={service.image} 
+          <img
+            src={service.image}
             alt={service.title}
+            loading="lazy"
+            decoding="async"
             className="w-full h-48 object-cover rounded-t-lg group-hover:scale-105 transition-transform duration-200"
           />
           <div className="absolute top-3 left-3">

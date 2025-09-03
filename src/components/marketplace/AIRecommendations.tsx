@@ -135,9 +135,11 @@ const AIRecommendations = ({
           {recommendations.map(rec => (
             <Card key={rec.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="p-0">
-                <img 
-                  src={rec.image} 
+                <img
+                  src={rec.image}
                   alt={rec.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-32 object-cover rounded-t-lg"
                 />
               </CardHeader>
