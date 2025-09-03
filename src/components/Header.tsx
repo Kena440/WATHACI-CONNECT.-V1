@@ -22,6 +22,7 @@ const Header = () => {
     { name: 'Marketplace', href: '/marketplace' },
     { name: 'Freelancer Hub', href: '/freelancer-hub' },
     { name: 'Resources', href: '/resources' },
+    { name: 'About', href: '/about' },
     { name: 'Partnership Hub', href: '/partnership-hub' }
   ];
 

@@ -7,6 +7,7 @@ import { AppRoutes } from '../App';
 jest.mock('../pages/Index', () => ({ default: () => <div>Home Page</div> }));
 jest.mock('../pages/Marketplace', () => ({ default: () => <div>Marketplace Page</div> }));
 jest.mock('../pages/Resources', () => ({ default: () => <div>Resources Page</div> }));
+jest.mock('../pages/About', () => ({ default: () => <div>About Page</div> }));
 jest.mock('../pages/NotFound', () => ({ default: () => <div>Not Found</div> }));
 jest.mock('../pages/SignIn', () => ({ SignIn: () => <div>Sign In Page</div> }));
 jest.mock('../pages/GetStarted', () => ({ GetStarted: () => <div>Get Started Page</div> }));
@@ -24,6 +25,7 @@ const routes = [
   { path: '/marketplace', text: 'Marketplace Page' },
   { path: '/freelancer-hub', text: 'Freelancer Hub Page' },
   { path: '/resources', text: 'Resources Page' },
+  { path: '/about', text: 'About Page' },
   { path: '/signin', text: 'Sign In Page' },
   { path: '/get-started', text: 'Get Started Page' },
   { path: '/profile-setup', text: 'Profile Setup Page' },

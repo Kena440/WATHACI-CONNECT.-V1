@@ -8,6 +8,7 @@ import { AppProvider } from "@/contexts/AppContext";
 import Index from "./pages/Index";
 import Marketplace from "./pages/Marketplace";
 import Resources from "./pages/Resources";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import { SignIn } from "./pages/SignIn";
 import { GetStarted } from "./pages/GetStarted";
@@ -29,6 +30,7 @@ export const AppRoutes = () => (
     <Route path="/marketplace" element={<Marketplace />} />
     <Route path="/freelancer-hub" element={<FreelancerHub />} />
     <Route path="/resources" element={<Resources />} />
+    <Route path="/about" element={<About />} />
     <Route path="/signin" element={<SignIn />} />
     <Route path="/get-started" element={<GetStarted />} />
     <Route path="/profile-setup" element={<ProfileSetup />} />
