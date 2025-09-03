@@ -47,15 +47,17 @@ describe('Database Services', () => {
       expect(services.profileService).toBeDefined();
       expect(services.subscriptionService).toBeDefined();
       expect(services.transactionService).toBeDefined();
+      expect(services.serviceRequestService).toBeDefined();
       expect(services.supabase).toBeDefined();
     });
 
     it('should have proper service types', async () => {
-      const { userService, profileService, subscriptionService } = await import('../index');
-      
+      const { userService, profileService, subscriptionService, serviceRequestService } = await import('../index');
+
       expect(typeof userService).toBe('object');
       expect(typeof profileService).toBe('object');
       expect(typeof subscriptionService).toBe('object');
+      expect(typeof serviceRequestService).toBe('object');
     });
   });
 
@@ -86,6 +88,15 @@ describe('Database Services', () => {
       expect(typeof subscriptionService.getCurrentUserSubscription).toBe('function');
       expect(typeof subscriptionService.createSubscription).toBe('function');
       expect(typeof subscriptionService.hasActiveSubscription).toBe('function');
+    });
+
+    it('should have expected methods on service request service', async () => {
+      const { serviceRequestService } = await import('../index');
+
+      expect(typeof serviceRequestService.create).toBe('function');
+      expect(typeof serviceRequestService.findMany).toBe('function');
+      expect(typeof serviceRequestService.findById).toBe('function');
+      expect(typeof serviceRequestService.delete).toBe('function');
     });
   });
 

@@ -173,6 +173,19 @@ Manages payment transactions:
 - updated_at: TIMESTAMP
 ```
 
+#### `service_requests` Table
+```sql
+- id: UUID (Primary Key)
+- user_id: UUID (References profiles.id)
+- title: TEXT
+- description: TEXT
+- skills: TEXT[]
+- willing_to_pay: BOOLEAN
+- budget: NUMERIC
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+```
+
 ## Usage Examples
 
 ### Basic User Operations
