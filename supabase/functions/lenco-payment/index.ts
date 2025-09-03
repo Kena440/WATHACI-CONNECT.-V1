@@ -10,7 +10,11 @@ interface RequestBody {
 
 serve(async (req) => {
   try {
-    const { amount, paymentMethod, phoneNumber, provider, description } = (await req.json()) as RequestBody;
+    const { amount, paymentMethod, phoneNumber, provider, description } =
+      (await req.json()) as RequestBody;
+
+    // Calculate management/platform fee (2% of total amount)
+    const managementFee = amount * 0.02;
 
     const baseUrl = Deno.env.get('LENCO_API_BASE_URL');
     const apiKey = Deno.env.get('LENCO_API_KEY');
@@ -41,7 +45,11 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, transaction_id: result.transaction_id }),
+      JSON.stringify({
+        success: true,
+        transaction_id: result.transaction_id,
+        management_fee: managementFee,
+      }),
       { headers: { 'Content-Type': 'application/json' } },
     );
   } catch (err) {

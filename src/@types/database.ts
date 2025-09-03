@@ -125,7 +125,12 @@ export interface Transaction {
   id: string;
   user_id: string;
   subscription_id?: string;
+  /** Amount after platform fee deduction */
   amount: number;
+  /** Total amount paid by user */
+  total_amount: number;
+  /** Platform/management fee collected */
+  platform_fee: number;
   currency: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
   payment_method: 'phone' | 'card';

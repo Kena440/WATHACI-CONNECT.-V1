@@ -164,7 +164,9 @@ Manages payment transactions:
 - id: UUID (Primary Key)
 - user_id: UUID (References profiles.id)
 - subscription_id: UUID (References user_subscriptions.id)
-- amount: INTEGER
+- amount: INTEGER -- amount after platform fee deduction
+- total_amount: INTEGER
+- platform_fee: INTEGER
 - currency: TEXT
 - status: TEXT (pending, completed, failed, refunded)
 - payment_method: TEXT (phone, card)

@@ -414,14 +414,17 @@ export class TransactionService extends BaseService<Transaction> {
   async createTransaction(
     userId: string,
     subscriptionId: string,
-    amount: number,
+    totalAmount: number,
+    platformFee: number,
     paymentMethod: 'phone' | 'card',
     referenceNumber: string
   ): Promise<DatabaseResponse<Transaction>> {
     const transactionData = {
       user_id: userId,
       subscription_id: subscriptionId,
-      amount,
+      amount: totalAmount - platformFee,
+      total_amount: totalAmount,
+      platform_fee: platformFee,
       currency: 'ZMW', // Zambian Kwacha
       status: 'pending' as const,
       payment_method: paymentMethod,
