@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { OpportunityCard } from './OpportunityCard';
-import { supabase } from '@/lib/supabase';
-import { Search, Filter, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { OpportunityCard } from "./OpportunityCard";
+import { supabase } from "@/lib/supabase";
+import { Search, Filter, Sparkles } from "lucide-react";
 
 interface FundingOpportunity {
   id: string;
@@ -24,8 +30,8 @@ interface FundingOpportunity {
 export const FundingHub = () => {
   const [opportunities, setOpportunities] = useState<FundingOpportunity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   useEffect(() => {
     fetchOpportunities();
@@ -34,14 +40,17 @@ export const FundingHub = () => {
   const fetchOpportunities = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('funding-opportunities', {
-        body: { action: 'fetch_opportunities' }
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "funding-opportunities",
+        {
+          body: { action: "fetch_opportunities" },
+        },
+      );
 
       if (error) throw error;
       setOpportunities(data.opportunities || []);
     } catch (error) {
-      console.error('Error fetching opportunities:', error);
+      console.error("Error fetching opportunities:", error);
       // Show empty state for launch - no mock data
       setOpportunities([]);
     } finally {
@@ -50,27 +59,32 @@ export const FundingHub = () => {
   };
   const handleApply = async (opportunityId: string) => {
     // Implementation for application process
-    console.log('Applying for opportunity:', opportunityId);
+    console.log("Applying for opportunity:", opportunityId);
   };
 
   const handleGetHelp = async (opportunityId: string) => {
     // Implementation for getting professional help
-    console.log('Getting help for opportunity:', opportunityId);
+    console.log("Getting help for opportunity:", opportunityId);
   };
 
-  const filteredOpportunities = opportunities.filter(opp => {
-    const matchesSearch = opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         opp.organization.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || opp.category === categoryFilter;
+  const filteredOpportunities = opportunities.filter((opp) => {
+    const matchesSearch =
+      opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      opp.organization.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      categoryFilter === "all" || opp.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">AI-Powered Funding Opportunities</h1>
+        <h1 className="text-3xl font-bold mb-4">
+          AI-Powered Funding Opportunities
+        </h1>
         <p className="text-gray-600 mb-6">
-          Discover funding opportunities tailored to your business needs with AI matching and professional support.
+          Discover funding opportunities tailored to your business needs with AI
+          matching and professional support.
         </p>
 
         <div className="flex gap-4 mb-6">
@@ -92,7 +106,9 @@ export const FundingHub = () => {
               <SelectItem value="Business Growth">Business Growth</SelectItem>
               <SelectItem value="Innovation">Innovation</SelectItem>
               <SelectItem value="Export">Export</SelectItem>
-              <SelectItem value="Women Entrepreneurs">Women Entrepreneurs</SelectItem>
+              <SelectItem value="Women Entrepreneurs">
+                Women Entrepreneurs
+              </SelectItem>
             </SelectContent>
           </Select>
           <Button variant="outline">
@@ -108,8 +124,13 @@ export const FundingHub = () => {
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <Sparkles className="w-16 h-16 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No Funding Opportunities Available</h3>
-            <p>Check back soon for new funding opportunities or try adjusting your search filters.</p>
+            <h3 className="text-xl font-semibold mb-2">
+              No Funding Opportunities Available
+            </h3>
+            <p>
+              Check back soon for new funding opportunities or try adjusting
+              your search filters.
+            </p>
           </div>
         </div>
       ) : (
@@ -124,5 +145,6 @@ export const FundingHub = () => {
           ))}
         </div>
       )}
+    </div>
   );
 };
