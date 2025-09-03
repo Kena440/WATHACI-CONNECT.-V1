@@ -10,6 +10,8 @@ import PriceNegotiation from '@/components/PriceNegotiation';
 import { supabase } from '@/lib/supabase';
 import { logger } from '@/utils/logger';
 
+const DEBUG = import.meta.env.DEV;
+
 interface Freelancer {
   id: string;
   name: string;
@@ -198,7 +200,7 @@ export const FreelancerDirectory = () => {
                     serviceTitle={`${freelancer.name} - ${freelancer.title}`}
                     providerId={freelancer.id.toString()}
                     onNegotiationComplete={(finalPrice) => {
-                      // TODO: handle negotiation completion
+                      if (DEBUG) console.log(`Negotiation complete: $${finalPrice}`);
                     }}
                   />
                 </DialogContent>
@@ -233,3 +235,4 @@ export const FreelancerDirectory = () => {
     </div>
   );
 };
+
