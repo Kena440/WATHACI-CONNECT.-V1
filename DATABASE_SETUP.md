@@ -173,6 +173,19 @@ Manages payment transactions:
 - updated_at: TIMESTAMP
 ```
 
+#### `service_requests` Table
+```sql
+- id: UUID (Primary Key)
+- user_id: UUID (References profiles.id)
+- title: TEXT
+- description: TEXT
+- skills: TEXT[]
+- willing_to_pay: BOOLEAN
+- budget: NUMERIC
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+```
+
 ## Usage Examples
 
 ### Basic User Operations
@@ -363,3 +376,18 @@ console.log('Auth:', health.details.auth);
 2. Use `healthCheck()` for comprehensive status
 3. Check browser network tab for request details
 4. Enable Supabase logging for detailed query information
+## Additional Tables
+
+### `team_members` Table
+
+```sql
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+name TEXT NOT NULL,
+role TEXT NOT NULL,
+bio TEXT,
+avatar TEXT,
+expertise TEXT[],
+qualifications TEXT[]
+```
+
+The `team_members` table stores profiles displayed on team pages and can be seeded using the `scripts/seed-team-members.ts` script.

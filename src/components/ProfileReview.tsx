@@ -98,9 +98,12 @@ export const ProfileReview = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={profile.profile_image_url || undefined} />
+                  <AvatarImage
+                    src={profile.profile_image_url || undefined}
+                    alt={profile.business_name || profile.email}
+                  />
                   <AvatarFallback className="text-lg">
-                    {profile.business_name ? 
+                    {profile.business_name ?
                       profile.business_name.substring(0, 2).toUpperCase() :
                       profile.email.substring(0, 2).toUpperCase()
                     }

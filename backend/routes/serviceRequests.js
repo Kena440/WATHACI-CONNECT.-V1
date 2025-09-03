@@ -7,8 +7,9 @@ const requestSchema = Joi.object({
   user_id: Joi.string().required(),
   title: Joi.string().required(),
   description: Joi.string().required(),
-  is_paid: Joi.boolean().required(),
-  budget: Joi.number().when('is_paid', {
+  skills: Joi.array().items(Joi.string()).default([]),
+  willing_to_pay: Joi.boolean().required(),
+  budget: Joi.number().when('willing_to_pay', {
     is: true,
     then: Joi.number().positive().required(),
     otherwise: Joi.optional().allow(null)

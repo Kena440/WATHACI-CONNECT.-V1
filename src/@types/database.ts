@@ -191,11 +191,12 @@ export interface ServiceRequest {
   user_id: string;
   title: string;
   description: string;
-  is_paid: boolean;
+  skills?: string[];
+  willing_to_pay: boolean;
   budget?: number;
   created_at: string;
+  updated_at?: string;
 }
-
 
 // ================================
 // Connection and Messaging Types

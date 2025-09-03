@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useAppContext } from '@/contexts/AppContext';
-import { createRequest, listRequests } from '@/lib/services';
+import { serviceRequestService } from '@/lib/services';
 import type { ServiceRequest } from '@/@types/database';
 import { supabase } from '@/lib/supabase';
 import ServiceRequestCard from '@/components/marketplace/ServiceRequestCard';
@@ -16,15 +16,15 @@ const ServiceRequests = () => {
   const { user } = useAppContext();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [isPaid, setIsPaid] = useState(false);
+  const [willingToPay, setWillingToPay] = useState(false);
   const [budget, setBudget] = useState('');
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const loadRequests = async () => {
-    const { data } = await listRequests();
-    if (data) setRequests(data);
+    const { data } = await serviceRequestService.findMany();
+    if (data) setRequests(data.data);
   };
 
   useEffect(() => {
@@ -35,12 +35,12 @@ const ServiceRequests = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { data } = await createRequest({
+    const { data } = await serviceRequestService.create({
       user_id: user?.id || 'anonymous',
       title,
       description,
-      is_paid: isPaid,
-      budget: isPaid ? Number(budget) : undefined,
+      willing_to_pay: willingToPay,
+      budget: willingToPay ? Number(budget) : undefined,
     });
 
     if (data) {
@@ -49,15 +49,15 @@ const ServiceRequests = () => {
         body: {
           title,
           description,
-          is_paid: isPaid,
-          budget: isPaid ? Number(budget) : undefined,
+          willing_to_pay: willingToPay,
+          budget: willingToPay ? Number(budget) : undefined,
         },
       });
       setSuggestions(matchData?.freelancers || []);
       setTitle('');
       setDescription('');
       setBudget('');
-      setIsPaid(false);
+      setWillingToPay(false);
     }
 
     setLoading(false);
@@ -91,10 +91,10 @@ const ServiceRequests = () => {
               required
             />
             <div className="flex items-center space-x-2">
-              <Switch id="isPaid" checked={isPaid} onCheckedChange={setIsPaid} />
-              <Label htmlFor="isPaid">Willing to pay</Label>
+              <Switch id="willingToPay" checked={willingToPay} onCheckedChange={setWillingToPay} />
+              <Label htmlFor="willingToPay">Willing to pay</Label>
             </div>
-            {isPaid && (
+            {willingToPay && (
               <Input
                 type="number"
                 placeholder="Budget (ZMW)"

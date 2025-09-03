@@ -16,6 +16,9 @@ app.use('/users', userRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
+const proposalHelperRoutes = require('./routes/proposalHelper');
+app.use('/proposal', proposalHelperRoutes);
+
 const serviceRequestRoutes = require('./routes/serviceRequests');
 app.use('/service-requests', serviceRequestRoutes);
 
