@@ -16,6 +16,9 @@ app.use('/users', userRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
+const openaiMatcherRoutes = require('./routes/openaiMatcher');
+app.use('/openai-matcher', openaiMatcherRoutes);
+
 app.use(errorHandler);
 
 process.on('unhandledRejection', (reason) => {

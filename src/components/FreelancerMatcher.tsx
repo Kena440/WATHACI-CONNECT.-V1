@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { supabase } from '@/lib/supabase';
 import { Search, MapPin, DollarSign, Star, Loader2 } from 'lucide-react';
 import { logger } from '@/utils/logger';
 
@@ -38,17 +37,23 @@ export const FreelancerMatcher = () => {
 
     setLoading(true);
     try {
-      const skillsArray = skills.split(',').map(s => s.trim());
-      const { data, error } = await supabase.functions.invoke('freelancer-matcher', {
-        body: { 
-          projectRequirements, 
-          skills: skillsArray, 
-          budget: budget ? parseInt(budget) : null,
-          location 
-        }
+      const skillsArray = skills.split(',').map((s) => s.trim()).filter(Boolean);
+      const response = await fetch('/openai-matcher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectDescription: projectRequirements,
+          skills: skillsArray,
+          budget: budget ? parseInt(budget) : undefined,
+          location
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Request failed');
+      }
+
+      const data = await response.json();
       setMatches(data.matches || []);
     } catch (error) {
       logger.error('Error matching freelancers', error, 'FreelancerMatcher');
