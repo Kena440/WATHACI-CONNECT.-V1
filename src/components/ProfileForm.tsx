@@ -14,16 +14,36 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { ArrowLeft } from 'lucide-react';
 import { sectors, countries } from '../data/countries';
 
+interface Coordinates {
+  lat: number;
+  lng: number;
+}
+
+interface FormData {
+  payment_method: string;
+  use_same_phone: boolean;
+  qualifications: string[];
+  gaps_identified: string[];
+  phone: string;
+  payment_phone: string;
+  profile_image_url: string | null;
+  linkedin_url: string;
+  country?: string;
+  address?: string;
+  coordinates?: Coordinates | null;
+  [key: string]: unknown; // For any additional fields
+}
+
 interface ProfileFormProps {
   accountType: string;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FormData) => void;
   onPrevious: () => void;
   loading: boolean;
-  initialData?: any;
+  initialData?: Partial<FormData>;
 }
 
 export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initialData }: ProfileFormProps) => {
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState<FormData>({
     payment_method: 'phone',
     use_same_phone: true,
     qualifications: [],
@@ -55,14 +75,14 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
         }
       }
     }
-  }, [formData.country]);
+  }, [formData.country, formData.phone, formData.payment_phone, formData.use_same_phone]);
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: string, value: unknown) => {
+    setFormData((prev: FormData) => ({ ...prev, [field]: value }));
   };
 
-  const handleAddressChange = (address: string, coordinates?: { lat: number; lng: number }) => {
-    setFormData((prev: any) => ({ 
+  const handleAddressChange = (address: string, coordinates?: Coordinates) => {
+    setFormData((prev: FormData) => ({ 
       ...prev, 
       address,
       coordinates: coordinates || null
