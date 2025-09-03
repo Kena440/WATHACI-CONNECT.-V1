@@ -197,7 +197,7 @@ export const FreelancerDirectory = () => {
                     serviceTitle={`${freelancer.name} - ${freelancer.title}`}
                     providerId={freelancer.id.toString()}
                     onNegotiationComplete={(finalPrice) => {
-                      console.log(`Negotiation complete: $${finalPrice}`);
+                      // TODO: handle negotiation completion
                     }}
                   />
                 </DialogContent>

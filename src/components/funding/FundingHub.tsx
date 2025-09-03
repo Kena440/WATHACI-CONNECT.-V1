@@ -50,12 +50,12 @@ export const FundingHub = () => {
   };
   const handleApply = async (opportunityId: string) => {
     // Implementation for application process
-    console.log('Applying for opportunity:', opportunityId);
+    // TODO: implement application process
   };
 
   const handleGetHelp = async (opportunityId: string) => {
     // Implementation for getting professional help
-    console.log('Getting help for opportunity:', opportunityId);
+    // TODO: implement help request
   };
 
   const filteredOpportunities = opportunities.filter(opp => {

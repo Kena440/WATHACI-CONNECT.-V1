@@ -179,7 +179,7 @@ async function validateMockOperations() {
 }
 
 async function main() {
-  console.log('🔍 Database Setup Validation\n');
+  log.info('🔍 Database Setup Validation\n');
   
   const validations = [
     { name: 'Environment Variables', fn: validateEnvironment },
@@ -193,7 +193,7 @@ async function main() {
   let passedCount = 0;
   
   for (const { name, fn } of validations) {
-    console.log(`\n📋 ${name}`);
+      log.info(`\n📋 ${name}`);
     try {
       const passed = await fn();
       if (passed) {
@@ -204,7 +204,7 @@ async function main() {
     }
   }
   
-  console.log(`\n📊 Results: ${passedCount}/${validations.length} validations passed`);
+  log.info(`\n📊 Results: ${passedCount}/${validations.length} validations passed`);
   
   if (passedCount === validations.length) {
     log.success('All validations passed! Database setup is working correctly.');
