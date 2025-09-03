@@ -18,6 +18,7 @@ jest.mock('../pages/FreelancerHub', () => ({ default: () => <div>Freelancer Hub 
 jest.mock('../pages/PrivacyPolicy', () => ({ default: () => <div>Privacy Policy Page</div> }));
 jest.mock('../pages/TermsOfService', () => ({ default: () => <div>Terms Of Service Page</div> }));
 jest.mock('../pages/Messages', () => ({ default: () => <div>Messages Page</div> }));
+jest.mock('../pages/AdminModeration', () => ({ default: () => <div>Admin Moderation Page</div> }));
 
 const routes = [
   { path: '/', text: 'Home Page' },
@@ -33,6 +34,7 @@ const routes = [
   { path: '/privacy-policy', text: 'Privacy Policy Page' },
   { path: '/terms-of-service', text: 'Terms Of Service Page' },
   { path: '/messages', text: 'Messages Page' },
+  { path: '/admin/moderation', text: 'Admin Moderation Page' },
 ];
 
 describe('AppRoutes', () => {
