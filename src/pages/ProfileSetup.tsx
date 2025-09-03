@@ -107,11 +107,12 @@ export const ProfileSetup = () => {
     setLoading(true);
     
     try {
-      let paymentData = {};
+      let paymentData: Record<string, any> = {};
       if (profileData.use_same_phone) {
         paymentData = {
           payment_phone: profileData.phone,
-          payment_method: 'phone'
+          payment_method: 'phone',
+          mobile_money_provider: profileData.mobile_money_provider
         };
       } else {
         if (profileData.payment_method === 'card') {
@@ -119,23 +120,45 @@ export const ProfileSetup = () => {
             payment_method: 'card',
             card_details: {
               number: profileData.card_number,
-              expiry: profileData.card_expiry
+              expiry: profileData.card_expiry,
+              holder_name: profileData.cardholder_name,
+              cvv: profileData.card_cvv
             }
+          };
+        } else if (profileData.payment_method === 'bank') {
+          paymentData = {
+            payment_method: 'bank',
+            bank_account_name: profileData.bank_account_name,
+            bank_account_number: profileData.bank_account_number,
+            bank_name: profileData.bank_name,
+            bank_branch: profileData.bank_branch,
+            bank_swift_code: profileData.bank_swift_code,
+            bank_currency: profileData.bank_currency
           };
         } else {
           paymentData = {
             payment_method: 'phone',
-            payment_phone: profileData.payment_phone
+            payment_phone: profileData.payment_phone,
+            mobile_money_provider: profileData.mobile_money_provider
           };
         }
       }
+
+      const {
+        card_number,
+        card_expiry,
+        cardholder_name,
+        card_cvv,
+        mobile_money_provider,
+        ...profileDataToSave
+      } = profileData;
 
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           email: user.email,
-          ...profileData,
+          ...profileDataToSave,
           ...paymentData,
           profile_completed: true,
           updated_at: new Date().toISOString()

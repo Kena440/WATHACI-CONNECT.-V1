@@ -235,11 +235,18 @@ export class ProfileService extends BaseService<Profile> {
    * Update payment information
    */
   async updatePaymentInfo(
-    userId: string, 
+    userId: string,
     paymentData: {
-      payment_method: 'phone' | 'card';
+      payment_method: 'phone' | 'card' | 'bank';
       payment_phone?: string;
-      card_details?: { number: string; expiry: string };
+      mobile_money_provider?: string;
+      card_details?: { number: string; expiry: string; holder_name?: string; cvv?: string };
+      bank_account_name?: string;
+      bank_account_number?: string;
+      bank_name?: string;
+      bank_branch?: string;
+      bank_swift_code?: string;
+      bank_currency?: string;
       use_same_phone?: boolean;
     }
   ): Promise<DatabaseResponse<Profile>> {
