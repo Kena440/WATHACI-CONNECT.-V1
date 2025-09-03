@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,22 +11,42 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '@/contexts/AppContext';
 
+// Validation schema
+const signInSchema = z.object({
+  email: z
+    .string()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .min(6, 'Password must be at least 6 characters long'),
+});
+
+type SignInFormData = z.infer<typeof signInSchema>;
+
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn } = useAppContext();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
+    mode: 'onBlur', // Validate on blur for better UX
+  });
+
+  const onSubmit = async (data: SignInFormData) => {
     setLoading(true);
     setError('');
 
     try {
-      await signIn(email, password);
+      await signIn(data.email, data.password);
       navigate('/');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in');
@@ -59,7 +82,7 @@ const SignIn = () => {
               </Alert>
             )}
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
                 <div className="relative">
@@ -68,12 +91,15 @@ const SignIn = () => {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 border-orange-200 focus:border-orange-400 focus:ring-orange-400"
-                    required
+                    {...register('email')}
+                    className={`pl-10 border-orange-200 focus:border-orange-400 focus:ring-orange-400 ${
+                      errors.email ? 'border-red-300 focus:border-red-400 focus:ring-red-400' : ''
+                    }`}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -84,10 +110,10 @@ const SignIn = () => {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 border-orange-200 focus:border-orange-400 focus:ring-orange-400"
-                    required
+                    {...register('password')}
+                    className={`pl-10 pr-10 border-orange-200 focus:border-orange-400 focus:ring-orange-400 ${
+                      errors.password ? 'border-red-300 focus:border-red-400 focus:ring-red-400' : ''
+                    }`}
                   />
                   <button
                     type="button"
@@ -97,6 +123,9 @@ const SignIn = () => {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
