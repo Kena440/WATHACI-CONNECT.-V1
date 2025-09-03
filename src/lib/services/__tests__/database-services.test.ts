@@ -102,7 +102,7 @@ describe('Database Services', () => {
 
   describe('Database Types', () => {
     it('should import database types without errors', async () => {
-      const types = await import('../../@types/database');
+      const types = await import('../../../@types/database');
       
       // Check that key types are available
       expect(types).toHaveProperty('AccountType');
