@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, Receipt } from 'lucide-react';
 
-interface TaxCalculation {
+export interface TaxCalculation {
   grossAmount: number;
   taxRate: number;
   taxAmount: number;

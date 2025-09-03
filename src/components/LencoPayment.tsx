@@ -13,7 +13,7 @@ interface LencoPaymentProps {
   description: string;
   onSuccess?: () => void;
   onCancel?: () => void;
-  onError?: (error: any) => void;
+  onError?: (error: Error) => void;
 }
 
 export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError }: LencoPaymentProps) => {
@@ -65,10 +65,11 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
       } else {
         throw new Error(data?.error || 'Payment was declined');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Payment error:', error);
-      const errorMessage = error.message || 'Payment failed. Please check your connection and try again.';
-      onError?.(error);
+      const errorMessage = error instanceof Error ? error.message : 'Payment failed. Please check your connection and try again.';
+      const errorObj = error instanceof Error ? error : new Error(errorMessage);
+      onError?.(errorObj);
       toast({
         title: "Payment Failed",
         description: errorMessage,

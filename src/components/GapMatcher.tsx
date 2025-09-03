@@ -5,10 +5,20 @@ import { Textarea } from './ui/textarea';
 import { supabase } from '../lib/supabase';
 import { useAppContext } from '../contexts/AppContext';
 
+interface MatchResult {
+  id: string;
+  name: string;
+  skills: string[];
+  experience: string;
+  matchScore: number;
+  location?: string;
+  availability?: string;
+}
+
 export const GapMatcher: React.FC = () => {
   const [gaps, setGaps] = useState('');
   const [loading, setLoading] = useState(false);
-  const [matches, setMatches] = useState<any[]>([]);
+  const [matches, setMatches] = useState<MatchResult[]>([]);
   const { user } = useAppContext();
 
   const findMatches = async () => {

@@ -8,10 +8,17 @@ import { Badge } from '@/components/ui/badge';
 import { DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { LencoPayment } from './LencoPayment';
 import { NegotiationHistory } from './NegotiationHistory';
-import ZRATaxCalculator from './ZRATaxCalculator';
+import ZRATaxCalculator, { TaxCalculation } from './ZRATaxCalculator';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { MessageCircle, DollarSign, CheckCircle, History } from 'lucide-react';
+
+interface User {
+  id: string;
+  email: string;
+  profile_completed?: boolean;
+  account_type?: string;
+}
 
 interface PriceNegotiationProps {
   initialPrice: number;
@@ -34,8 +41,8 @@ const PriceNegotiation = ({
   const [status, setStatus] = useState<'negotiating' | 'agreed' | 'payment'>('negotiating');
   const [showPayment, setShowPayment] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [taxCalculation, setTaxCalculation] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [taxCalculation, setTaxCalculation] = useState<TaxCalculation | null>(null);
   const { toast } = useToast();
 
   const managementFee = currentPrice * 0.03;

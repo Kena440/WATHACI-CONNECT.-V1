@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Bell, X, CheckCircle, Users, AlertCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -12,7 +12,7 @@ interface Notification {
   type: string;
   title: string;
   message: string;
-  data: any;
+  data: Record<string, unknown>;
   read: boolean;
   created_at: string;
 }
@@ -23,19 +23,14 @@ export const NotificationCenter: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAppContext();
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchNotifications();
-      subscribeToNotifications();
-    }
-  }, [user?.id]);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.id) return;
+    
     try {
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
-        .eq('recipient_id', user?.id)
+        .eq('recipient_id', user.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -46,9 +41,11 @@ export const NotificationCenter: React.FC = () => {
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
-  };
+  }, [user?.id]);
 
-  const subscribeToNotifications = () => {
+  const subscribeToNotifications = useCallback(() => {
+    if (!user?.id) return;
+    
     const subscription = supabase
       .channel('notifications')
       .on('postgres_changes', 
@@ -56,7 +53,7 @@ export const NotificationCenter: React.FC = () => {
           event: 'INSERT', 
           schema: 'public', 
           table: 'notifications',
-          filter: `recipient_id=eq.${user?.id}`
+          filter: `recipient_id=eq.${user.id}`
         }, 
         (payload) => {
           setNotifications(prev => [payload.new as Notification, ...prev]);
@@ -66,7 +63,15 @@ export const NotificationCenter: React.FC = () => {
       .subscribe();
 
     return () => subscription.unsubscribe();
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchNotifications();
+      const unsubscribe = subscribeToNotifications();
+      return unsubscribe;
+    }
+  }, [user?.id, fetchNotifications, subscribeToNotifications]);
 
   const markAsRead = async (notificationId: string) => {
     try {

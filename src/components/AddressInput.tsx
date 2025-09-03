@@ -9,9 +9,30 @@ interface AddressInputProps {
   value?: string;
 }
 
+// Google Maps API types
+interface GoogleMapsGeocodeResult {
+  geometry: {
+    location: {
+      lat(): number;
+      lng(): number;
+    };
+  };
+}
+
+interface GoogleMapsGeocoder {
+  geocode(
+    request: { address: string },
+    callback: (results: GoogleMapsGeocodeResult[], status: string) => void
+  ): void;
+}
+
 declare global {
   interface Window {
-    google: any;
+    google: {
+      maps: {
+        Geocoder: new () => GoogleMapsGeocoder;
+      };
+    };
     initMap: () => void;
   }
 }
@@ -21,7 +42,7 @@ export const AddressInput = ({ onAddressChange, value }: AddressInputProps) => {
   const [isValidating, setIsValidating] = useState(false);
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
-  const geocoderRef = useRef<any>(null);
+  const geocoderRef = useRef<GoogleMapsGeocoder | null>(null);
 
   useEffect(() => {
     // Load Google Maps API
@@ -48,7 +69,7 @@ export const AddressInput = ({ onAddressChange, value }: AddressInputProps) => {
     try {
       geocoderRef.current.geocode(
         { address: address },
-        (results: any[], status: string) => {
+        (results: GoogleMapsGeocodeResult[], status: string) => {
           if (status === 'OK' && results[0]) {
             const location = results[0].geometry.location;
             const coords = {

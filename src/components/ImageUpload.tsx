@@ -76,10 +76,11 @@ export const ImageUpload = ({
         title: "Image uploaded successfully",
         description: `Your ${type} image has been uploaded.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         title: "Upload failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

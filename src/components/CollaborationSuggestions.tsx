@@ -5,6 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Lightbulb, Users, TrendingUp, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface UserProfile {
+  skills?: string[];
+  industry?: string;
+  experience_level?: string;
+  location?: string;
+  interests?: string[];
+}
+
 interface Suggestion {
   id: string;
   type: 'partnership' | 'skill_exchange' | 'project' | 'mentorship';
@@ -16,7 +24,7 @@ interface Suggestion {
   potentialValue: string;
 }
 
-export const CollaborationSuggestions = ({ userProfile }: { userProfile?: any }) => {
+export const CollaborationSuggestions = ({ userProfile }: { userProfile?: UserProfile }) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();

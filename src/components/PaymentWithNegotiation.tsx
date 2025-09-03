@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { MessageSquare, CreditCard, DollarSign } from 'lucide-react';
 import { LencoPayment } from './LencoPayment';
-import ZRATaxCalculator from './ZRATaxCalculator';
+import ZRATaxCalculator, { TaxCalculation } from './ZRATaxCalculator';
 import { useToast } from '@/hooks/use-toast';
 
 interface PaymentWithNegotiationProps {
@@ -23,7 +23,7 @@ export const PaymentWithNegotiation = ({
   const [proposedPrice, setProposedPrice] = useState('');
   const [showPayment, setShowPayment] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  const [taxCalculation, setTaxCalculation] = useState<any>(null);
+  const [taxCalculation, setTaxCalculation] = useState<TaxCalculation | null>(null);
   const { toast } = useToast();
 
   const handleCounterOffer = () => {
