@@ -10,6 +10,26 @@ import { Users, Lightbulb, Heart, Target } from 'lucide-react';
 
 const FreelancerHub = () => {
   const [activeTab, setActiveTab] = useState('directory');
+  const [projectInfo, setProjectInfo] = useState('');
+  const [proposalDraft, setProposalDraft] = useState('');
+  const [loadingDraft, setLoadingDraft] = useState(false);
+
+  const generateProposal = async () => {
+    setLoadingDraft(true);
+    try {
+      const res = await fetch('http://localhost:3000/proposal/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectInfo })
+      });
+      const data = await res.json();
+      setProposalDraft(data.draft || '');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingDraft(false);
+    }
+  };
 
   return (
     <AppLayout>
@@ -80,13 +100,36 @@ const FreelancerHub = () => {
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold mb-4">Smart Collaboration Opportunities</h2>
                 <p className="text-gray-600 max-w-2xl mx-auto">
-                  Our AI analyzes your profile and market trends to suggest valuable 
+                  Our AI analyzes your profile and market trends to suggest valuable
                   collaboration opportunities that match your skills and goals.
                 </p>
               </div>
               <CollaborationSuggestions />
             </TabsContent>
           </Tabs>
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-4">Quick Proposal Draft</h2>
+            <textarea
+              className="w-full border rounded p-2 mb-4"
+              placeholder="Enter project details to generate a proposal..."
+              value={projectInfo}
+              onChange={(e) => setProjectInfo(e.target.value)}
+            />
+            <button
+              onClick={generateProposal}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+              disabled={loadingDraft}
+            >
+              {loadingDraft ? 'Generating...' : 'Generate Proposal'}
+            </button>
+            {proposalDraft && (
+              <textarea
+                className="w-full border rounded p-2 mt-4 h-48"
+                value={proposalDraft}
+                onChange={(e) => setProposalDraft(e.target.value)}
+              />
+            )}
+          </div>
         </div>
       </div>
     </AppLayout>
