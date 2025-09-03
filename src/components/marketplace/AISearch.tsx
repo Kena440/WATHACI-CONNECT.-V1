@@ -6,9 +6,24 @@ import { Card } from '@/components/ui/card';
 import { Search, Sparkles, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
+interface SearchFilters {
+  category?: string;
+  priceRange?: [number, number];
+  location?: string;
+  [key: string]: unknown;
+}
+
+interface Recommendation {
+  id: string;
+  title: string;
+  description: string;
+  score: number;
+  [key: string]: unknown;
+}
+
 interface AISearchProps {
-  onSearch: (query: string, filters: any) => void;
-  onAIRecommendations: (recommendations: any[]) => void;
+  onSearch: (query: string, filters: SearchFilters) => void;
+  onAIRecommendations: (recommendations: Recommendation[]) => void;
 }
 
 const AISearch = ({ onSearch, onAIRecommendations }: AISearchProps) => {

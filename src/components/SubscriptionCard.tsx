@@ -40,7 +40,7 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
         return;
       }
       setShowPayment(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: "Please sign in to subscribe",

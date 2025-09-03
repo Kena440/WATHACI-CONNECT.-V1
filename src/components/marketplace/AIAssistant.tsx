@@ -14,13 +14,21 @@ interface Message {
   suggestions?: string[];
 }
 
+interface Product {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  [key: string]: unknown;
+}
+
 interface AIAssistantProps {
   isOpen: boolean;
   onClose: () => void;
   context?: {
     page: string;
     userQuery?: string;
-    products?: any[];
+    products?: Product[];
   };
 }
 

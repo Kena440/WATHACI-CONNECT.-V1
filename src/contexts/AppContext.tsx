@@ -9,13 +9,18 @@ interface User {
   account_type?: string;
 }
 
+interface UserData {
+  account_type?: string;
+  [key: string]: unknown;
+}
+
 interface AppContextType {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userData?: any) => Promise<void>;
+  signUp: (email: string, password: string, userData?: UserData) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -86,7 +91,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  const signUp = async (email: string, password: string, userData?: any) => {
+  const signUp = async (email: string, password: string, userData?: UserData) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -120,10 +125,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         title: "Signed out successfully",
         description: "You have been logged out.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Error signing out",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }
