@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/lib/supabase';
 import { Search, MapPin, Users, TrendingUp, Heart, DollarSign } from 'lucide-react';
 
+const DEBUG = import.meta.env.DEV;
+
 interface SME {
   id: string;
   business_name: string;
@@ -57,7 +59,7 @@ const SMEDirectory = () => {
 
   const handleShowInterest = (smeId: string, type: 'investment' | 'donation') => {
     // This will be handled by the InterestModal component
-    console.log(`Showing ${type} interest in SME:`, smeId);
+    if (DEBUG) console.log(`Showing ${type} interest in SME:`, smeId);
   };
 
   if (loading) {

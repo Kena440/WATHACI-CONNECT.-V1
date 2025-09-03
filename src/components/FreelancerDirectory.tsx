@@ -9,6 +9,8 @@ import { Star, MapPin, Clock, Search, Filter } from 'lucide-react';
 import PriceNegotiation from '@/components/PriceNegotiation';
 import { supabase } from '@/lib/supabase';
 
+const DEBUG = import.meta.env.DEV;
+
 interface Freelancer {
   id: string;
   name: string;
@@ -197,7 +199,7 @@ export const FreelancerDirectory = () => {
                     serviceTitle={`${freelancer.name} - ${freelancer.title}`}
                     providerId={freelancer.id.toString()}
                     onNegotiationComplete={(finalPrice) => {
-                      console.log(`Negotiation complete: $${finalPrice}`);
+                      if (DEBUG) console.log(`Negotiation complete: $${finalPrice}`);
                     }}
                   />
                 </DialogContent>
@@ -232,3 +234,4 @@ export const FreelancerDirectory = () => {
     </div>
   );
 };
+

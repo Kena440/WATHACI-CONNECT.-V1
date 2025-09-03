@@ -8,6 +8,8 @@ import { OpportunityCard } from './OpportunityCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Sparkles } from 'lucide-react';
 
+const DEBUG = import.meta.env.DEV;
+
 interface FundingOpportunity {
   id: string;
   title: string;
@@ -50,12 +52,12 @@ export const FundingHub = () => {
   };
   const handleApply = async (opportunityId: string) => {
     // Implementation for application process
-    console.log('Applying for opportunity:', opportunityId);
+    if (DEBUG) console.log('Applying for opportunity:', opportunityId);
   };
 
   const handleGetHelp = async (opportunityId: string) => {
     // Implementation for getting professional help
-    console.log('Getting help for opportunity:', opportunityId);
+    if (DEBUG) console.log('Getting help for opportunity:', opportunityId);
   };
 
   const filteredOpportunities = opportunities.filter(opp => {
