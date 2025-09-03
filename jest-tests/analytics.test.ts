@@ -2,14 +2,14 @@ import { track } from '@/utils/analytics';
 
 describe('analytics track', () => {
   afterEach(() => {
-    // @ts-ignore
+    // @ts-expect-error - allow overriding global fetch in tests
     global.fetch = undefined;
     jest.resetAllMocks();
   });
 
   it('calls fetch with event data', async () => {
     const mockFetch = jest.fn().mockResolvedValue({ ok: true });
-    // @ts-ignore
+    // @ts-expect-error - allow overriding global fetch in tests
     global.fetch = mockFetch;
 
     await track('test-event', { foo: 'bar' });
@@ -23,7 +23,7 @@ describe('analytics track', () => {
 
   it('handles network errors gracefully', async () => {
     const mockFetch = jest.fn().mockRejectedValue(new Error('network failure'));
-    // @ts-ignore
+    // @ts-expect-error - allow overriding global fetch in tests
     global.fetch = mockFetch;
 
     await expect(track('error-event')).resolves.toBeUndefined();
