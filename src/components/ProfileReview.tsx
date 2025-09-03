@@ -249,21 +249,57 @@ export const ProfileReview = () => {
 
         {/* Payment Information */}
         <Card>
-          <CardHeader>
+        <CardHeader>
             <CardTitle>Payment Information</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
               <Phone className="h-5 w-5 text-muted-foreground" />
               <span>
-                Payment Method: {profile.payment_method === 'phone' ? 'Mobile Money' : 'Card'}
+                Payment Method: {profile.payment_method === 'phone'
+                  ? 'Mobile Money'
+                  : profile.payment_method === 'card'
+                  ? 'Card'
+                  : 'Bank Transfer'}
               </span>
             </div>
-            {profile.payment_phone && (
+            {profile.payment_method === 'phone' && (
+              <>
+                {profile.mobile_money_provider && (
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-muted-foreground">Provider:</span>
+                    <span>{profile.mobile_money_provider}</span>
+                  </div>
+                )}
+                {profile.payment_phone && (
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-muted-foreground">Payment Phone:</span>
+                    <span>{profile.payment_phone}</span>
+                  </div>
+                )}
+              </>
+            )}
+            {profile.payment_method === 'card' && profile.card_details && (
               <div className="flex items-center gap-3 mt-2">
-                <span className="text-muted-foreground">Payment Phone:</span>
-                <span>{profile.payment_phone}</span>
+                <span className="text-muted-foreground">Card Holder:</span>
+                <span>{profile.card_details.holder_name}</span>
               </div>
+            )}
+            {profile.payment_method === 'bank' && (
+              <>
+                {profile.bank_account_name && (
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-muted-foreground">Account Name:</span>
+                    <span>{profile.bank_account_name}</span>
+                  </div>
+                )}
+                {profile.bank_name && (
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-muted-foreground">Bank:</span>
+                    <span>{profile.bank_name}</span>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

@@ -119,9 +119,16 @@ Manages payment transactions:
 - employee_count: INTEGER
 - annual_revenue: INTEGER
 - funding_stage: TEXT
-- payment_method: TEXT (phone, card)
+- payment_method: TEXT (phone, card, bank)
 - payment_phone: TEXT
+- mobile_money_provider: TEXT
 - card_details: JSONB
+- bank_account_name: TEXT
+- bank_account_number: TEXT
+- bank_name: TEXT
+- bank_branch: TEXT
+- bank_swift_code: TEXT
+- bank_currency: TEXT
 - qualifications: JSONB
 - experience_years: INTEGER
 - specialization: TEXT
@@ -167,7 +174,7 @@ Manages payment transactions:
 - amount: INTEGER
 - currency: TEXT
 - status: TEXT (pending, completed, failed, refunded)
-- payment_method: TEXT (phone, card)
+- payment_method: TEXT (phone, card, bank)
 - reference_number: TEXT (Unique)
 - created_at: TIMESTAMP
 - updated_at: TIMESTAMP

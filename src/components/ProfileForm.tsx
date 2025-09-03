@@ -12,7 +12,7 @@ import { AddressInput } from '@/components/AddressInput';
 import { QualificationsInput } from '@/components/QualificationsInput';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ArrowLeft } from 'lucide-react';
-import { sectors, countries } from '../data/countries';
+import { sectors, countries, currencies } from '../data/countries';
 
 interface ProfileFormProps {
   accountType: string;
@@ -30,6 +30,17 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
     gaps_identified: [],
     phone: '',
     payment_phone: '',
+    mobile_money_provider: '',
+    card_number: '',
+    card_expiry: '',
+    cardholder_name: '',
+    card_cvv: '',
+    bank_account_name: '',
+    bank_account_number: '',
+    bank_name: '',
+    bank_branch: '',
+    bank_swift_code: '',
+    bank_currency: '',
     profile_image_url: null,
     linkedin_url: '',
     ...initialData
@@ -270,18 +281,34 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
             <h3 className="text-lg font-semibold mb-4">Payment Information</h3>
             
             <div className="flex items-center space-x-2 mb-4">
-              <Checkbox 
+              <Checkbox
                 id="same-phone"
                 checked={formData.use_same_phone}
                 onCheckedChange={(checked) => handleInputChange('use_same_phone', checked)}
               />
               <Label htmlFor="same-phone">Use the same phone number for subscription payments</Label>
             </div>
+            {formData.use_same_phone && (
+              <div className="mb-4">
+                <Label>Mobile Money Provider</Label>
+                <Select
+                  value={formData.mobile_money_provider}
+                  onValueChange={(value) => handleInputChange('mobile_money_provider', value)}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mtn">MTN Mobile Money</SelectItem>
+                    <SelectItem value="airtel">Airtel Money</SelectItem>
+                    <SelectItem value="zamtel">Zamtel Kwacha</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {!formData.use_same_phone && (
               <div className="space-y-4">
-                <RadioGroup 
-                  value={formData.payment_method} 
+                <RadioGroup
+                  value={formData.payment_method}
                   onValueChange={(value) => handleInputChange('payment_method', value)}
                 >
                   <div className="flex items-center space-x-2">
@@ -292,16 +319,134 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
                     <RadioGroupItem value="card" id="card" />
                     <Label htmlFor="card">Credit/Debit Card</Label>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="bank" id="bank" />
+                    <Label htmlFor="bank">Bank Transfer</Label>
+                  </div>
                 </RadioGroup>
 
                 {formData.payment_method === 'phone' && (
-                  <div>
-                    <Label>Payment Phone Number</Label>
-                    <Input 
-                      value={formData.payment_phone}
-                      onChange={(e) => handleInputChange('payment_phone', e.target.value)}
-                      placeholder="Country code will be auto-filled"
-                    />
+                  <>
+                    <div>
+                      <Label>Mobile Money Provider</Label>
+                      <Select
+                        value={formData.mobile_money_provider}
+                        onValueChange={(value) => handleInputChange('mobile_money_provider', value)}
+                      >
+                        <SelectTrigger><SelectValue placeholder="Select provider" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="mtn">MTN Mobile Money</SelectItem>
+                          <SelectItem value="airtel">Airtel Money</SelectItem>
+                          <SelectItem value="zamtel">Zamtel Kwacha</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Payment Phone Number</Label>
+                      <Input
+                        value={formData.payment_phone}
+                        onChange={(e) => handleInputChange('payment_phone', e.target.value)}
+                        placeholder="Country code will be auto-filled"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {formData.payment_method === 'card' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Card Number</Label>
+                        <Input
+                          value={formData.card_number}
+                          onChange={(e) => handleInputChange('card_number', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Expiry Date</Label>
+                        <Input
+                          value={formData.card_expiry}
+                          onChange={(e) => handleInputChange('card_expiry', e.target.value)}
+                          placeholder="MM/YY"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Cardholder Name</Label>
+                        <Input
+                          value={formData.cardholder_name}
+                          onChange={(e) => handleInputChange('cardholder_name', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>CVV</Label>
+                        <Input
+                          value={formData.card_cvv}
+                          onChange={(e) => handleInputChange('card_cvv', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formData.payment_method === 'bank' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Account Name</Label>
+                        <Input
+                          value={formData.bank_account_name}
+                          onChange={(e) => handleInputChange('bank_account_name', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Account Number</Label>
+                        <Input
+                          value={formData.bank_account_number}
+                          onChange={(e) => handleInputChange('bank_account_number', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Bank Name</Label>
+                        <Input
+                          value={formData.bank_name}
+                          onChange={(e) => handleInputChange('bank_name', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Bank Branch</Label>
+                        <Input
+                          value={formData.bank_branch}
+                          onChange={(e) => handleInputChange('bank_branch', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Swift Code</Label>
+                        <Input
+                          value={formData.bank_swift_code}
+                          onChange={(e) => handleInputChange('bank_swift_code', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Currency</Label>
+                        <Select
+                          value={formData.bank_currency}
+                          onValueChange={(value) => handleInputChange('bank_currency', value)}
+                        >
+                          <SelectTrigger><SelectValue placeholder="Select currency" /></SelectTrigger>
+                          <SelectContent>
+                            {currencies.map(c => (
+                              <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
