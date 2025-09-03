@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Lightbulb, Users, TrendingUp, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface Suggestion {
   id: string;
@@ -41,7 +42,7 @@ export const CollaborationSuggestions = ({ userProfile }: { userProfile?: any })
         setSuggestions([]);
       }
     } catch (error) {
-      console.error('Error generating suggestions:', error);
+      logger.error('Error generating suggestions', error, 'CollaborationSuggestions');
       setSuggestions([
         {
           id: '1',

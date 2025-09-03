@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Textarea } from './ui/textarea';
 import { supabase } from '../lib/supabase';
 import { useAppContext } from '../contexts/AppContext';
+import { logger } from '@/utils/logger';
 
 export const GapMatcher: React.FC = () => {
   const [gaps, setGaps] = useState('');
@@ -29,7 +30,7 @@ export const GapMatcher: React.FC = () => {
       if (error) throw error;
       setMatches(data.matches || []);
     } catch (error) {
-      console.error('Error finding matches:', error);
+      logger.error('Error finding matches', error, 'GapMatcher');
     } finally {
       setLoading(false);
     }

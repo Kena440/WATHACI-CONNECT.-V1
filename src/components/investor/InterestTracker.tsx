@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { useAppContext } from '@/contexts/AppContext';
 import { Eye, MessageCircle, TrendingUp, Heart, Calendar } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface Interest {
   id: string;
@@ -50,7 +51,7 @@ const InterestTracker = () => {
       if (error) throw error;
       setInterests(data || []);
     } catch (error) {
-      console.error('Error fetching interests:', error);
+      logger.error('Error fetching interests', error, 'InterestTracker');
     } finally {
       setLoading(false);
     }

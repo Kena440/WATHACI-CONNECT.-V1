@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { Search, MapPin, DollarSign, Star, Loader2 } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface Freelancer {
   avatar?: string;
@@ -50,7 +51,7 @@ export const FreelancerMatcher = () => {
       if (error) throw error;
       setMatches(data.matches || []);
     } catch (error) {
-      console.error('Error matching freelancers:', error);
+      logger.error('Error matching freelancers', error, 'FreelancerMatcher');
       alert('Error finding matches. Please try again.');
     } finally {
       setLoading(false);

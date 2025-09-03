@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { MessageCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { logger } from '@/utils/logger';
 
 interface NegotiationRecord {
   id: string;
@@ -48,7 +49,7 @@ export const NegotiationHistory = ({ serviceId, userId }: NegotiationHistoryProp
       if (error) throw error;
       setNegotiations(data || []);
     } catch (error) {
-      console.error('Error fetching negotiations:', error);
+      logger.error('Error fetching negotiations', error, 'NegotiationHistory');
     } finally {
       setLoading(false);
     }

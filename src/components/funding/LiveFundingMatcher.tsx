@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, TrendingUp, Users, Clock, Award } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface FundingOpportunity {
   id: string;
@@ -56,7 +57,7 @@ export default function LiveFundingMatcher() {
       if (error) throw error;
       setOpportunities(data.opportunities || []);
     } catch (error) {
-      console.error('Error fetching live opportunities:', error);
+      logger.error('Error fetching live opportunities', error, 'LiveFundingMatcher');
       // Show empty state for launch - no mock data
       setOpportunities([]);
     } finally {
@@ -75,7 +76,7 @@ export default function LiveFundingMatcher() {
       setProfessionals(data.professionals || []);
       setActiveTab('professionals');
     } catch (error) {
-      console.error('Error fetching professionals:', error);
+      logger.error('Error fetching professionals', error, 'LiveFundingMatcher');
       // Show empty state for launch - no mock data
       setProfessionals([]);
       setActiveTab('professionals');
