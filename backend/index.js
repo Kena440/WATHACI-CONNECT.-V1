@@ -16,6 +16,9 @@ app.use('/users', userRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
+const paymentRoutes = require('./routes/payments');
+app.use('/payments', paymentRoutes);
+
 app.use(errorHandler);
 
 process.on('unhandledRejection', (reason) => {
