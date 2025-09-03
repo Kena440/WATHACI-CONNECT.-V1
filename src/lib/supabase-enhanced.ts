@@ -5,13 +5,13 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Environment validation
-const validateEnvironment = (): { url: string; key: string } => {
+const validateEnvironment = (): { url: string; key: string } | null => {
   // Check if we're in test environment (Jest)
   const isJestEnv = typeof jest !== 'undefined' || process?.env?.NODE_ENV === 'test';
-  
-  let url: string;
-  let key: string;
-  
+
+  let url: string | undefined;
+  let key: string | undefined;
+
   if (isJestEnv) {
     // Use hardcoded test values for Jest environment
     url = 'https://test.supabase.co';
@@ -22,12 +22,9 @@ const validateEnvironment = (): { url: string; key: string } => {
     key = (import.meta as any).env?.VITE_SUPABASE_KEY;
   }
 
-  if (!url) {
-    throw new Error('Missing VITE_SUPABASE_URL environment variable');
-  }
-
-  if (!key) {
-    throw new Error('Missing VITE_SUPABASE_KEY environment variable');
+  if (!url || !key) {
+    console.warn('Supabase environment variables are missing; client will not be initialized.');
+    return null;
   }
 
   // Skip URL validation in test environment
@@ -35,7 +32,8 @@ const validateEnvironment = (): { url: string; key: string } => {
     try {
       new URL(url);
     } catch {
-      throw new Error('Invalid VITE_SUPABASE_URL format');
+      console.warn('Invalid VITE_SUPABASE_URL format; client will not be initialized.');
+      return null;
     }
   }
 
@@ -43,10 +41,11 @@ const validateEnvironment = (): { url: string; key: string } => {
 };
 
 // Create the enhanced Supabase client
-const createSupabaseClient = (): SupabaseClient => {
-  const { url, key } = validateEnvironment();
+const createSupabaseClient = (): SupabaseClient | null => {
+  const env = validateEnvironment();
+  if (!env) return null;
 
-  const client = createClient(url, key, {
+  const client = createClient(env.url, env.key, {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
@@ -69,17 +68,23 @@ const createSupabaseClient = (): SupabaseClient => {
 };
 
 // Initialize the client
-let supabaseClient: SupabaseClient;
+let supabaseClient: SupabaseClient | null = null;
 
 try {
   supabaseClient = createSupabaseClient();
 } catch (error) {
   console.error('Failed to initialize Supabase client:', error);
-  throw error;
 }
+
+const supabaseFallback = new Proxy({}, {
+  get() {
+    throw new Error('Supabase client is not initialized. Set VITE_SUPABASE_URL and VITE_SUPABASE_KEY.');
+  },
+}) as SupabaseClient;
 
 // Connection testing function
 export const testConnection = async (): Promise<boolean> => {
+  if (!supabaseClient) return false;
   try {
     const { error } = await supabaseClient
       .from('profiles')
@@ -147,10 +152,10 @@ export const withRetry = async <T>(
 };
 
 // Export the main client
-export const supabase = supabaseClient;
+export const supabase = supabaseClient ?? supabaseFallback;
 
 // Export client getter for testing purposes
-export const getSupabaseClient = () => supabaseClient;
+export const getSupabaseClient = (): SupabaseClient => supabaseClient ?? supabaseFallback;
 
 // Health check function
 export const healthCheck = async (): Promise<{
@@ -163,10 +168,21 @@ export const healthCheck = async (): Promise<{
 }> => {
   const timestamp = new Date().toISOString();
   
+  if (!supabaseClient) {
+    return {
+      status: 'unhealthy',
+      details: {
+        connection: false,
+        auth: false,
+        timestamp,
+      },
+    };
+  }
+
   try {
     // Test basic connection
     const connection = await testConnection();
-    
+
     // Test auth status
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     const auth = !authError;

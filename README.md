@@ -39,3 +39,14 @@ npm run test:jest
 ```
 
 Make sure project dependencies are installed before executing the test commands.
+
+## Environment Variables
+
+The application relies on a Supabase backend. Before running locally or deploying,
+copy `.env.example` to `.env` and set the following variables:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_KEY`
+
+These values must also be configured in your deployment environment so the app
+can communicate with Supabase services.
