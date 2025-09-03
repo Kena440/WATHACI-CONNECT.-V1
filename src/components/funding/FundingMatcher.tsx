@@ -21,7 +21,18 @@ export const FundingMatcher = () => {
     purpose: '',
     timeline: ''
   });
-  const [matches, setMatches] = useState([]);
+  interface FundingMatch {
+    title?: string;
+    provider?: string;
+    match_score?: number;
+    description?: string;
+    max_amount?: number;
+    funding_type?: string;
+    application_deadline?: string;
+    reasoning?: string;
+  }
+
+  const [matches, setMatches] = useState<FundingMatch[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleMatch = async () => {
@@ -144,7 +155,7 @@ export const FundingMatcher = () => {
       {matches.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Your Funding Matches</h2>
-          {matches.map((match, idx) => (
+          {matches.map((match: FundingMatch, idx: number) => (
             <Card key={idx}>
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">

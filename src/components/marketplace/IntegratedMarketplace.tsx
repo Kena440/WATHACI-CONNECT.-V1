@@ -9,8 +9,25 @@ import { ServiceProviderCard } from './ServiceProviderCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Grid, List, Loader2, Users, Building, BookOpen } from 'lucide-react';
 
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  provider: string;
+  providerType: 'freelancer' | 'partnership' | 'resource';
+  category: string;
+  skills: string[];
+  location: string;
+  deliveryTime: string;
+  rating: number;
+  reviews: number;
+  currency: string;
+  price: number;
+  image: string;
+}
+
 export const IntegratedMarketplace = () => {
-  const [services, setServices] = useState([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -18,15 +35,15 @@ export const IntegratedMarketplace = () => {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [priceRange, setPriceRange] = useState('');
   const [viewMode, setViewMode] = useState('grid');
-  const [selectedService, setSelectedService] = useState(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const categories = [
     'all', 'technology', 'marketing', 'design', 'business', 
     'finance', 'legal', 'consulting', 'education'
   ];
 
-  const providerTypes = [
-    { value: 'all', label: 'All Providers', icon: null },
+  const providerTypes: { value: string; label: string; icon?: React.ComponentType<React.SVGProps<SVGSVGElement>> }[] = [
+    { value: 'all', label: 'All Providers' },
     { value: 'freelancer', label: 'Freelancers', icon: Users },
     { value: 'partnership', label: 'Partners', icon: Building },
     { value: 'resource', label: 'Resources', icon: BookOpen }
@@ -51,7 +68,7 @@ export const IntegratedMarketplace = () => {
       });
 
       if (error) throw error;
-      setServices(data.data || []);
+      setServices((data.data || []) as Service[]);
     } catch (error) {
       console.error('Error loading services:', error);
       setServices([]);
@@ -60,15 +77,15 @@ export const IntegratedMarketplace = () => {
     }
   };
 
-  const filteredServices = services.filter(service =>
+  const filteredServices = services.filter((service) =>
     service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     service.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()))
+    service.skills.some((skill) => skill.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getProviderTypeStats = () => {
-    const stats = services.reduce((acc, service) => {
+    const stats = services.reduce<Record<string, number>>((acc, service) => {
       acc[service.providerType] = (acc[service.providerType] || 0) + 1;
       return acc;
     }, {});
@@ -109,9 +126,9 @@ export const IntegratedMarketplace = () => {
                   <div>
                     <h4 className="font-semibold mb-2">Skills & Expertise</h4>
                     <div className="flex flex-wrap gap-2">
-                      {selectedService.skills.map((skill, idx) => (
-                        <Badge key={idx} variant="outline">{skill}</Badge>
-                      ))}
+                        {selectedService.skills.map((skill: string, idx: number) => (
+                          <Badge key={idx} variant="outline">{skill}</Badge>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -163,7 +180,7 @@ export const IntegratedMarketplace = () => {
           </CardContent>
         </Card>
         {providerTypes.slice(1).map((type) => {
-          const IconComponent = type.icon;
+          const IconComponent = type.icon!;
           return (
             <Card key={type.value}>
               <CardContent className="p-4 text-center">
