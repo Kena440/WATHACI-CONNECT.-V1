@@ -12,7 +12,7 @@ class MockResizeObserver {
   disconnect() {}
 }
 
-// @ts-ignore
+// @ts-expect-error - global.ResizeObserver not available in test environment
 global.ResizeObserver = MockResizeObserver;
 
 jest.mock('@/contexts/AppContext', () => ({
