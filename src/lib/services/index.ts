@@ -23,7 +23,7 @@ export {
   transactionService
 } from './subscription-service';
 
-// Service Request service
+// Service request services
 export {
   ServiceRequestService,
   serviceRequestService
