@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lightbulb, Users, TrendingUp, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface Suggestion {
   id: string;
@@ -21,24 +23,56 @@ export const CollaborationSuggestions = ({ userProfile }: { userProfile?: any })
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    generateSuggestions();
+  const generateSuggestions = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-professional-matcher', {
+        body: {
+          type: 'collaboration_suggestions',
+          userProfile
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.suggestions) {
+        setSuggestions(data.suggestions);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (error) {
+      logger.error('Error generating suggestions', error, 'CollaborationSuggestions');
+      setSuggestions([
+        {
+          id: '1',
+          type: 'partnership',
+          title: 'Local Distributor Partnership',
+          description: 'Partner with regional distributors to expand your market reach.',
+          matchScore: 85,
+          participants: ['Zed Distributors Ltd', userProfile?.business_name || 'Your Business'],
+          tags: ['distribution', 'retail'],
+          potentialValue: 'K25,000 revenue increase'
+        },
+        {
+          id: '2',
+          type: 'mentorship',
+          title: 'Mentorship with Jane Banda',
+          description: 'Seasoned entrepreneur ready to guide you on scaling operations.',
+          matchScore: 78,
+          participants: ['Jane Banda'],
+          tags: ['mentorship', 'operations'],
+          potentialValue: 'Improved business strategy'
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   }, [userProfile]);
 
-  const generateSuggestions = async () => {
-    setLoading(true);
-    
-    try {
-      // TODO: Replace with actual AI-powered suggestion generation
-      // For now, return empty array for launch
-      setSuggestions([]);
-    } catch (error) {
-      console.error('Error generating suggestions:', error);
-      setSuggestions([]);
-    }
-    
-    setLoading(false);
-  };
+  useEffect(() => {
+    generateSuggestions();
+  }, [generateSuggestions]);
 
   const handleInterest = (suggestionId: string, action: 'interested' | 'not_interested') => {
     if (action === 'interested') {

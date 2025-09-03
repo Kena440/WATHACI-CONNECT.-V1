@@ -5,14 +5,41 @@
  * Run this to verify the setup after implementing the database layer.
  */
 
-import { 
-  supabase, 
-  testConnection, 
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+// Load environment variables from .env before importing other modules
+function loadEnv() {
+  const envPath = resolve(process.cwd(), '.env');
+  try {
+    const envFile = readFileSync(envPath, 'utf8');
+    for (const line of envFile.split('\n')) {
+      const match = line.match(/^\s*([^#=]+?)\s*=\s*(.*)\s*$/);
+      if (!match) continue;
+      const key = match[1].trim();
+      let value = match[2].trim();
+      if (value.startsWith('"') && value.endsWith('"')) {
+        value = value.slice(1, -1);
+      }
+      if (!(key in process.env)) {
+        process.env[key] = value;
+      }
+    }
+  } catch {
+    // Ignore if .env file does not exist
+  }
+}
+
+loadEnv();
+
+const {
+  supabase,
+  testConnection,
   healthCheck,
   userService,
   profileService,
   subscriptionService
-} from '../src/lib/services/index';
+} = await import('../src/lib/services/index');
 
 // Colors for console output
 const colors = {
@@ -33,8 +60,8 @@ const log = {
 async function validateEnvironment() {
   log.info('Validating environment variables...');
   
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const key = import.meta.env.VITE_SUPABASE_KEY;
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_KEY;
   
   if (!url) {
     log.error('VITE_SUPABASE_URL is not set');
@@ -179,7 +206,7 @@ async function validateMockOperations() {
 }
 
 async function main() {
-  console.log('🔍 Database Setup Validation\n');
+  log.info('🔍 Database Setup Validation\n');
   
   const validations = [
     { name: 'Environment Variables', fn: validateEnvironment },
@@ -193,7 +220,7 @@ async function main() {
   let passedCount = 0;
   
   for (const { name, fn } of validations) {
-    console.log(`\n📋 ${name}`);
+      log.info(`\n📋 ${name}`);
     try {
       const passed = await fn();
       if (passed) {
@@ -204,7 +231,7 @@ async function main() {
     }
   }
   
-  console.log(`\n📊 Results: ${passedCount}/${validations.length} validations passed`);
+  log.info(`\n📊 Results: ${passedCount}/${validations.length} validations passed`);
   
   if (passedCount === validations.length) {
     log.success('All validations passed! Database setup is working correctly.');

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Smartphone, CreditCard, Banknote, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface LencoPaymentProps {
   amount: string | number;
@@ -52,7 +53,7 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
       });
 
       if (error) {
-        console.error('Supabase function error:', error);
+        logger.error('Supabase function error', error, 'LencoPayment');
         throw new Error(error.message || 'Network error occurred');
       }
       
@@ -66,7 +67,7 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
         throw new Error(data?.error || 'Payment was declined');
       }
     } catch (error: any) {
-      console.error('Payment error:', error);
+      logger.error('Payment error', error, 'LencoPayment');
       const errorMessage = error.message || 'Payment failed. Please check your connection and try again.';
       onError?.(error);
       toast({

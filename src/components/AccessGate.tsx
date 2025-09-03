@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Lock, Eye } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '@/utils/logger';
 
 interface AccessGateProps {
   children: React.ReactNode;
@@ -60,7 +61,7 @@ export const AccessGate = ({ children, feature }: AccessGateProps) => {
         }
       }
     } catch (error) {
-      console.error('Error checking access:', error);
+      logger.error('Error checking access', error, 'AccessGate');
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface Testimonial {
   id: string;
@@ -37,7 +38,7 @@ const TestimonialsSection = () => {
       if (error) throw error;
       setTestimonials(data || []);
     } catch (error) {
-      console.error('Error fetching testimonials:', error);
+      logger.error('Error fetching testimonials', error, 'TestimonialsSection');
     } finally {
       setLoading(false);
     }

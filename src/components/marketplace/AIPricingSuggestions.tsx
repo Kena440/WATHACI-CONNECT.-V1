@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { TrendingUp, DollarSign, BarChart3, Lightbulb } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface PricingSuggestion {
   suggestedPrice: number;
@@ -60,7 +61,7 @@ const AIPricingSuggestions = ({
         setMarketData(data.marketData || marketData);
       }
     } catch (error) {
-      console.error('Pricing analysis error:', error);
+      logger.error('Pricing analysis error', error, 'AIPricingSuggestions');
       // Fallback mock data
       setSuggestions({
         suggestedPrice: 1200,

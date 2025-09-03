@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { LencoPayment } from '@/components/LencoPayment';
+import { logger } from '@/utils/logger';
 
 interface SubscriptionPlan {
   id: string;
@@ -70,7 +71,7 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
         setShowPayment(false);
       }
     } catch (error) {
-      console.error('Subscription update error:', error);
+      logger.error('Subscription update error', error, 'SubscriptionCard');
     }
   };
 

@@ -5,6 +5,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { currencies } from '../data/countries';
 import { supabase } from '../lib/supabase';
+import { logger } from '@/utils/logger';
 
 interface ConversionResult {
   originalAmount: number;
@@ -55,7 +56,7 @@ export const CurrencyConverter: React.FC<CurrencyConverterProps> = ({
         onConversionResult(data);
       }
     } catch (error) {
-      console.error('Currency conversion failed:', error);
+      logger.error('Currency conversion failed', error, 'CurrencyConverter');
     } finally {
       setLoading(false);
     }

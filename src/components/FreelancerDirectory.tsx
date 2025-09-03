@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Star, MapPin, Clock, Search, Filter } from 'lucide-react';
 import PriceNegotiation from '@/components/PriceNegotiation';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
 
 const DEBUG = import.meta.env.DEV;
 
@@ -50,7 +51,7 @@ export const FreelancerDirectory = () => {
       if (error) throw error;
       setFreelancers(data || []);
     } catch (error) {
-      console.error('Error fetching freelancers:', error);
+      logger.error('Error fetching freelancers', error, 'FreelancerDirectory');
     } finally {
       setLoading(false);
     }
