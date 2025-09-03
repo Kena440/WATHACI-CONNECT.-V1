@@ -415,7 +415,7 @@ export class TransactionService extends BaseService<Transaction> {
     userId: string,
     subscriptionId: string,
     amount: number,
-    paymentMethod: 'phone' | 'card',
+    paymentMethod: 'phone' | 'card' | 'bank',
     referenceNumber: string
   ): Promise<DatabaseResponse<Transaction>> {
     const transactionData = {
