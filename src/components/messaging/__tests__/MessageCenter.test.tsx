@@ -1,16 +1,15 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
 import { MessageCenter } from '../MessageCenter';
 
-vi.mock('@/lib/supabase', () => {
+jest.mock('@/lib/supabase', () => {
   return {
     supabase: {
       auth: {
-        getUser: vi.fn(),
+        getUser: jest.fn(),
       },
       functions: {
-        invoke: vi.fn(),
+        invoke: jest.fn(),
       },
     },
   };
@@ -32,7 +31,7 @@ describe('MessageCenter', () => {
   ];
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     (supabase.auth.getUser as any).mockResolvedValue({ data: { user: { id: 'u1' } } });
     (supabase.functions.invoke as any)
       .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null })
