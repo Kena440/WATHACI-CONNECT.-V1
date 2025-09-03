@@ -2,76 +2,63 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Lightbulb, Users, TrendingUp, MessageCircle } from 'lucide-react';
+import { Lightbulb, Users, TrendingUp, MessageCircle, Database, Bot, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { suggestionsDataSource, type SuggestionData, type UserProfile } from '@/services/suggestionsDataSource';
 
-interface Suggestion {
-  id: string;
-  type: 'partnership' | 'skill_exchange' | 'project' | 'mentorship';
-  title: string;
-  description: string;
-  matchScore: number;
-  participants: string[];
-  tags: string[];
-  potentialValue: string;
-}
-
-export const CollaborationSuggestions = ({ userProfile }: { userProfile?: any }) => {
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+export const CollaborationSuggestions = ({ userProfile }: { userProfile?: UserProfile }) => {
+  const [suggestions, setSuggestions] = useState<SuggestionData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDataSource, setSelectedDataSource] = useState<'all' | 'ai' | 'database' | 'manual'>('all');
   const { toast } = useToast();
 
   const generateSuggestions = useCallback(async () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-professional-matcher', {
-        body: {
-          type: 'collaboration_suggestions',
-          userProfile
-        }
-      });
-
-      if (error) throw error;
-
-      if (data?.suggestions) {
-        setSuggestions(data.suggestions);
+      let suggestions: SuggestionData[];
+      
+      if (selectedDataSource === 'all') {
+        suggestions = await suggestionsDataSource.generateSuggestions(userProfile);
       } else {
-        setSuggestions([]);
+        suggestions = await suggestionsDataSource.getSuggestionsBySource(selectedDataSource, userProfile);
       }
+
+      setSuggestions(suggestions);
     } catch (error) {
       console.error('Error generating suggestions:', error);
-      setSuggestions([
-        {
-          id: '1',
-          type: 'partnership',
-          title: 'Local Distributor Partnership',
-          description: 'Partner with regional distributors to expand your market reach.',
-          matchScore: 85,
-          participants: ['Zed Distributors Ltd', userProfile?.business_name || 'Your Business'],
-          tags: ['distribution', 'retail'],
-          potentialValue: 'K25,000 revenue increase'
-        },
-        {
-          id: '2',
-          type: 'mentorship',
-          title: 'Mentorship with Jane Banda',
-          description: 'Seasoned entrepreneur ready to guide you on scaling operations.',
-          matchScore: 78,
-          participants: ['Jane Banda'],
-          tags: ['mentorship', 'operations'],
-          potentialValue: 'Improved business strategy'
-        }
-      ]);
+      toast({
+        title: "Error",
+        description: "Failed to load suggestions. Please try again.",
+        variant: "destructive"
+      });
+      setSuggestions([]);
     } finally {
       setLoading(false);
     }
-  }, [userProfile]);
+  }, [userProfile, selectedDataSource, toast]);
 
   useEffect(() => {
     generateSuggestions();
   }, [generateSuggestions]);
+
+  const getDataSourceIcon = (dataSource: string) => {
+    switch (dataSource) {
+      case 'ai': return <Bot className="w-4 h-4 text-blue-500" />;
+      case 'database': return <Database className="w-4 h-4 text-green-500" />;
+      case 'manual': return <FileText className="w-4 h-4 text-purple-500" />;
+      default: return <Lightbulb className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  const getDataSourceColor = (dataSource: string) => {
+    switch (dataSource) {
+      case 'ai': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'database': return 'bg-green-50 text-green-700 border-green-200';
+      case 'manual': return 'bg-purple-50 text-purple-700 border-purple-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
 
   const handleInterest = (suggestionId: string, action: 'interested' | 'not_interested') => {
     if (action === 'interested') {
@@ -137,6 +124,45 @@ export const CollaborationSuggestions = ({ userProfile }: { userProfile?: any })
         <Lightbulb className="w-6 h-6 text-yellow-500" />
         <h2 className="text-2xl font-bold">AI-Powered Collaboration Suggestions</h2>
       </div>
+
+      {/* Data Source Selection */}
+      <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg">
+        <span className="text-sm font-medium text-gray-700 mr-2">Data Sources:</span>
+        <Button
+          variant={selectedDataSource === 'all' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setSelectedDataSource('all')}
+        >
+          All Sources
+        </Button>
+        <Button
+          variant={selectedDataSource === 'ai' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setSelectedDataSource('ai')}
+          className="flex items-center gap-1"
+        >
+          <Bot className="w-4 h-4" />
+          AI
+        </Button>
+        <Button
+          variant={selectedDataSource === 'database' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setSelectedDataSource('database')}
+          className="flex items-center gap-1"
+        >
+          <Database className="w-4 h-4" />
+          Database
+        </Button>
+        <Button
+          variant={selectedDataSource === 'manual' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setSelectedDataSource('manual')}
+          className="flex items-center gap-1"
+        >
+          <FileText className="w-4 h-4" />
+          Curated
+        </Button>
+      </div>
       
       {suggestions.length === 0 ? (
         <Card className="text-center p-8">
@@ -157,9 +183,15 @@ export const CollaborationSuggestions = ({ userProfile }: { userProfile?: any })
                     {getTypeIcon(suggestion.type)}
                     <div>
                       <CardTitle className="text-xl">{suggestion.title}</CardTitle>
-                      <Badge className={`mt-1 ${getTypeColor(suggestion.type)}`}>
-                        {suggestion.type.replace('_', ' ').toUpperCase()}
-                      </Badge>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge className={`${getTypeColor(suggestion.type)}`}>
+                          {suggestion.type.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                        <Badge variant="outline" className={`${getDataSourceColor(suggestion.dataSource)} flex items-center gap-1`}>
+                          {getDataSourceIcon(suggestion.dataSource)}
+                          {suggestion.dataSource.toUpperCase()}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -216,10 +248,15 @@ export const CollaborationSuggestions = ({ userProfile }: { userProfile?: any })
         </div>
       )}
       
-      <div className="text-center">
+      <div className="text-center space-y-4">
         <Button variant="outline" onClick={generateSuggestions}>
           Generate More Suggestions
         </Button>
+        {suggestions.length > 0 && (
+          <div className="text-sm text-gray-600">
+            Showing {suggestions.length} suggestions from {selectedDataSource === 'all' ? 'all data sources' : `${selectedDataSource} source`}
+          </div>
+        )}
       </div>
     </div>
   );
