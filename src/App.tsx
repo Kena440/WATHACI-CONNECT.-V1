@@ -19,6 +19,7 @@ import FreelancerHub from "./pages/FreelancerHub";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
+import About from "./pages/About";
 import FeedbackWidget from "@/components/FeedbackWidget";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ export const AppRoutes = () => (
     <Route path="/marketplace" element={<Marketplace />} />
     <Route path="/freelancer-hub" element={<FreelancerHub />} />
     <Route path="/resources" element={<Resources />} />
+    <Route path="/about" element={<About />} />
     <Route path="/signin" element={<SignIn />} />
     <Route path="/get-started" element={<GetStarted />} />
     <Route path="/profile-setup" element={<ProfileSetup />} />

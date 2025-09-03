@@ -18,12 +18,14 @@ jest.mock('../pages/FreelancerHub', () => ({ default: () => <div>Freelancer Hub 
 jest.mock('../pages/PrivacyPolicy', () => ({ default: () => <div>Privacy Policy Page</div> }));
 jest.mock('../pages/TermsOfService', () => ({ default: () => <div>Terms Of Service Page</div> }));
 jest.mock('../pages/Messages', () => ({ default: () => <div>Messages Page</div> }));
+jest.mock('../pages/About', () => ({ default: () => <div>About Page</div> }));
 
 const routes = [
   { path: '/', text: 'Home Page' },
   { path: '/marketplace', text: 'Marketplace Page' },
   { path: '/freelancer-hub', text: 'Freelancer Hub Page' },
   { path: '/resources', text: 'Resources Page' },
+  { path: '/about', text: 'About Page' },
   { path: '/signin', text: 'Sign In Page' },
   { path: '/get-started', text: 'Get Started Page' },
   { path: '/profile-setup', text: 'Profile Setup Page' },
