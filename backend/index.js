@@ -16,6 +16,9 @@ app.use('/users', userRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
+const profileSummaryRoutes = require('./routes/profileSummary');
+app.use('/profile-summary', profileSummaryRoutes);
+
 app.use(errorHandler);
 
 process.on('unhandledRejection', (reason) => {

@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { logger } from '@/utils/logger';
 
 const DEBUG = import.meta.env.DEV;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 interface Freelancer {
   id: string;
@@ -27,6 +28,7 @@ interface Freelancer {
   profile_image_url?: string;
   availability_status: string;
   years_experience: number;
+  summary?: string;
 }
 
 export const FreelancerDirectory = () => {
@@ -49,7 +51,25 @@ export const FreelancerDirectory = () => {
         .eq('availability_status', 'available');
       
       if (error) throw error;
-      setFreelancers(data || []);
+
+      const enriched = await Promise.all(
+        (data || []).map(async (freelancer) => {
+          try {
+            const response = await fetch(`${BACKEND_URL}/profile-summary`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(freelancer),
+            });
+            const { summary } = await response.json();
+            return { ...freelancer, summary };
+          } catch (err) {
+            logger.error('Error fetching summary', err, 'FreelancerDirectory');
+            return { ...freelancer };
+          }
+        })
+      );
+
+      setFreelancers(enriched);
     } catch (error) {
       logger.error('Error fetching freelancers', error, 'FreelancerDirectory');
     } finally {
@@ -143,6 +163,9 @@ export const FreelancerDirectory = () => {
               />
               <CardTitle className="text-xl">{freelancer.name}</CardTitle>
               <p className="text-gray-600">{freelancer.title}</p>
+              {freelancer.summary && (
+                <p className="text-gray-500 text-sm mt-1">{freelancer.summary}</p>
+              )}
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between mb-4">
