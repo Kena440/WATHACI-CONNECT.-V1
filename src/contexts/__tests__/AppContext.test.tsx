@@ -1,32 +1,33 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AppProvider, useAppContext } from '../AppContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
 
-jest.mock('@/lib/supabase', () => {
+vi.mock('@/lib/supabase', () => {
   const auth = {
-    getUser: jest.fn(),
-    signInWithPassword: jest.fn(),
-    signUp: jest.fn(),
-    signOut: jest.fn(),
-    onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } }))
+    getUser: vi.fn(),
+    signInWithPassword: vi.fn(),
+    signUp: vi.fn(),
+    signOut: vi.fn(),
+    onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } }))
   };
-  return { supabase: { auth, from: jest.fn() } };
+  return { supabase: { auth, from: vi.fn() } };
 });
 
-jest.mock('@/components/ui/use-toast', () => ({
-  toast: jest.fn(),
+vi.mock('@/components/ui/use-toast', () => ({
+  toast: vi.fn(),
 }));
 
-const mockSupabase = supabase as jest.Mocked<typeof supabase>;
-const mockToast = toast as jest.MockedFunction<typeof toast>;
+const mockSupabase = supabase as any;
+const mockToast = toast as any;
 
 const mockProfileChain = (profile = { profile_completed: false, account_type: null }) => ({
-  select: jest.fn().mockReturnThis(),
-  eq: jest.fn().mockReturnThis(),
-  single: jest.fn().mockResolvedValue({ data: profile }),
-  insert: jest.fn().mockResolvedValue({ error: null }),
+  select: vi.fn().mockReturnThis(),
+  eq: vi.fn().mockReturnThis(),
+  single: vi.fn().mockResolvedValue({ data: profile }),
+  insert: vi.fn().mockResolvedValue({ error: null }),
 });
 
 const renderWithContext = async () => {
@@ -46,9 +47,9 @@ const renderWithContext = async () => {
 };
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   mockSupabase.auth.onAuthStateChange.mockReturnValue({
-    data: { subscription: { unsubscribe: jest.fn() } },
+    data: { subscription: { unsubscribe: vi.fn() } },
   } as any);
 });
 
