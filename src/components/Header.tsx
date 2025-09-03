@@ -22,7 +22,9 @@ const Header = () => {
     { name: 'Marketplace', href: '/marketplace' },
     { name: 'Freelancer Hub', href: '/freelancer-hub' },
     { name: 'Resources', href: '/resources' },
-    { name: 'Partnership Hub', href: '/partnership-hub' }
+    { name: 'Partnership Hub', href: '/partnership-hub' },
+    { name: 'Funding Hub', href: '/funding-hub' },
+    { name: 'About Us', href: '/about' }
   ];
 
   const handleSignOut = async () => {

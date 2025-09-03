@@ -6,11 +6,23 @@ interface RequestBody {
   phoneNumber?: string;
   provider?: string;
   description: string;
+  cardNumber?: string;
+  expiry?: string;
+  cvv?: string;
 }
 
 serve(async (req) => {
   try {
-    const { amount, paymentMethod, phoneNumber, provider, description } = (await req.json()) as RequestBody;
+    const {
+      amount,
+      paymentMethod,
+      phoneNumber,
+      provider,
+      description,
+      cardNumber,
+      expiry,
+      cvv,
+    } = (await req.json()) as RequestBody;
 
     const baseUrl = Deno.env.get('LENCO_API_BASE_URL');
     const apiKey = Deno.env.get('LENCO_API_KEY');
@@ -31,13 +43,16 @@ serve(async (req) => {
         phone_number: phoneNumber,
         provider,
         description,
+        ...(paymentMethod === 'card'
+          ? { card_details: { number: cardNumber, expiry, cvv } }
+          : {}),
       }),
     });
 
     const result = await response.json();
 
-    if (!response.ok) {
-      throw new Error(result?.message || 'Payment failed');
+    if (!response.ok || result?.status === 'declined') {
+      throw new Error(result?.message || 'Payment was declined');
     }
 
     return new Response(

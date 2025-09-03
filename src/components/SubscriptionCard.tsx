@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { LencoPayment } from '@/components/LencoPayment';
 import { logger } from '@/utils/logger';
+import { SubscriptionService } from '@/lib/services/subscription-service';
 
 interface SubscriptionPlan {
   id: string;
@@ -32,6 +33,7 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
   const [showPayment, setShowPayment] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const subscriptionService = new SubscriptionService();
 
   const handleSelectPlan = async () => {
     try {
@@ -54,14 +56,8 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase.from('subscriptions').upsert({
-          user_id: user.id,
-          plan_id: plan.id,
-          plan_name: plan.name,
-          amount: plan.price,
-          status: 'active',
-          created_at: new Date().toISOString()
-        });
+        const { error } = await subscriptionService.createSubscription(user.id, plan.id);
+        if (error) throw error;
 
         toast({
           title: "Subscription Activated!",
