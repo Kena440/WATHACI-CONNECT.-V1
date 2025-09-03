@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react';
-import { describe, it, expect, jest } from '@jest/globals';
 import StatsSection from '../StatsSection';
 
 jest.mock('@/lib/supabase', () => {

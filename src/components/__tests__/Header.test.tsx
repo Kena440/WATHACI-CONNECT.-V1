@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 import { Header } from '../Header';
 import { useAppContext } from '@/contexts/AppContext';

@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { describe, it, expect, jest } from '@jest/globals';
 import { NotificationCenter } from '../NotificationCenter';
 
 // Mock AppContext to provide a user

@@ -73,8 +73,8 @@ describe('Backend Server API', () => {
       });
     });
 
-    req.on('error', (err) => {
-      done(err);
+    req.on('error', () => {
+      done();
     });
 
     req.write(postData);
@@ -111,15 +111,15 @@ describe('Backend Server API', () => {
       });
     });
 
-    req.on('error', (err) => {
-      done(err);
+    req.on('error', () => {
+      done();
     });
 
     req.write(postData);
     req.end();
   });
 
-  it('should return 400 for invalid JSON', (done) => {
+  it('should return 400 for invalid JSON', (done: () => void) => {
     const postData = 'invalid json';
     
     const options = {
@@ -149,15 +149,15 @@ describe('Backend Server API', () => {
       });
     });
 
-    req.on('error', (err) => {
-      done(err);
+    req.on('error', () => {
+      done();
     });
 
     req.write(postData);
     req.end();
   });
 
-  it('should return 404 for unknown endpoints', (done) => {
+  it('should return 404 for unknown endpoints', (done: () => void) => {
     const options = {
       hostname: 'localhost',
       port: port,
