@@ -15,6 +15,9 @@ app.use('/users', userRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
+const suggestionsRoutes = require('./routes/suggestions');
+app.use('/suggestions', suggestionsRoutes);
+
 app.use(errorHandler);
 
 process.on('unhandledRejection', (reason) => {
