@@ -23,7 +23,7 @@ interface ProfileFormProps {
 }
 
 export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initialData }: ProfileFormProps) => {
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState<Record<string, any>>({
     payment_method: 'phone',
     use_same_phone: true,
     qualifications: [],

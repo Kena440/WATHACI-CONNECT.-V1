@@ -14,7 +14,11 @@ interface ComplianceGateProps {
 export const ComplianceGate = ({ children, requireCompliance = true }: ComplianceGateProps) => {
   const [isCompliant, setIsCompliant] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [documents, setDocuments] = useState([]);
+  interface Document {
+    document_type: string;
+    verification_status: string;
+  }
+  const [documents, setDocuments] = useState<Document[]>([]);
 
   useEffect(() => {
     checkCompliance();
@@ -82,7 +86,7 @@ export const ComplianceGate = ({ children, requireCompliance = true }: Complianc
   ];
 
   const getDocumentStatus = (type: string) => {
-    const doc = documents.find(d => d.document_type === type);
+    const doc = documents.find((d) => d.document_type === type);
     if (!doc) return 'missing';
     return doc.verification_status;
   };

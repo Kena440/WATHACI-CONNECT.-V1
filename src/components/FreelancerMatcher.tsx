@@ -8,12 +8,25 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { Search, MapPin, DollarSign, Star, Loader2 } from 'lucide-react';
 
+interface Freelancer {
+  avatar?: string;
+  name?: string;
+  title?: string;
+  match_score?: number;
+  bio?: string;
+  skills?: string[];
+  location?: string;
+  hourly_rate?: number;
+  rating?: number;
+  reviews_count?: number;
+}
+
 export const FreelancerMatcher = () => {
   const [projectRequirements, setProjectRequirements] = useState('');
   const [skills, setSkills] = useState('');
   const [budget, setBudget] = useState('');
   const [location, setLocation] = useState('');
-  const [matches, setMatches] = useState([]);
+  const [matches, setMatches] = useState<Freelancer[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleMatch = async () => {
@@ -101,7 +114,7 @@ export const FreelancerMatcher = () => {
       {matches.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Matched Freelancers</h2>
-          {matches.map((freelancer, idx) => (
+          {matches.map((freelancer: Freelancer, idx: number) => (
             <Card key={idx}>
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
@@ -124,7 +137,7 @@ export const FreelancerMatcher = () => {
                     <p className="text-gray-700 mb-3">{freelancer.bio}</p>
                     
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {freelancer.skills?.slice(0, 5).map((skill, skillIdx) => (
+                      {freelancer.skills?.slice(0, 5).map((skill: string, skillIdx: number) => (
                         <Badge key={skillIdx} variant="outline">{skill}</Badge>
                       ))}
                     </div>
