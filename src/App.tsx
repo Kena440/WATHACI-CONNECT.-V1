@@ -18,6 +18,7 @@ import { ProfileReview } from "./components/ProfileReview";
 import FreelancerHub from "./pages/FreelancerHub";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import FundingHub from "./pages/FundingHub";
 import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/freelancer-hub" element={<FreelancerHub />} />
+              <Route path="/funding-hub" element={<FundingHub />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/get-started" element={<GetStarted />} />
