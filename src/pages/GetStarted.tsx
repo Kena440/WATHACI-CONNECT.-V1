@@ -177,6 +177,8 @@ export const GetStarted = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                    aria-label="Toggle password visibility"
+                    aria-pressed={showPassword}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -198,6 +200,8 @@ export const GetStarted = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                    aria-label="Toggle confirm password visibility"
+                    aria-pressed={showConfirmPassword}
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>

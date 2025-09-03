@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ServiceProviderCard } from './ServiceProviderCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Grid, List, Loader2, Users, Building, BookOpen } from 'lucide-react';
@@ -50,10 +49,6 @@ export const IntegratedMarketplace = () => {
     { value: 'resource', label: 'Resources', icon: BookOpen }
   ];
 
-  useEffect(() => {
-    loadServices();
-  }, [loadServices]);
-
   const loadServices = useCallback(async () => {
     setLoading(true);
     try {
@@ -77,6 +72,10 @@ export const IntegratedMarketplace = () => {
       setLoading(false);
     }
   }, [selectedCategory, selectedProviderType, selectedLocation, priceRange]);
+
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
 
   const filteredServices = services.filter((service) =>
     service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
