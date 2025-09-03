@@ -22,6 +22,25 @@ import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
 
+export const AppRoutes = () => (
+  <Routes>
+    <Route path="/" element={<Index />} />
+    <Route path="/marketplace" element={<Marketplace />} />
+    <Route path="/freelancer-hub" element={<FreelancerHub />} />
+    <Route path="/resources" element={<Resources />} />
+    <Route path="/signin" element={<SignIn />} />
+    <Route path="/get-started" element={<GetStarted />} />
+    <Route path="/profile-setup" element={<ProfileSetup />} />
+    <Route path="/profile-review" element={<ProfileReview />} />
+    <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+    <Route path="/partnership-hub" element={<PartnershipHub />} />
+    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+    <Route path="/terms-of-service" element={<TermsOfService />} />
+    <Route path="/messages" element={<Messages />} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
+
 const App = () => (
   <ThemeProvider defaultTheme="light">
     <QueryClientProvider client={queryClient}>
@@ -30,22 +49,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/marketplace" element={<Marketplace />} />
-              <Route path="/freelancer-hub" element={<FreelancerHub />} />
-              <Route path="/resources" element={<Resources />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/get-started" element={<GetStarted />} />
-              <Route path="/profile-setup" element={<ProfileSetup />} />
-              <Route path="/profile-review" element={<ProfileReview />} />
-              <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-              <Route path="/partnership-hub" element={<PartnershipHub />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppRoutes />
           </BrowserRouter>
         </AppProvider>
       </TooltipProvider>
