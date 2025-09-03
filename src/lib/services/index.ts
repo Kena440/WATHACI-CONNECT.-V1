@@ -16,12 +16,18 @@ export {
 } from './user-service';
 
 // Subscription services
-export { 
-  SubscriptionService, 
-  TransactionService, 
-  subscriptionService, 
-  transactionService 
+export {
+  SubscriptionService,
+  TransactionService,
+  subscriptionService,
+  transactionService
 } from './subscription-service';
+
+// Service request services
+export {
+  ServiceRequestService,
+  serviceRequestService
+} from './service-request-service';
 
 // Enhanced Supabase client and utilities
 export { 
@@ -41,10 +47,13 @@ import {
   userService, 
   profileService 
 } from './user-service';
-import { 
-  subscriptionService, 
-  transactionService 
+import {
+  subscriptionService,
+  transactionService
 } from './subscription-service';
+import {
+  serviceRequestService
+} from './service-request-service';
 
 // Utility functions for common patterns
 export const createServiceInstance = <T>(ServiceClass: new () => T): T => {
@@ -57,6 +66,7 @@ export const serviceRegistry = {
   profile: profileService,
   subscription: subscriptionService,
   transaction: transactionService,
+  serviceRequest: serviceRequestService,
 } as const;
 
 export type ServiceType = keyof typeof serviceRegistry;

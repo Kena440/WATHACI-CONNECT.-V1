@@ -188,6 +188,22 @@ export interface Service {
 }
 
 // ================================
+// Service Request Types
+// ================================
+
+export interface ServiceRequest {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  skills: string[];
+  willing_to_pay: boolean;
+  budget?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// ================================
 // Connection and Messaging Types
 // ================================
 
