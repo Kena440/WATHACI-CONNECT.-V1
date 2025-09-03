@@ -55,7 +55,7 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
         }
       }
     }
-  }, [formData.country]);
+  }, [formData.country, formData.phone, formData.payment_phone, formData.use_same_phone]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
