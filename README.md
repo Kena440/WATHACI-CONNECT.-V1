@@ -13,11 +13,17 @@ This template provides a minimal setup to get React working in Vite with HMR and
 Lighthouse and automated accessibility checks are available via npm scripts.
 
 ```bash
-# Run accessibility tests powered by jest-axe
+# Run all tests using Node.js native test runner
+npm test
+
+# Run accessibility tests using Node.js native test runner
 npm run test:accessibility
 
-# Generate a Lighthouse report (requires a running dev server)
+# Run lighthouse tests using Node.js native test runner
 npm run test:lighthouse
+
+# Run Jest tests (when Jest issues are resolved)
+npm run test:jest
 ```
 
 Make sure project dependencies are installed before executing the test commands.
