@@ -19,6 +19,7 @@ import FreelancerHub from "./pages/FreelancerHub";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
+import FeedbackWidget from "@/components/FeedbackWidget";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <AppRoutes />
+            <FeedbackWidget />
           </BrowserRouter>
         </AppProvider>
       </TooltipProvider>
