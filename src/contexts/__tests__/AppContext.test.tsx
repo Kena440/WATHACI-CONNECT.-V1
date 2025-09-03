@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AppProvider, useAppContext } from '../AppContext';
 import { supabase } from '@/lib/supabase';
@@ -36,11 +36,15 @@ const renderWithContext = async () => {
     ctx = useAppContext();
     return null;
   };
-  render(
-    <AppProvider>
-      <TestComponent />
-    </AppProvider>
-  );
+  
+  await act(async () => {
+    render(
+      <AppProvider>
+        <TestComponent />
+      </AppProvider>
+    );
+  });
+  
   await waitFor(() => expect(ctx).toBeDefined());
   await waitFor(() => expect(ctx!.loading).toBe(false));
   return ctx!;
@@ -48,9 +52,12 @@ const renderWithContext = async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // Reset mocks to default behavior
   mockSupabase.auth.onAuthStateChange.mockReturnValue({
     data: { subscription: { unsubscribe: vi.fn() } },
   } as any);
+  mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null } } as any);
+  mockSupabase.from.mockImplementation(() => mockProfileChain() as any);
 });
 
 describe('AppContext auth actions', () => {
@@ -108,10 +115,28 @@ describe('AppContext auth actions', () => {
   test('signOut clears user and shows toast', async () => {
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: '1', email: 'a@test.com' } } } as any);
     mockSupabase.from.mockImplementation(() => mockProfileChain({ profile_completed: true, account_type: 'basic' }) as any);
-    mockSupabase.auth.signOut.mockResolvedValue({ error: null } as any);
+    
+    // Mock the auth state change to trigger SIGNED_OUT event
+    let authStateChangeCallback: any;
+    mockSupabase.auth.onAuthStateChange.mockImplementation((callback: any) => {
+      authStateChangeCallback = callback;
+      return { data: { subscription: { unsubscribe: vi.fn() } } };
+    });
+    
+    mockSupabase.auth.signOut.mockImplementation(async () => {
+      // Simulate the auth state change event
+      if (authStateChangeCallback) {
+        await authStateChangeCallback('SIGNED_OUT', null);
+      }
+      return { error: null };
+    });
 
     const ctx = await renderWithContext();
-    await ctx.signOut();
+    
+    await act(async () => {
+      await ctx.signOut();
+    });
+    
     await waitFor(() => expect(ctx.user).toBeNull());
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Signed out successfully' }));
   });
@@ -141,7 +166,10 @@ describe('AppContext auth actions', () => {
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: { id: '123', email: 'b@test.com' } } } as any);
     mockSupabase.from.mockImplementation(() => mockProfileChain(profile) as any);
 
-    await ctx.refreshUser();
+    await act(async () => {
+      await ctx.refreshUser();
+    });
+    
     await waitFor(() => expect(ctx.user).toEqual({ id: '123', email: 'b@test.com', ...profile }));
     expect(mockToast).not.toHaveBeenCalled();
   });
