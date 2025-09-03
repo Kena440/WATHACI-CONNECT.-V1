@@ -8,17 +8,8 @@ const mockEnv = {
   VITE_SUPABASE_KEY: 'test-key'
 };
 
-// Mock global import.meta
-Object.defineProperty(global, 'import', {
-  value: {
-    meta: {
-      env: mockEnv
-    }
-  }
-});
-
 // Mock the services module
-jest.mock('../../../lib/services', () => ({
+jest.mock('../../lib/services', () => ({
   userService: {
     getCurrentUser: jest.fn(),
   },
