@@ -1,4 +1,29 @@
 import React from 'react';
+import TeamMemberCard from '@/components/team/TeamMemberCard';
+
+const teamMembers = [
+  {
+    avatarUrl: '/placeholder.svg',
+    name: 'Alice Smith',
+    role: 'CEO',
+    bio: 'Leads company strategy and operations.',
+    expertise: ['Leadership', 'Vision']
+  },
+  {
+    avatarUrl: '/placeholder.svg',
+    name: 'Bob Johnson',
+    role: 'CTO',
+    bio: 'Oversees technology and product development.',
+    expertise: ['Engineering', 'Architecture']
+  },
+  {
+    avatarUrl: '/placeholder.svg',
+    name: 'Carol Williams',
+    role: 'COO',
+    bio: 'Ensures efficient business processes.',
+    expertise: ['Operations', 'Management']
+  }
+];
 
 export default function About() {
   return (
@@ -27,6 +52,17 @@ export default function About() {
           small community initiative into a comprehensive network supporting
           enterprises across the region.
         </p>
+      </section>
+
+      <section aria-labelledby="team-heading">
+        <h2 id="team-heading" className="text-2xl font-semibold mb-4">
+          Our Team
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {teamMembers.map((member) => (
+            <TeamMemberCard key={member.name} {...member} />
+          ))}
+        </div>
       </section>
     </main>
   );
