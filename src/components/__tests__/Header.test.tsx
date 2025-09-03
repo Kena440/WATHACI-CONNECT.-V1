@@ -1,20 +1,20 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 import { Header } from '../Header';
 import { useAppContext } from '@/contexts/AppContext';
 
-vi.mock('@/contexts/AppContext', () => ({
-  useAppContext: vi.fn(),
+jest.mock('@/contexts/AppContext', () => ({
+  useAppContext: jest.fn(),
 }));
 
-vi.mock('../NotificationCenter', () => ({
+jest.mock('../NotificationCenter', () => ({
   NotificationCenter: () => <div data-testid="notification-center" />,
 }));
 
-vi.mock('../DonateButton', () => ({
+jest.mock('../DonateButton', () => ({
   DonateButton: () => <div>Donate</div>,
 }));
 
@@ -27,16 +27,16 @@ const renderHeader = () => {
 };
 
 describe('Header', () => {
-  const mockUseAppContext = useAppContext as unknown as vi.Mock;
+  const mockUseAppContext = useAppContext as jest.MockedFunction<typeof useAppContext>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('renders navigation links and sign in button when unauthenticated', () => {
     mockUseAppContext.mockReturnValue({
       user: null,
-      signOut: vi.fn(),
+      signOut: jest.fn(),
       loading: false,
     });
 
@@ -53,7 +53,7 @@ describe('Header', () => {
   it('shows sign out option for authenticated users', async () => {
     mockUseAppContext.mockReturnValue({
       user: { email: 'user@example.com', profile_completed: true },
-      signOut: vi.fn(),
+      signOut: jest.fn(),
       loading: false,
     });
 
@@ -68,7 +68,7 @@ describe('Header', () => {
   it('toggles mobile menu', async () => {
     mockUseAppContext.mockReturnValue({
       user: null,
-      signOut: vi.fn(),
+      signOut: jest.fn(),
       loading: false,
     });
 
@@ -82,4 +82,3 @@ describe('Header', () => {
     expect(screen.getAllByRole('navigation')).toHaveLength(2);
   });
 });
-

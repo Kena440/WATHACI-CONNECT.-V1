@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { vi, describe, it, expect } from 'vitest';
+import { describe, it, expect, jest } from '@jest/globals';
 import { NotificationCenter } from '../NotificationCenter';
 
 // Mock AppContext to provide a user
-vi.mock('../../contexts/AppContext', () => ({
+jest.mock('../../contexts/AppContext', () => ({
   useAppContext: () => ({ user: { id: 'user1', email: 'test@example.com' } })
 }));
 
@@ -30,21 +30,21 @@ const fakeNotifications = [
   }
 ];
 
-const updateEqMock = vi.fn().mockResolvedValue({ data: null, error: null });
+const updateEqMock = jest.fn().mockResolvedValue({ data: null, error: null });
 
 // Mock Supabase client
-vi.mock('../../lib/supabase', () => ({
+jest.mock('../../lib/supabase', () => ({
   supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      order: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue({ data: fakeNotifications, error: null }),
-      update: vi.fn().mockReturnValue({ eq: updateEqMock })
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue({ data: fakeNotifications, error: null }),
+      update: jest.fn().mockReturnValue({ eq: updateEqMock })
     })),
-    channel: vi.fn(() => ({
-      on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn().mockReturnValue({ unsubscribe: vi.fn() })
+    channel: jest.fn(() => ({
+      on: jest.fn().mockReturnThis(),
+      subscribe: jest.fn().mockReturnValue({ unsubscribe: jest.fn() })
     }))
   }
 }));
