@@ -34,9 +34,15 @@ describe('Header', () => {
 
   it('renders navigation links and sign in button when unauthenticated', () => {
     mockUseAppContext.mockReturnValue({
+      sidebarOpen: false,
+      toggleSidebar: jest.fn(),
       user: null,
-      signOut: jest.fn(),
+      profile: null,
       loading: false,
+      signIn: jest.fn(),
+      signUp: jest.fn(),
+      signOut: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     renderHeader();
@@ -51,9 +57,15 @@ describe('Header', () => {
 
   it('shows sign out option for authenticated users', async () => {
     mockUseAppContext.mockReturnValue({
+      sidebarOpen: false,
+      toggleSidebar: jest.fn(),
       user: { email: 'user@example.com', profile_completed: true },
-      signOut: jest.fn(),
+      profile: null,
       loading: false,
+      signIn: jest.fn(),
+      signUp: jest.fn(),
+      signOut: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     renderHeader();
@@ -66,9 +78,15 @@ describe('Header', () => {
 
   it('toggles mobile menu', async () => {
     mockUseAppContext.mockReturnValue({
+      sidebarOpen: false,
+      toggleSidebar: jest.fn(),
       user: null,
-      signOut: jest.fn(),
+      profile: null,
       loading: false,
+      signIn: jest.fn(),
+      signUp: jest.fn(),
+      signOut: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     const { container } = renderHeader();
