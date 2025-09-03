@@ -18,6 +18,7 @@ import { ProfileReview } from "./components/ProfileReview";
 import FreelancerHub from "./pages/FreelancerHub";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import ServiceRequests from "./pages/ServiceRequests";
 import Messages from "./pages/Messages";
 import FeedbackWidget from "@/components/FeedbackWidget";
 
@@ -38,6 +39,7 @@ export const AppRoutes = () => (
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
     <Route path="/messages" element={<Messages />} />
+    <Route path="/service-requests" element={<ServiceRequests />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

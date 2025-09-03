@@ -22,6 +22,12 @@ export {
   subscriptionService, 
   transactionService 
 } from './subscription-service';
+// Service request services
+export {
+  createRequest,
+  listRequests
+} from './service-request-service';
+
 
 // Enhanced Supabase client and utilities
 export { 

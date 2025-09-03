@@ -186,6 +186,16 @@ export interface Service {
   created_at: string;
   updated_at: string;
 }
+export interface ServiceRequest {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  is_paid: boolean;
+  budget?: number;
+  created_at: string;
+}
+
 
 // ================================
 // Connection and Messaging Types
