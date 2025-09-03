@@ -1,11 +1,12 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { track } from "@/utils/analytics";
 
 const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // TODO: integrate 404 tracking
+    track('404', { path: location.pathname });
   }, [location.pathname]);
 
   return (
@@ -22,3 +23,4 @@ const NotFound = () => {
 };
 
 export default NotFound;
+
