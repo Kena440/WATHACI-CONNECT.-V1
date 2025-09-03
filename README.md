@@ -2,6 +2,12 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Recent Updates
+
+- ✅ Merged changes from main branch with conflict resolution
+- ✅ Added typecheck script for TypeScript validation  
+- ✅ Preserved modular component architecture with extracted variants
+
 ## Testing
 
 Lighthouse and automated accessibility checks are available via npm scripts.
