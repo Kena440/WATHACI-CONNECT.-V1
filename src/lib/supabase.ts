@@ -1,9 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
+/**
+ * Legacy Supabase client export for backward compatibility
+ * 
+ * @deprecated Use the enhanced client from '@/lib/supabase-enhanced' for new code
+ */
 
+import { supabase as enhancedSupabase } from './supabase-enhanced';
 
-// Initialize Supabase client using environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Export the enhanced client for backward compatibility
+export { enhancedSupabase as supabase };
 
-export { supabase };
+// Also export for direct import compatibility
+export default enhancedSupabase;

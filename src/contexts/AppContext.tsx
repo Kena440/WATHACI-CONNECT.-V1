@@ -1,18 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { userService, profileService, supabase } from '@/lib/services';
 import { toast } from '@/components/ui/use-toast';
-
-interface User {
-  id: string;
-  email: string;
-  profile_completed?: boolean;
-  account_type?: string;
-}
+import type { User, Profile } from '@/@types/database';
 
 interface AppContextType {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
   user: User | null;
+  profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, userData?: any) => Promise<void>;
@@ -24,6 +19,7 @@ const defaultAppContext: AppContextType = {
   sidebarOpen: false,
   toggleSidebar: () => {},
   user: null,
+  profile: null,
   loading: true,
   signIn: async () => {},
   signUp: async () => {},
@@ -38,6 +34,7 @@ export const useAppContext = () => useContext(AppContext);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const toggleSidebar = () => {
@@ -46,37 +43,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const refreshUser = async () => {
     try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      setLoading(true);
       
-      if (authUser) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('profile_completed, account_type')
-          .eq('id', authUser.id)
-          .single();
-
-        setUser({
-          id: authUser.id,
-          email: authUser.email || '',
-          profile_completed: profile?.profile_completed || false,
-          account_type: profile?.account_type
-        });
-      } else {
+      // Get the current authenticated user
+      const { data: authUser, error: userError } = await userService.getCurrentUser();
+      
+      if (userError || !authUser) {
         setUser(null);
+        setProfile(null);
+        return;
+      }
+
+      setUser(authUser);
+
+      // Get the user's profile
+      const { data: userProfile, error: profileError } = await profileService.getByUserId(authUser.id);
+      
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError);
+        setProfile(null);
+      } else {
+        setProfile(userProfile);
+        
+        // Update user with profile completion info
+        if (userProfile) {
+          setUser(prev => prev ? {
+            ...prev,
+            profile_completed: userProfile.profile_completed,
+            account_type: userProfile.account_type
+          } : null);
+        }
       }
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('Error refreshing user:', error);
       setUser(null);
+      setProfile(null);
     } finally {
       setLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data: user, error } = await userService.signIn(email, password);
     
     if (error) throw error;
     
@@ -84,24 +92,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       title: "Welcome back!",
       description: "You have been signed in successfully.",
     });
+    
+    // Refresh user data after successful sign in
+    await refreshUser();
   };
 
   const signUp = async (email: string, password: string, userData?: any) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data: user, error } = await userService.signUp(email, password);
     
     if (error) throw error;
     
-    if (data.user && userData) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          email: data.user.email,
-          ...userData
-        });
+    if (user && userData) {
+      const { error: profileError } = await profileService.createProfile(user.id, {
+        email: user.email,
+        ...userData
+      });
       
       if (profileError) throw profileError;
     }
@@ -114,8 +119,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await userService.signOut();
+      
+      if (error) throw error;
+      
       setUser(null);
+      setProfile(null);
+      
       toast({
         title: "Signed out successfully",
         description: "You have been logged out.",
@@ -140,6 +150,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           await refreshUser();
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
+          setProfile(null);
           setLoading(false);
         }
       }
@@ -154,6 +165,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sidebarOpen,
         toggleSidebar,
         user,
+        profile,
         loading,
         signIn,
         signUp,
