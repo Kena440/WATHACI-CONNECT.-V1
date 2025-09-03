@@ -57,7 +57,7 @@ const SMEDirectory = () => {
 
   const handleShowInterest = (smeId: string, type: 'investment' | 'donation') => {
     // This will be handled by the InterestModal component
-    console.log(`Showing ${type} interest in SME:`, smeId);
+    // TODO: integrate InterestModal handling
   };
 
   if (loading) {

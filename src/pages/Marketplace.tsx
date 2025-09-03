@@ -30,15 +30,15 @@ const Marketplace = () => {
   };
 
   const handleViewDetails = (product: any) => {
-    console.log('View product details:', product);
+    // TODO: implement product detail view
   };
 
   const handleSelectRecommendation = (recommendation: any) => {
-    console.log('Selected recommendation:', recommendation);
+    // TODO: handle recommendation selection
   };
 
   const handlePriceSelect = (price: number) => {
-    console.log('Selected price:', price);
+    // TODO: handle selected price
   };
 
   return (
