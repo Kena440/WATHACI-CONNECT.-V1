@@ -5,11 +5,13 @@ import { Clock, Crown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/logger';
+import { SubscriptionService } from '@/lib/services/subscription-service';
 
 export const TrialBanner = () => {
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
   const [showBanner, setShowBanner] = useState(false);
   const navigate = useNavigate();
+  const subscriptionService = new SubscriptionService();
 
   useEffect(() => {
     checkTrialStatus();
@@ -21,14 +23,8 @@ export const TrialBanner = () => {
       if (!user) return;
 
       // Check if user has active subscription
-      const { data: subscription } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .single();
-
-      if (subscription) return; // User has active subscription
+      const { data: hasSubscription } = await subscriptionService.hasActiveSubscription(user.id);
+      if (hasSubscription) return; // User has active subscription
 
       // Check trial status
       const { data: profile } = await supabase
