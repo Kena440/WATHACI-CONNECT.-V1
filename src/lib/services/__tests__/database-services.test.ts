@@ -42,7 +42,7 @@ describe('Database Services', () => {
   describe('Service Imports', () => {
     it('should import all services without errors', async () => {
       const services = await import('../index');
-      
+
       expect(services.userService).toBeDefined();
       expect(services.profileService).toBeDefined();
       expect(services.subscriptionService).toBeDefined();
@@ -93,6 +93,13 @@ describe('Database Services', () => {
     it('should have expected methods on service request service', async () => {
       const { serviceRequestService } = await import('../index');
 
+      // User-friendly methods from service-requests branch
+      expect(typeof serviceRequestService.getRequestsByUser).toBe('function');
+      expect(typeof serviceRequestService.createRequest).toBe('function');
+      expect(typeof serviceRequestService.updateRequest).toBe('function');
+      expect(typeof serviceRequestService.deleteRequest).toBe('function');
+      
+      // Base service methods for flexibility
       expect(typeof serviceRequestService.create).toBe('function');
       expect(typeof serviceRequestService.findMany).toBe('function');
       expect(typeof serviceRequestService.findById).toBe('function');
