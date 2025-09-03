@@ -38,7 +38,8 @@ const {
   healthCheck,
   userService,
   profileService,
-  subscriptionService
+  subscriptionService,
+  serviceRequestService
 } = await import('../src/lib/services/index');
 
 // Colors for console output
@@ -129,6 +130,7 @@ async function validateServices() {
     { name: 'userService', service: userService },
     { name: 'profileService', service: profileService },
     { name: 'subscriptionService', service: subscriptionService },
+    { name: 'serviceRequestService', service: serviceRequestService },
   ];
   
   let allValid = true;
