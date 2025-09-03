@@ -36,6 +36,16 @@ export {
 // Database types
 export type * from '../../@types/database';
 
+// Import service instances for registry
+import { 
+  userService, 
+  profileService 
+} from './user-service';
+import { 
+  subscriptionService, 
+  transactionService 
+} from './subscription-service';
+
 // Utility functions for common patterns
 export const createServiceInstance = <T>(ServiceClass: new () => T): T => {
   return new ServiceClass();
