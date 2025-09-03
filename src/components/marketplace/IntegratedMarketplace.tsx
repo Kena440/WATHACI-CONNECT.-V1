@@ -117,9 +117,11 @@ export const IntegratedMarketplace = () => {
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <img 
-                  src={selectedService.image} 
+                <img
+                  src={selectedService.image}
                   alt={selectedService.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-64 object-cover rounded-lg mb-4"
                 />
                 <div className="space-y-4">

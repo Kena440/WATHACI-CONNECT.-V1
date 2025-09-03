@@ -81,9 +81,11 @@ const TestimonialsSection = () => {
                     "{testimonial.testimonial_text}"
                   </p>
                   <div className="flex items-center space-x-3">
-                    <img 
-                      src={testimonial.client_image_url || '/placeholder.svg'} 
+                    <img
+                      src={testimonial.client_image_url || '/placeholder.svg'}
                       alt={testimonial.client_name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-12 h-12 rounded-full object-cover"
                     />
                     <div>

@@ -33,9 +33,11 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
     <Card className="hover:shadow-lg transition-all duration-300 group">
       <CardHeader className="p-0">
         <div className="relative overflow-hidden rounded-t-lg">
-          <img 
-            src={product.image} 
+          <img
+            src={product.image}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <Button

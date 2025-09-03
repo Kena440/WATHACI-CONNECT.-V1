@@ -131,9 +131,11 @@ export const FreelancerDirectory = () => {
         {filteredFreelancers.map((freelancer) => (
           <Card key={freelancer.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="text-center">
-              <img 
-                src={freelancer.profile_image_url || '/placeholder.svg'} 
+              <img
+                src={freelancer.profile_image_url || '/placeholder.svg'}
                 alt={freelancer.name}
+                loading="lazy"
+                decoding="async"
                 className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
               />
               <CardTitle className="text-xl">{freelancer.name}</CardTitle>

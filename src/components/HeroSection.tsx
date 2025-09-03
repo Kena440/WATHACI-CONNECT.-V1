@@ -8,9 +8,11 @@ const HeroSection = () => {
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-16">
           <div className="mb-8">
-            <img 
-              src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png" 
-              alt="WATHACI CONNECT" 
+            <img
+              src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png"
+              alt="WATHACI CONNECT"
+              loading="lazy"
+              decoding="async"
               className="h-32 w-auto mx-auto drop-shadow-2xl"
             />
           </div>
