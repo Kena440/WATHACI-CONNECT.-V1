@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FreelancerDirectory } from '@/components/FreelancerDirectory';
 import { FreelancerMatcher } from '@/components/FreelancerMatcher';
@@ -10,6 +11,8 @@ import { Users, Lightbulb, Heart, Target } from 'lucide-react';
 
 const FreelancerHub = () => {
   const [activeTab, setActiveTab] = useState('directory');
+  const [searchParams] = useSearchParams();
+  const skillFilter = searchParams.get('skill') || '';
 
   return (
     <AppLayout>
@@ -64,7 +67,7 @@ const FreelancerHub = () => {
                   Filter by skills, location, and budget to find your perfect match.
                 </p>
               </div>
-              <FreelancerDirectory />
+              <FreelancerDirectory initialSkill={skillFilter} />
             </TabsContent>
             <TabsContent value="industry" className="space-y-6">
               <div className="text-center mb-8">

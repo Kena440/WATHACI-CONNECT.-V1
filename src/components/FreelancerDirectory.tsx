@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Star, MapPin, Clock, Search, Filter } from 'lucide-react';
-import PriceNegotiation from '@/components/PriceNegotiation';
+import { Search, Filter } from 'lucide-react';
+import { TeamMemberCard } from './TeamMemberCard';
 import { supabase } from '@/lib/supabase';
 import { logger } from '@/utils/logger';
-
-const DEBUG = import.meta.env.DEV;
 
 interface Freelancer {
   id: string;
@@ -29,8 +25,8 @@ interface Freelancer {
   years_experience: number;
 }
 
-export const FreelancerDirectory = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+export const FreelancerDirectory = ({ initialSkill = '' }: { initialSkill?: string }) => {
+  const [searchTerm, setSearchTerm] = useState(initialSkill);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [priceRange, setPriceRange] = useState('');
@@ -40,6 +36,10 @@ export const FreelancerDirectory = () => {
   useEffect(() => {
     fetchFreelancers();
   }, []);
+
+  useEffect(() => {
+    setSearchTerm(initialSkill);
+  }, [initialSkill]);
 
   const fetchFreelancers = async () => {
     try {
@@ -132,81 +132,7 @@ export const FreelancerDirectory = () => {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredFreelancers.map((freelancer) => (
-          <Card key={freelancer.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="text-center">
-              <img
-                src={freelancer.profile_image_url || '/placeholder.svg'}
-                alt={freelancer.name}
-                loading="lazy"
-                decoding="async"
-                className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
-              />
-              <CardTitle className="text-xl">{freelancer.name}</CardTitle>
-              <p className="text-gray-600">{freelancer.title}</p>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                  <span className="font-semibold">{freelancer.rating}</span>
-                  <span className="text-gray-500">({freelancer.reviews_count})</span>
-                </div>
-                <div className="flex items-center gap-1 text-gray-500">
-                  <MapPin className="w-4 h-4" />
-                  <span>{freelancer.location}</span>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {freelancer.skills.slice(0, 3).map((skill, idx) => (
-                    <Badge key={idx} variant="secondary" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                  {freelancer.skills.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{freelancer.skills.length - 3}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <span className="text-2xl font-bold text-blue-600">${freelancer.hourly_rate}</span>
-                  <span className="text-gray-500">/hour</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <span className={`text-sm ${freelancer.availability_status === 'available' ? 'text-green-600' : 'text-orange-600'}`}>
-                    {freelancer.availability_status === 'available' ? 'Available' : 'Busy'}
-                  </span>
-                </div>
-              </div>
-              
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button 
-                    className="w-full bg-orange-600 hover:bg-orange-700" 
-                    disabled={freelancer.availability_status !== 'available'}
-                  >
-                    {freelancer.availability_status === 'available' ? 'Hire & Negotiate' : 'Join Waitlist'}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl">
-                  <PriceNegotiation
-                    initialPrice={freelancer.hourly_rate}
-                    serviceTitle={`${freelancer.name} - ${freelancer.title}`}
-                    providerId={freelancer.id.toString()}
-                    onNegotiationComplete={(finalPrice) => {
-                      if (DEBUG) console.log(`Negotiation complete: $${finalPrice}`);
-                    }}
-                  />
-                </DialogContent>
-              </Dialog>
-            </CardContent>
-          </Card>
+          <TeamMemberCard key={freelancer.id} freelancer={freelancer} />
         ))}
       </div>
 

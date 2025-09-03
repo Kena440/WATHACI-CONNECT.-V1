@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, ShoppingCart, Users, Building, BookOpen } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
@@ -17,6 +18,8 @@ const DEBUG = import.meta.env.DEV;
 
 const Marketplace = () => {
   const [activeTab, setActiveTab] = useState('integrated');
+  const [searchParams] = useSearchParams();
+  const skillFilter = searchParams.get('skill') || '';
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFilters, setSearchFilters] = useState({});
   const [cart, setCart] = useState<any[]>([]);
@@ -104,7 +107,7 @@ const Marketplace = () => {
                     Our AI analyzes qualifications and offerings to match you with the perfect service provider.
                   </p>
                 </div>
-                <IntegratedMarketplace />
+                <IntegratedMarketplace initialSkill={skillFilter} />
               </div>
             </ComplianceGate>
           )}

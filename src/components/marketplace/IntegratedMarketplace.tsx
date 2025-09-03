@@ -27,10 +27,10 @@ interface Service {
   image: string;
 }
 
-export const IntegratedMarketplace = () => {
+export const IntegratedMarketplace = ({ initialSkill = '' }: { initialSkill?: string }) => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(initialSkill);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedProviderType, setSelectedProviderType] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
@@ -53,6 +53,10 @@ export const IntegratedMarketplace = () => {
   useEffect(() => {
     loadServices();
   }, [loadServices]);
+
+  useEffect(() => {
+    setSearchTerm(initialSkill);
+  }, [initialSkill]);
 
   const loadServices = useCallback(async () => {
     setLoading(true);
