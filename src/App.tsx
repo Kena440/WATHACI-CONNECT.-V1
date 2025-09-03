@@ -20,6 +20,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
 import ServiceRequests from "./pages/ServiceRequests";
+import FundingHub from "@/pages/FundingHub";
+import About from "@/pages/About";
 import FeedbackWidget from "@/components/FeedbackWidget";
 
 const queryClient = new QueryClient();
@@ -29,6 +31,7 @@ export const AppRoutes = () => (
     <Route path="/" element={<Index />} />
     <Route path="/marketplace" element={<Marketplace />} />
     <Route path="/freelancer-hub" element={<FreelancerHub />} />
+    <Route path="/funding-hub" element={<FundingHub />} />
     <Route path="/resources" element={<Resources />} />
     <Route path="/signin" element={<SignIn />} />
     <Route path="/get-started" element={<GetStarted />} />
@@ -40,6 +43,7 @@ export const AppRoutes = () => (
     <Route path="/terms-of-service" element={<TermsOfService />} />
     <Route path="/messages" element={<Messages />} />
     <Route path="/service-requests" element={<ServiceRequests />} />
+    <Route path="/about" element={<About />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
