@@ -23,5 +23,13 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      fetch('/api/services')
+        .then((res) => res.json())
+        .then((data) => console.log('Services:', data));
+      fetch('/api/users')
+        .then((res) => res.json())
+        .then((data) => console.log('Users:', data));
+    </script>
   </body>
 </html>
