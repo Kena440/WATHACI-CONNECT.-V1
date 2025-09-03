@@ -157,7 +157,7 @@ describe('Backend Server API', () => {
     req.end();
   });
 
-  it('should return 404 for unknown endpoints', (done: () => void) => {
+  it('should return 404 for unknown endpoints', (done: (error?: any) => void) => {
     const options = {
       hostname: 'localhost',
       port: port,

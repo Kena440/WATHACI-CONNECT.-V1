@@ -8,15 +8,6 @@ const mockEnv = {
   VITE_SUPABASE_KEY: 'test-key'
 };
 
-// Mock import.meta.env
-Object.defineProperty(global, 'import', {
-  value: {
-    meta: {
-      env: mockEnv
-    }
-  }
-});
-
 // Mock Supabase client
 jest.mock('@supabase/supabase-js', () => ({
   createClient: jest.fn(() => ({
