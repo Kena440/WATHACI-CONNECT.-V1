@@ -1,5 +1,6 @@
 const express = require('express');
 const validate = require('../middleware/validate');
+const Joi = require('joi');
 const backendDataSource = require('../services/suggestionsDataSource');
 
 const router = express.Router();
@@ -121,16 +122,16 @@ router.get('/', (req, res) => {
 /**
  * POST /suggestions/generate - Generate personalized suggestions based on user profile
  */
-router.post('/generate', validate.body({
-  userProfile: {
-    business_name: { type: 'string', optional: true },
-    industry: { type: 'string', optional: true },
-    skills: { type: 'array', optional: true },
-    interests: { type: 'array', optional: true },
-    location: { type: 'string', optional: true },
-    company_size: { type: 'string', optional: true }
-  }
-}), async (req, res) => {
+router.post('/generate', validate(Joi.object({
+  userProfile: Joi.object({
+    business_name: Joi.string().optional(),
+    industry: Joi.string().optional(),
+    skills: Joi.array().optional(),
+    interests: Joi.array().optional(),
+    location: Joi.string().optional(),
+    company_size: Joi.string().optional()
+  }).optional()
+})), async (req, res) => {
   try {
     const { userProfile } = req.body;
     
@@ -156,30 +157,23 @@ router.post('/generate', validate.body({
 });
 
 /**
- * GET /suggestions/:id - Get a specific suggestion by ID
+ * GET /suggestions/health - Health check for data sources
  */
-router.get('/:id', (req, res) => {
+router.get('/health', async (req, res) => {
   try {
-    const { id } = req.params;
-    const suggestion = suggestionDatabase.find(s => s.id === id);
-
-    if (!suggestion) {
-      return res.status(404).json({
-        success: false,
-        error: 'Suggestion not found'
-      });
-    }
-
+    const healthStatus = await backendDataSource.healthCheck();
+    
     res.json({
       success: true,
-      data: suggestion
+      timestamp: new Date().toISOString(),
+      data_sources: healthStatus
     });
 
   } catch (error) {
-    console.error('Error fetching suggestion:', error);
+    console.error('Error checking data source health:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch suggestion',
+      error: 'Failed to check data source health',
       message: error.message
     });
   }
@@ -230,23 +224,23 @@ router.get('/datasource/:source', async (req, res) => {
 });
 
 /**
- * GET /suggestions/health - Health check for data sources
+ * GET /suggestions/:id - Get a specific suggestion by ID
  */
-router.get('/health', async (req, res) => {
+router.get('/:id', (req, res) => {
   try {
-    const healthStatus = await backendDataSource.healthCheck();
-    
-    res.json({
-      success: true,
-      timestamp: new Date().toISOString(),
-      data_sources: healthStatus
+    const { id } = req.params;
+    // Since we removed the static database, we'll return a not found for now
+    // In a real implementation, this would query the actual database
+    return res.status(404).json({
+      success: false,
+      error: 'Suggestion not found'
     });
 
   } catch (error) {
-    console.error('Error checking data source health:', error);
+    console.error('Error fetching suggestion:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to check data source health',
+      error: 'Failed to fetch suggestion',
       message: error.message
     });
   }
