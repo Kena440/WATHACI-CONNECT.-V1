@@ -16,6 +16,9 @@ app.use('/users', userRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
+const chatbotRoutes = require('./routes/chatbot');
+app.use('/chatbot', chatbotRoutes);
+
 app.use(errorHandler);
 
 process.on('unhandledRejection', (reason) => {

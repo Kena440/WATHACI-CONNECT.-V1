@@ -7,13 +7,15 @@ import { DonateButton } from '@/components/DonateButton';
 import AppLayout from '@/components/AppLayout';
 import IndustryMatcher from '@/components/industry/IndustryMatcher';
 import { Users, Lightbulb, Heart, Target } from 'lucide-react';
+import ChatBot from '@/components/ChatBot';
 
 const FreelancerHub = () => {
   const [activeTab, setActiveTab] = useState('directory');
 
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-gray-50">
+    <>
+      <AppLayout>
+        <div className="min-h-screen bg-gray-50">
         <div className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-16">
           <div className="max-w-6xl mx-auto px-6">
             <div className="flex items-center justify-between">
@@ -89,7 +91,9 @@ const FreelancerHub = () => {
           </Tabs>
         </div>
       </div>
-    </AppLayout>
+      </AppLayout>
+      <ChatBot />
+    </>
   );
 };
 
