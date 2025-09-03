@@ -89,13 +89,15 @@ describe('Header', () => {
       refreshUser: jest.fn(),
     });
 
-    const { container } = renderHeader();
+    renderHeader();
 
+    const toggle = screen.getByLabelText('Toggle navigation menu');
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(screen.getAllByRole('navigation')).toHaveLength(1);
 
-    const toggle = screen.getAllByRole('button').find(btn => btn.textContent === '');
-    await userEvent.click(toggle!);
+    await userEvent.click(toggle);
 
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getAllByRole('navigation')).toHaveLength(2);
   });
 });
