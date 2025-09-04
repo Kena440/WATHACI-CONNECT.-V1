@@ -8,7 +8,9 @@ import { logger } from '@/utils/logger';
 // Environment validation
 const validateEnvironment = (): { url: string; key: string } => {
   // Check if we're in test environment (Jest)
-  const isJestEnv = typeof jest !== 'undefined' || process?.env?.NODE_ENV === 'test';
+  const isJestEnv =
+    typeof jest !== 'undefined' ||
+    (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test');
   
   let url: string;
   let key: string;
