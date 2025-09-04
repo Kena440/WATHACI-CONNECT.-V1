@@ -40,7 +40,7 @@ const Header = () => {
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center space-x-3 cursor-pointer group">
             <img
-              src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png"
+              src="/logo.svg"
               alt="WATHACI CONNECT"
               loading="lazy"
               decoding="async"
