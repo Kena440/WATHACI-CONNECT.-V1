@@ -8,6 +8,7 @@ import { ServiceProviderCard } from './ServiceProviderCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Grid, List, Loader2, Users, Building, BookOpen } from 'lucide-react';
 import { logger } from '@/utils/logger';
+import { mockServices, mockStats } from '@/data/mockMarketplaceData';
 
 interface Service {
   id: string;
@@ -66,8 +67,24 @@ export const IntegratedMarketplace = () => {
       if (error) throw error;
       setServices((data.data || []) as Service[]);
     } catch (error) {
-      logger.error('Error loading services', error, 'IntegratedMarketplace');
-      setServices([]);
+      logger.error('Error loading services, using fallback data', error, 'IntegratedMarketplace');
+      // Use mock data as fallback when Supabase function fails
+      let fallbackServices = [...mockServices];
+      
+      // Apply filters to mock data
+      if (selectedCategory !== 'all') {
+        fallbackServices = fallbackServices.filter(service => service.category === selectedCategory);
+      }
+      if (selectedProviderType !== 'all') {
+        fallbackServices = fallbackServices.filter(service => service.providerType === selectedProviderType);
+      }
+      if (selectedLocation !== 'all') {
+        fallbackServices = fallbackServices.filter(service => 
+          service.location.toLowerCase().includes(selectedLocation.toLowerCase())
+        );
+      }
+      
+      setServices(fallbackServices);
     } finally {
       setLoading(false);
     }
