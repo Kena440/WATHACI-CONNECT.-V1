@@ -23,6 +23,7 @@ import ServiceRequests from "./pages/ServiceRequests";
 import FundingHub from "@/pages/FundingHub";
 import About from "@/pages/About";
 import FeedbackWidget from "@/components/FeedbackWidget";
+import PhoneSignUp from "./pages/PhoneSignUp";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ export const AppRoutes = () => (
     <Route path="/resources" element={<Resources />} />
     <Route path="/signin" element={<SignIn />} />
     <Route path="/get-started" element={<GetStarted />} />
+    <Route path="/signup-phone" element={<PhoneSignUp />} />
     <Route path="/profile-setup" element={<ProfileSetup />} />
     <Route path="/profile-review" element={<ProfileReview />} />
     <Route path="/subscription-plans" element={<SubscriptionPlans />} />

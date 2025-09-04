@@ -110,6 +110,62 @@ export class UserService extends BaseService<User> {
   }
 
   /**
+   * Initiate phone number sign-in by sending an OTP
+   */
+  async signInWithPhone(phone: string): Promise<DatabaseResponse<void>> {
+    return withErrorHandling(
+      async () => {
+        const { error } = await supabase.auth.signInWithOtp({ phone });
+        return { data: undefined, error };
+      },
+      'UserService.signInWithPhone'
+    );
+  }
+
+  /**
+   * Verify phone OTP and return authenticated user
+   */
+  async verifyPhoneOtp(phone: string, token: string): Promise<DatabaseResponse<User>> {
+    return withErrorHandling(
+      async () => {
+        const { data, error } = await supabase.auth.verifyOtp({
+          phone,
+          token,
+          type: 'sms'
+        });
+
+        if (error || !data.user) {
+          return { data: null, error: error || new Error('Verification failed') };
+        }
+
+        return {
+          data: {
+            id: data.user.id,
+            email: data.user.email || '',
+            created_at: data.user.created_at,
+            updated_at: data.user.updated_at
+          },
+          error: null
+        };
+      },
+      'UserService.verifyPhoneOtp'
+    );
+  }
+
+  /**
+   * Sign in using Google OAuth
+   */
+  async signInWithGoogle(): Promise<DatabaseResponse<void>> {
+    return withErrorHandling(
+      async () => {
+        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+        return { data: undefined, error };
+      },
+      'UserService.signInWithGoogle'
+    );
+  }
+
+  /**
    * Sign out current user
    */
   async signOut(): Promise<DatabaseResponse<void>> {
