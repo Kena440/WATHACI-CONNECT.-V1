@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { logger } from '@/utils/logger';
+import { mockTestimonials } from '@/data/mockMarketplaceData';
 
 interface Testimonial {
   id: string;
@@ -38,7 +39,20 @@ const TestimonialsSection = () => {
       if (error) throw error;
       setTestimonials(data || []);
     } catch (error) {
-      logger.error('Error fetching testimonials', error, 'TestimonialsSection');
+      logger.error('Error fetching testimonials, using fallback data', error, 'TestimonialsSection');
+      // Use mock testimonials as fallback
+      const fallbackTestimonials = mockTestimonials.map(t => ({
+        id: t.id.toString(),
+        client_name: t.name,
+        client_title: t.role,
+        client_company: t.company,
+        client_image_url: t.image,
+        testimonial_text: t.content,
+        rating: t.rating,
+        service_category: 'general',
+        featured: t.featured
+      }));
+      setTestimonials(fallbackTestimonials);
     } finally {
       setLoading(false);
     }
