@@ -4,6 +4,23 @@ interface AnalyticsEvent {
 }
 
 /**
+ * Helper function to get environment mode, Jest-compatible
+ */
+function getEnvMode(): string {
+  // Check if we're in a Jest environment
+  if (typeof jest !== 'undefined' || process.env.NODE_ENV === 'test') {
+    return 'test';
+  }
+  // For browser/Vite environment, use string eval to avoid Jest parsing issues
+  try {
+    return eval('import.meta.env.MODE');
+  } catch {
+    // Fallback for any other environment
+    return process.env.NODE_ENV || 'development';
+  }
+}
+
+/**
  * Send analytics events to the backend.
  * Network errors are caught to avoid cascading failures.
  */
@@ -20,8 +37,8 @@ export async function track(event: string, data: Record<string, unknown> = {}): 
     }
   } catch (error) {
     // Swallow network errors to prevent impacting the app
-    const mode = (globalThis as any)?.import?.meta?.env?.MODE;
-    if (mode !== 'production') {
+    const mode = getEnvMode();
+    if (mode !== 'production' && mode !== 'test') {
       console.error('Failed to send analytics event', { event, data, error });
     }
   }
