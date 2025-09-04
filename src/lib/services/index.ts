@@ -30,13 +30,15 @@ export {
 } from './service-request-service';
 
 // Enhanced Supabase client and utilities
-export { 
-  supabase, 
-  testConnection, 
-  healthCheck, 
-  withErrorHandling, 
+export {
+  supabase,
+  testConnection,
+  healthCheck,
+  withErrorHandling,
   withRetry,
-  getSupabaseClient 
+  getSupabaseClient,
+  isSupabaseConfigured,
+  supabaseConfigurationError
 } from '../supabase-enhanced';
 
 // Database types

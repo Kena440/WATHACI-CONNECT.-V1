@@ -20,7 +20,8 @@ export async function track(event: string, data: Record<string, unknown> = {}): 
     }
   } catch (error) {
     // Swallow network errors to prevent impacting the app
-    if (import.meta.env.MODE !== 'production') {
+    const mode = (globalThis as any)?.import?.meta?.env?.MODE;
+    if (mode !== 'production') {
       console.error('Failed to send analytics event', { event, data, error });
     }
   }
