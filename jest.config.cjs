@@ -18,11 +18,5 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': 'babel-jest'
   },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  globals: {
-    'process.env': {
-      NODE_ENV: 'test'
-    }
-  },
-  setupFiles: ['<rootDir>/jest.env.js']
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx']
 };

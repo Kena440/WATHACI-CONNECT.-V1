@@ -6,7 +6,8 @@ Object.defineProperty(globalThis, 'import', {
         VITE_SUPABASE_URL: 'test_url',
         VITE_SUPABASE_KEY: 'test_key',
         DEV: false,
-        NODE_ENV: 'test'
+        NODE_ENV: 'test',
+        MODE: 'test'
       }
     }
   }
