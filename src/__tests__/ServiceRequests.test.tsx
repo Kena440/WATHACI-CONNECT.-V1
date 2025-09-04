@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ServiceRequests from '../pages/ServiceRequests';
 import { AppProvider } from '../contexts/AppContext';
+import { serviceRequestService } from '../lib/services';
 
 // Mock the supabase module
 jest.mock('../lib/supabase', () => ({
@@ -155,7 +156,6 @@ describe('ServiceRequests Page', () => {
     await user.click(screen.getByText('Submit Request'));
 
     // Verify that the service was called
-    const { serviceRequestService } = require('../lib/services');
     expect(serviceRequestService.createRequest).toHaveBeenCalledWith({
       user_id: mockUser.id,
       title: 'Test Service',
@@ -246,7 +246,6 @@ describe('ServiceRequests Page', () => {
     await user.click(screen.getByText('Delete'));
 
     // Verify delete service was called
-    const { serviceRequestService } = require('../lib/services');
     expect(serviceRequestService.deleteRequest).toHaveBeenCalledWith('sr_123');
   });
 });

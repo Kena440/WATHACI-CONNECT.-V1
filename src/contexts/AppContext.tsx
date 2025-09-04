@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { userService, profileService, supabase } from '@/lib/services';
+import {
+  userService,
+  profileService,
+  supabase,
+  isSupabaseConfigured,
+  supabaseConfigurationError,
+} from '@/lib/services';
 import { toast } from '@/components/ui/use-toast';
 import { logger } from '@/utils/logger';
 import type { User, Profile } from '@/@types/database';
@@ -40,6 +46,19 @@ const AppContext = createContext<AppContextType>(defaultAppContext);
 export const useAppContext = () => useContext(AppContext);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="p-4 text-center text-red-500">
+        {supabaseConfigurationError?.message ||
+          'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_KEY.'}
+      </div>
+    );
+  }
+
+  return <AppProviderInner>{children}</AppProviderInner>;
+};
+
+const AppProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);

@@ -6,7 +6,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { logger } from '@/utils/logger';
 
 // Environment validation
-const validateEnvironment = (): { url: string; key: string } => {
+const validateEnvironment = (): { url: string; key: string } | null => {
   // Check if we're in test environment (Jest)
   const isJestEnv =
     typeof jest !== 'undefined' ||
@@ -25,12 +25,13 @@ const validateEnvironment = (): { url: string; key: string } => {
     key = (import.meta as any).env?.VITE_SUPABASE_KEY;
   }
 
-  if (!url) {
-    throw new Error('Missing VITE_SUPABASE_URL environment variable');
-  }
-
-  if (!key) {
-    throw new Error('Missing VITE_SUPABASE_KEY environment variable');
+  if (!url || !key) {
+    logger.error(
+      'Missing Supabase configuration',
+      { url, key },
+      'SupabaseClient'
+    );
+    return null;
   }
 
   // Skip URL validation in test environment
@@ -46,8 +47,12 @@ const validateEnvironment = (): { url: string; key: string } => {
 };
 
 // Create the enhanced Supabase client
-const createSupabaseClient = (): SupabaseClient => {
-  const { url, key } = validateEnvironment();
+const createSupabaseClient = (): SupabaseClient | null => {
+  const env = validateEnvironment();
+
+  if (!env) return null;
+
+  const { url, key } = env;
 
   const client = createClient(url, key, {
     auth: {
@@ -71,15 +76,34 @@ const createSupabaseClient = (): SupabaseClient => {
   return client;
 };
 
+// Fallback client that rejects all operations
+const createFallbackClient = (): SupabaseClient => {
+  const handler = () => {
+    throw new Error('Supabase client not configured');
+  };
+
+  return new Proxy({}, { get: () => handler }) as SupabaseClient;
+};
+
 // Initialize the client
 let supabaseClient: SupabaseClient;
+let supabaseInitError: Error | null = null;
 
 try {
-  supabaseClient = createSupabaseClient();
+  const client = createSupabaseClient();
+  if (client) {
+    supabaseClient = client;
+  } else {
+    throw new Error('Missing Supabase environment variables');
+  }
 } catch (error) {
-  logger.error('Failed to initialize Supabase client', error, 'SupabaseClient');
-  throw error;
+  supabaseInitError = error instanceof Error ? error : new Error(String(error));
+  logger.error('Failed to initialize Supabase client', supabaseInitError, 'SupabaseClient');
+  supabaseClient = createFallbackClient();
 }
+
+export const supabaseConfigurationError = supabaseInitError;
+export const isSupabaseConfigured = !supabaseInitError;
 
 // Connection testing function
 export const testConnection = async (): Promise<boolean> => {
