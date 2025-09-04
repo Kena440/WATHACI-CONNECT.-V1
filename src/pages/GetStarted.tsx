@@ -26,7 +26,7 @@ export const GetStarted = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signUp } = useAppContext();
+  const { signUp, signInWithGoogle } = useAppContext();
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -83,7 +83,17 @@ export const GetStarted = () => {
               {error}
             </div>
           )}
-          
+
+          <Button type="button" variant="outline" className="w-full" onClick={signInWithGoogle}>
+            Sign up with Google
+          </Button>
+
+          <div className="text-center text-sm text-gray-600">
+            <Link to="/signup-phone" className="text-blue-600 hover:underline font-medium">
+              Sign up with phone
+            </Link>
+          </div>
+
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

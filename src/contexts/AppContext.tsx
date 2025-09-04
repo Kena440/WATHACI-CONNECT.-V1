@@ -12,6 +12,9 @@ interface AppContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, userData?: any) => Promise<void>;
+  signInWithPhone: (phone: string) => Promise<void>;
+  verifyPhoneOtp: (phone: string, token: string, userData?: any) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -24,6 +27,9 @@ const defaultAppContext: AppContextType = {
   loading: true,
   signIn: async () => {},
   signUp: async () => {},
+  signInWithPhone: async () => {},
+  verifyPhoneOtp: async () => {},
+  signInWithGoogle: async () => {},
   signOut: async () => {},
   refreshUser: async () => {},
 };
@@ -60,21 +66,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       // Get the user's profile
       const { data: userProfile, error: profileError } = await profileService.getByUserId(authUser.id);
-      
-      if (profileError) {
-        logger.error('Error fetching user profile', profileError, 'AppContext');
-        setProfile(null);
+      let profileRecord = userProfile;
+
+      if (profileError || !userProfile) {
+        // Attempt to create a basic profile if none exists
+        if (!userProfile) {
+          const { data: createdProfile, error: createError } = await profileService.createProfile(authUser.id, {
+            email: authUser.email,
+            phone: (authUser as any).phone || '',
+          });
+          if (createError) {
+            logger.error('Error creating user profile', createError, 'AppContext');
+            setProfile(null);
+          } else {
+            profileRecord = createdProfile;
+            setProfile(createdProfile);
+          }
+        } else {
+          logger.error('Error fetching user profile', profileError, 'AppContext');
+          setProfile(null);
+        }
       } else {
         setProfile(userProfile);
-        
-        // Update user with profile completion info
-        if (userProfile) {
-          setUser(prev => prev ? {
-            ...prev,
-            profile_completed: userProfile.profile_completed,
-            account_type: userProfile.account_type
-          } : null);
-        }
+      }
+
+      // Update user with profile completion info
+      if (profileRecord) {
+        setUser(prev => prev ? {
+          ...prev,
+          profile_completed: profileRecord.profile_completed,
+          account_type: profileRecord.account_type
+        } : null);
       }
     } catch (error) {
       logger.error('Error refreshing user', error, 'AppContext');
@@ -117,6 +139,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       title: "Account created!",
       description: "Please check your email to verify your account.",
     });
+  };
+
+  const signInWithPhone = async (phone: string) => {
+    const { error } = await userService.signInWithPhone(phone);
+    if (error) throw error;
+    toast({
+      title: 'OTP sent',
+      description: 'Please check your phone for the verification code.',
+    });
+  };
+
+  const verifyPhoneOtp = async (phone: string, token: string, userData?: any) => {
+    const { data: user, error } = await userService.verifyPhoneOtp(phone, token);
+    if (error || !user) throw error || new Error('Verification failed');
+
+    if (userData) {
+      const { error: profileError } = await profileService.createProfile(user.id, {
+        phone,
+        email: user.email,
+        ...userData,
+      });
+      if (profileError) throw profileError;
+    }
+
+    toast({
+      title: 'Phone verified',
+      description: 'You have been signed in successfully.',
+    });
+
+    await refreshUser();
+  };
+
+  const signInWithGoogle = async () => {
+    const { error } = await userService.signInWithGoogle();
+    if (error) throw error;
   };
 
   const signOut = async () => {
@@ -171,6 +228,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loading,
         signIn,
         signUp,
+        signInWithPhone,
+        verifyPhoneOtp,
+        signInWithGoogle,
         signOut,
         refreshUser,
       }}
