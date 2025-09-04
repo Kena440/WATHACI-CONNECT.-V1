@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Logo from './Logo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,13 +40,7 @@ const Header = () => {
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center space-x-3 cursor-pointer group">
-            <img
-              src="/logo.svg"
-              alt="WATHACI CONNECT"
-              loading="lazy"
-              decoding="async"
-              className="h-24 w-auto drop-shadow-lg group-hover:scale-105 transition-transform duration-200"
-            />
+            <Logo className="h-24 w-auto drop-shadow-lg group-hover:scale-105 transition-transform duration-200" />
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">

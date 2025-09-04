@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '@/contexts/AppContext';
+import Logo from '@/components/Logo';
 
 // Validation schema
 const signInSchema = z.object({
@@ -59,13 +60,7 @@ const SignIn = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-green-50 flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img
-            src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png"
-            alt="WATHACI CONNECT"
-            loading="lazy"
-            decoding="async"
-            className="h-20 w-auto mx-auto mb-6 drop-shadow-lg"
-          />
+          <Logo className="h-20 w-auto mx-auto mb-6 drop-shadow-lg" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your WATHACI account</p>
         </div>
