@@ -1,18 +1,24 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { AppProvider, useAppContext } from '../AppContext';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-enhanced';
+import * as supabaseEnhanced from '@/lib/supabase-enhanced';
 import { toast } from '@/components/ui/use-toast';
 
-jest.mock('@/lib/supabase', () => {
+jest.mock('@/lib/supabase-enhanced', () => {
   const auth = {
     getUser: jest.fn(),
     signInWithPassword: jest.fn(),
     signUp: jest.fn(),
     signOut: jest.fn(),
-    onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } }))
+    onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
   };
-  return { supabase: { auth, from: jest.fn() } };
+  return {
+    supabase: { auth, from: jest.fn() },
+    withErrorHandling: jest.fn(async (fn: any) => fn()),
+    isSupabaseConfigured: true,
+    supabaseConfigurationError: null,
+  };
 });
 
 jest.mock('@/components/ui/use-toast', () => ({
@@ -50,6 +56,24 @@ beforeEach(() => {
   mockSupabase.auth.onAuthStateChange.mockReturnValue({
     data: { subscription: { unsubscribe: jest.fn() } },
   } as any);
+});
+
+describe('AppProvider configuration', () => {
+  test('renders error when Supabase is not configured', () => {
+    supabaseEnhanced.isSupabaseConfigured = false as any;
+    (supabaseEnhanced as any).supabaseConfigurationError = new Error('config missing');
+
+    const { getByText } = render(
+      <AppProvider>
+        <div />
+      </AppProvider>
+    );
+
+    expect(getByText(/config missing/)).toBeInTheDocument();
+
+    supabaseEnhanced.isSupabaseConfigured = true as any;
+    (supabaseEnhanced as any).supabaseConfigurationError = null;
+  });
 });
 
 describe('AppContext auth actions', () => {
@@ -156,3 +180,4 @@ describe('AppContext auth actions', () => {
     expect(mockToast).not.toHaveBeenCalled();
   });
 });
+
