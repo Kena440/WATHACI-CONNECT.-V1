@@ -44,7 +44,7 @@ export const AppRoutes = () => (
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
     <Route path="/messages" element={<Messages />} />
-    <Route path="/service-requests" element={<ServiceRequestsPage />} />
+    <Route path="/service-requests" element={<ServiceRequests />} />
     <Route path="/service-requests-old" element={<ServiceRequests />} />
     <Route path="/about" element={<About />} />
     <Route path="*" element={<NotFound />} />
