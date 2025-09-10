@@ -1,13 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import {
-  userService,
-  profileService,
-  supabase,
-  isSupabaseConfigured,
-  supabaseConfigurationError,
-} from '@/lib/services';
+import { userService, profileService, supabase } from '@/lib/services';
 import { toast } from '@/components/ui/use-toast';
-import { logger } from '@/utils/logger';
 import type { User, Profile } from '@/@types/database';
 
 interface AppContextType {
@@ -18,9 +11,6 @@ interface AppContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, userData?: any) => Promise<void>;
-  signInWithPhone: (phone: string) => Promise<void>;
-  verifyPhoneOtp: (phone: string, token: string, userData?: any) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -33,32 +23,15 @@ const defaultAppContext: AppContextType = {
   loading: true,
   signIn: async () => {},
   signUp: async () => {},
-  signInWithPhone: async () => {},
-  verifyPhoneOtp: async () => {},
-  signInWithGoogle: async () => {},
   signOut: async () => {},
   refreshUser: async () => {},
 };
 
 const AppContext = createContext<AppContextType>(defaultAppContext);
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAppContext = () => useContext(AppContext);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="p-4 text-center text-red-500">
-        {supabaseConfigurationError?.message ||
-          'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_KEY.'}
-      </div>
-    );
-  }
-
-  return <AppProviderInner>{children}</AppProviderInner>;
-};
-
-const AppProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -85,40 +58,24 @@ const AppProviderInner: React.FC<{ children: React.ReactNode }> = ({ children })
 
       // Get the user's profile
       const { data: userProfile, error: profileError } = await profileService.getByUserId(authUser.id);
-      let profileRecord = userProfile;
-
-      if (profileError || !userProfile) {
-        // Attempt to create a basic profile if none exists
-        if (!userProfile) {
-          const { data: createdProfile, error: createError } = await profileService.createProfile(authUser.id, {
-            email: authUser.email,
-            phone: (authUser as any).phone || '',
-          });
-          if (createError) {
-            logger.error('Error creating user profile', createError, 'AppContext');
-            setProfile(null);
-          } else {
-            profileRecord = createdProfile;
-            setProfile(createdProfile);
-          }
-        } else {
-          logger.error('Error fetching user profile', profileError, 'AppContext');
-          setProfile(null);
-        }
+      
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError);
+        setProfile(null);
       } else {
         setProfile(userProfile);
-      }
-
-      // Update user with profile completion info
-      if (profileRecord) {
-        setUser(prev => prev ? {
-          ...prev,
-          profile_completed: profileRecord.profile_completed,
-          account_type: profileRecord.account_type
-        } : null);
+        
+        // Update user with profile completion info
+        if (userProfile) {
+          setUser(prev => prev ? {
+            ...prev,
+            profile_completed: userProfile.profile_completed,
+            account_type: userProfile.account_type
+          } : null);
+        }
       }
     } catch (error) {
-      logger.error('Error refreshing user', error, 'AppContext');
+      console.error('Error refreshing user:', error);
       setUser(null);
       setProfile(null);
     } finally {
@@ -158,41 +115,6 @@ const AppProviderInner: React.FC<{ children: React.ReactNode }> = ({ children })
       title: "Account created!",
       description: "Please check your email to verify your account.",
     });
-  };
-
-  const signInWithPhone = async (phone: string) => {
-    const { error } = await userService.signInWithPhone(phone);
-    if (error) throw error;
-    toast({
-      title: 'OTP sent',
-      description: 'Please check your phone for the verification code.',
-    });
-  };
-
-  const verifyPhoneOtp = async (phone: string, token: string, userData?: any) => {
-    const { data: user, error } = await userService.verifyPhoneOtp(phone, token);
-    if (error || !user) throw error || new Error('Verification failed');
-
-    if (userData) {
-      const { error: profileError } = await profileService.createProfile(user.id, {
-        phone,
-        email: user.email,
-        ...userData,
-      });
-      if (profileError) throw profileError;
-    }
-
-    toast({
-      title: 'Phone verified',
-      description: 'You have been signed in successfully.',
-    });
-
-    await refreshUser();
-  };
-
-  const signInWithGoogle = async () => {
-    const { error } = await userService.signInWithGoogle();
-    if (error) throw error;
   };
 
   const signOut = async () => {
@@ -247,9 +169,6 @@ const AppProviderInner: React.FC<{ children: React.ReactNode }> = ({ children })
         loading,
         signIn,
         signUp,
-        signInWithPhone,
-        verifyPhoneOtp,
-        signInWithGoogle,
         signOut,
         refreshUser,
       }}

@@ -7,9 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { OpportunityCard } from './OpportunityCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Sparkles } from 'lucide-react';
-import { logger } from '@/utils/logger';
-
-const DEBUG = import.meta.env.DEV;
 
 interface FundingOpportunity {
   id: string;
@@ -44,7 +41,7 @@ export const FundingHub = () => {
       if (error) throw error;
       setOpportunities(data.opportunities || []);
     } catch (error) {
-      logger.error('Error fetching opportunities', error, 'FundingHub');
+      console.error('Error fetching opportunities:', error);
       // Show empty state for launch - no mock data
       setOpportunities([]);
     } finally {
@@ -53,12 +50,12 @@ export const FundingHub = () => {
   };
   const handleApply = async (opportunityId: string) => {
     // Implementation for application process
-    if (DEBUG) console.log('Applying for opportunity:', opportunityId);
+    console.log('Applying for opportunity:', opportunityId);
   };
 
   const handleGetHelp = async (opportunityId: string) => {
     // Implementation for getting professional help
-    if (DEBUG) console.log('Getting help for opportunity:', opportunityId);
+    console.log('Getting help for opportunity:', opportunityId);
   };
 
   const filteredOpportunities = opportunities.filter(opp => {

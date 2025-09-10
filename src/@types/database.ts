@@ -65,21 +65,12 @@ export interface BusinessInfo {
 }
 
 export interface PaymentInfo {
-  payment_method: 'phone' | 'card' | 'bank';
+  payment_method: 'phone' | 'card';
   payment_phone?: string;
-  mobile_money_provider?: string;
   card_details?: {
     number: string;
     expiry: string;
-    holder_name?: string;
-    cvv?: string;
   };
-  bank_account_name?: string;
-  bank_account_number?: string;
-  bank_name?: string;
-  bank_branch?: string;
-  bank_swift_code?: string;
-  bank_currency?: string;
   use_same_phone?: boolean;
 }
 
@@ -137,7 +128,7 @@ export interface Transaction {
   amount: number;
   currency: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
-  payment_method: 'phone' | 'card' | 'bank';
+  payment_method: 'phone' | 'card';
   reference_number: string;
   created_at: string;
   updated_at: string;
@@ -192,24 +183,6 @@ export interface Service {
   status: 'active' | 'inactive' | 'archived';
   skills: string[];
   portfolio_items: string[];
-  created_at: string;
-  updated_at: string;
-}
-
-// ================================
-// Service Request Types
-// ================================
-
-export interface ServiceRequest {
-  id: string;
-  user_id: string;
-  title: string;
-  description: string;
-  skills: string[];
-  willing_to_pay: boolean;
-  budget?: number;
-  location?: string;
-  status?: 'open' | 'in_progress' | 'completed' | 'cancelled';
   created_at: string;
   updated_at: string;
 }

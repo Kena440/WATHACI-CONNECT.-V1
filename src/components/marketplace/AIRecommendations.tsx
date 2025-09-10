@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, TrendingUp, Users, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { logger } from '@/utils/logger';
 
 interface Recommendation {
   id: string;
@@ -35,9 +34,9 @@ const AIRecommendations = ({
 
   useEffect(() => {
     fetchRecommendations();
-  }, [fetchRecommendations]);
+  }, [userProfile, searchHistory, activeTab]);
 
-  const fetchRecommendations = useCallback(async () => {
+  const fetchRecommendations = async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-professional-matcher', {
@@ -55,7 +54,7 @@ const AIRecommendations = ({
         setRecommendations(data.recommendations);
       }
     } catch (error) {
-      logger.error('Failed to fetch recommendations', error, 'AIRecommendations');
+      console.error('Failed to fetch recommendations:', error);
       // Fallback mock data
       setRecommendations([
         {
@@ -84,7 +83,7 @@ const AIRecommendations = ({
     } finally {
       setIsLoading(false);
     }
-  }, [userProfile, searchHistory, activeTab]);
+  };
 
   const getTabIcon = (tab: string) => {
     switch (tab) {

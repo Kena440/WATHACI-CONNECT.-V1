@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, X, CheckCircle, Users, AlertCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -6,7 +6,6 @@ import { Badge } from './ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { supabase } from '../lib/supabase';
 import { useAppContext } from '../contexts/AppContext';
-import { logger } from '@/utils/logger';
 
 interface Notification {
   id: string;
@@ -29,9 +28,9 @@ export const NotificationCenter: React.FC = () => {
       fetchNotifications();
       subscribeToNotifications();
     }
-  }, [user?.id, fetchNotifications, subscribeToNotifications]);
+  }, [user?.id]);
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = async () => {
     try {
       const { data, error } = await supabase
         .from('notifications')
@@ -45,11 +44,11 @@ export const NotificationCenter: React.FC = () => {
       setNotifications(data || []);
       setUnreadCount(data?.filter(n => !n.read).length || 0);
     } catch (error) {
-      logger.error('Error fetching notifications', error, 'NotificationCenter');
+      console.error('Error fetching notifications:', error);
     }
-  }, [user?.id]);
+  };
 
-  const subscribeToNotifications = useCallback(() => {
+  const subscribeToNotifications = () => {
     const subscription = supabase
       .channel('notifications')
       .on('postgres_changes', 
@@ -67,7 +66,7 @@ export const NotificationCenter: React.FC = () => {
       .subscribe();
 
     return () => subscription.unsubscribe();
-  }, [user?.id]);
+  };
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -81,7 +80,7 @@ export const NotificationCenter: React.FC = () => {
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
-      logger.error('Error marking notification as read', error, 'NotificationCenter');
+      console.error('Error marking notification as read:', error);
     }
   };
 

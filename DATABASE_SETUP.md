@@ -119,16 +119,9 @@ Manages payment transactions:
 - employee_count: INTEGER
 - annual_revenue: INTEGER
 - funding_stage: TEXT
-- payment_method: TEXT (phone, card, bank)
+- payment_method: TEXT (phone, card)
 - payment_phone: TEXT
-- mobile_money_provider: TEXT
 - card_details: JSONB
-- bank_account_name: TEXT
-- bank_account_number: TEXT
-- bank_name: TEXT
-- bank_branch: TEXT
-- bank_swift_code: TEXT
-- bank_currency: TEXT
 - qualifications: JSONB
 - experience_years: INTEGER
 - specialization: TEXT
@@ -174,21 +167,8 @@ Manages payment transactions:
 - amount: INTEGER
 - currency: TEXT
 - status: TEXT (pending, completed, failed, refunded)
-- payment_method: TEXT (phone, card, bank)
+- payment_method: TEXT (phone, card)
 - reference_number: TEXT (Unique)
-- created_at: TIMESTAMP
-- updated_at: TIMESTAMP
-```
-
-#### `service_requests` Table
-```sql
-- id: UUID (Primary Key)
-- user_id: UUID (References profiles.id)
-- title: TEXT
-- description: TEXT
-- skills: TEXT[]
-- willing_to_pay: BOOLEAN
-- budget: NUMERIC
 - created_at: TIMESTAMP
 - updated_at: TIMESTAMP
 ```
@@ -383,18 +363,3 @@ console.log('Auth:', health.details.auth);
 2. Use `healthCheck()` for comprehensive status
 3. Check browser network tab for request details
 4. Enable Supabase logging for detailed query information
-## Additional Tables
-
-### `team_members` Table
-
-```sql
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-name TEXT NOT NULL,
-role TEXT NOT NULL,
-bio TEXT,
-avatar TEXT,
-expertise TEXT[],
-qualifications TEXT[]
-```
-
-The `team_members` table stores profiles displayed on team pages and can be seeded using the `scripts/seed-team-members.ts` script.

@@ -4,8 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Lock, Eye } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import { logger } from '@/utils/logger';
-import { SubscriptionService } from '@/lib/services/subscription-service';
 
 interface AccessGateProps {
   children: React.ReactNode;
@@ -17,7 +15,6 @@ export const AccessGate = ({ children, feature }: AccessGateProps) => {
   const [isTrialActive, setIsTrialActive] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const subscriptionService = new SubscriptionService();
 
   useEffect(() => {
     checkAccess();
@@ -32,8 +29,14 @@ export const AccessGate = ({ children, feature }: AccessGateProps) => {
       }
 
       // Check subscription status
-      const { data: hasSubscription } = await subscriptionService.hasActiveSubscription(user.id);
-      if (hasSubscription) {
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+
+      if (subscription) {
         setHasAccess(true);
         setLoading(false);
         return;
@@ -57,7 +60,7 @@ export const AccessGate = ({ children, feature }: AccessGateProps) => {
         }
       }
     } catch (error) {
-      logger.error('Error checking access', error, 'AccessGate');
+      console.error('Error checking access:', error);
     } finally {
       setLoading(false);
     }

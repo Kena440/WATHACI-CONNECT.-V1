@@ -4,7 +4,6 @@
  */
 
 import { supabase, withErrorHandling, withRetry } from '@/lib/supabase-enhanced';
-import { logger } from '@/utils/logger';
 import type { DatabaseResponse, PaginatedResponse, PaginationParams } from '@/@types/database';
 
 export abstract class BaseService<T = any> {
@@ -19,7 +18,7 @@ export abstract class BaseService<T = any> {
    */
   async findById(id: string, select: string = '*'): Promise<DatabaseResponse<T>> {
     return withErrorHandling(
-      async () => await supabase
+      () => supabase
         .from(this.tableName)
         .select(select)
         .eq('id', id)
@@ -36,56 +35,53 @@ export abstract class BaseService<T = any> {
     pagination: PaginationParams = {},
     select: string = '*'
   ): Promise<DatabaseResponse<PaginatedResponse<T>>> {
-    try {
-      const { page = 1, limit = 20, sortBy = 'created_at', sortOrder = 'desc' } = pagination;
-      const from = (page - 1) * limit;
-      const to = from + limit - 1;
+    return withErrorHandling(
+      async () => {
+        const { page = 1, limit = 20, sortBy = 'created_at', sortOrder = 'desc' } = pagination;
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
 
-      let query = supabase
-        .from(this.tableName)
-        .select(select, { count: 'exact' })
-        .range(from, to)
-        .order(sortBy, { ascending: sortOrder === 'asc' });
+        let query = supabase
+          .from(this.tableName)
+          .select(select, { count: 'exact' })
+          .range(from, to)
+          .order(sortBy, { ascending: sortOrder === 'asc' });
 
-      // Apply filters
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          if (Array.isArray(value)) {
-            query = query.in(key, value);
-          } else if (typeof value === 'string' && key.includes('search')) {
-            query = query.ilike(key.replace('_search', ''), `%${value}%`);
-          } else {
-            query = query.eq(key, value);
+        // Apply filters
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            if (Array.isArray(value)) {
+              query = query.in(key, value);
+            } else if (typeof value === 'string' && key.includes('search')) {
+              query = query.ilike(key.replace('_search', ''), `%${value}%`);
+            } else {
+              query = query.eq(key, value);
+            }
           }
+        });
+
+        const result = await query;
+
+        if (result.error) {
+          return { data: null, error: result.error };
         }
-      });
 
-      const result = await query;
+        const totalCount = result.count || 0;
+        const totalPages = Math.ceil(totalCount / limit);
 
-      if (result.error) {
-        const error = new Error(`${this.tableName}.findMany: ${result.error.message}`);
-        logger.error('Database query failed', error, `${this.tableName}.findMany`);
-        return { data: null, error };
-      }
-
-      const totalCount = result.count || 0;
-      const totalPages = Math.ceil(totalCount / limit);
-
-      return {
-        data: {
-          data: result.data as T[] || [],
-          count: totalCount,
-          page,
-          totalPages,
-          hasMore: page < totalPages,
-        },
-        error: null,
-      };
-    } catch (error) {
-      const wrappedError = new Error(`${this.tableName}.findMany: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      logger.error('Database operation exception', wrappedError, `${this.tableName}.findMany`);
-      return { data: null, error: wrappedError };
-    }
+        return {
+          data: {
+            data: result.data || [],
+            count: totalCount,
+            page,
+            totalPages,
+            hasMore: page < totalPages,
+          },
+          error: null,
+        };
+      },
+      `${this.tableName}.findMany`
+    );
   }
 
   /**
@@ -93,7 +89,7 @@ export abstract class BaseService<T = any> {
    */
   async create(data: Partial<T>): Promise<DatabaseResponse<T>> {
     return withErrorHandling(
-      async () => await supabase
+      () => supabase
         .from(this.tableName)
         .insert(data)
         .select()
@@ -107,7 +103,7 @@ export abstract class BaseService<T = any> {
    */
   async update(id: string, data: Partial<T>): Promise<DatabaseResponse<T>> {
     return withErrorHandling(
-      async () => await supabase
+      () => supabase
         .from(this.tableName)
         .update({ ...data, updated_at: new Date().toISOString() })
         .eq('id', id)
@@ -122,7 +118,7 @@ export abstract class BaseService<T = any> {
    */
   async upsert(data: Partial<T>): Promise<DatabaseResponse<T>> {
     return withErrorHandling(
-      async () => await supabase
+      () => supabase
         .from(this.tableName)
         .upsert(data)
         .select()
@@ -153,7 +149,7 @@ export abstract class BaseService<T = any> {
    */
   async softDelete(id: string): Promise<DatabaseResponse<T>> {
     return withErrorHandling(
-      async () => await supabase
+      () => supabase
         .from(this.tableName)
         .update({ 
           deleted_at: new Date().toISOString(),

@@ -8,8 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { LencoPayment } from '@/components/LencoPayment';
-import { logger } from '@/utils/logger';
-import { SubscriptionService } from '@/lib/services/subscription-service';
 
 interface SubscriptionPlan {
   id: string;
@@ -33,7 +31,6 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
   const [showPayment, setShowPayment] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const subscriptionService = new SubscriptionService();
 
   const handleSelectPlan = async () => {
     try {
@@ -56,8 +53,14 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { error } = await subscriptionService.createSubscription(user.id, plan.id);
-        if (error) throw error;
+        await supabase.from('subscriptions').upsert({
+          user_id: user.id,
+          plan_id: plan.id,
+          plan_name: plan.name,
+          amount: plan.price,
+          status: 'active',
+          created_at: new Date().toISOString()
+        });
 
         toast({
           title: "Subscription Activated!",
@@ -67,7 +70,7 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
         setShowPayment(false);
       }
     } catch (error) {
-      logger.error('Subscription update error', error, 'SubscriptionCard');
+      console.error('Subscription update error:', error);
     }
   };
 

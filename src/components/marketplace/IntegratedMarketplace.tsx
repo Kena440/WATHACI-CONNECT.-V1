@@ -1,14 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ServiceProviderCard } from './ServiceProviderCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Grid, List, Loader2, Users, Building, BookOpen } from 'lucide-react';
-import { logger } from '@/utils/logger';
-import { mockServices, mockStats } from '@/data/mockMarketplaceData';
 
 interface Service {
   id: string;
@@ -50,7 +49,11 @@ export const IntegratedMarketplace = () => {
     { value: 'resource', label: 'Resources', icon: BookOpen }
   ];
 
-  const loadServices = useCallback(async () => {
+  useEffect(() => {
+    loadServices();
+  }, [selectedCategory, selectedProviderType, selectedLocation, priceRange]);
+
+  const loadServices = async () => {
     setLoading(true);
     try {
       const filters = {
@@ -67,32 +70,12 @@ export const IntegratedMarketplace = () => {
       if (error) throw error;
       setServices((data.data || []) as Service[]);
     } catch (error) {
-      logger.error('Error loading services, using fallback data', error, 'IntegratedMarketplace');
-      // Use mock data as fallback when Supabase function fails
-      let fallbackServices = [...mockServices];
-      
-      // Apply filters to mock data
-      if (selectedCategory !== 'all') {
-        fallbackServices = fallbackServices.filter(service => service.category === selectedCategory);
-      }
-      if (selectedProviderType !== 'all') {
-        fallbackServices = fallbackServices.filter(service => service.providerType === selectedProviderType);
-      }
-      if (selectedLocation !== 'all') {
-        fallbackServices = fallbackServices.filter(service => 
-          service.location.toLowerCase().includes(selectedLocation.toLowerCase())
-        );
-      }
-      
-      setServices(fallbackServices);
+      console.error('Error loading services:', error);
+      setServices([]);
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, selectedProviderType, selectedLocation, priceRange]);
-
-  useEffect(() => {
-    loadServices();
-  }, [loadServices]);
+  };
 
   const filteredServices = services.filter((service) =>
     service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

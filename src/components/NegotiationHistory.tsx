@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { MessageCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { logger } from '@/utils/logger';
 
 interface NegotiationRecord {
   id: string;
@@ -29,9 +28,9 @@ export const NegotiationHistory = ({ serviceId, userId }: NegotiationHistoryProp
 
   useEffect(() => {
     fetchNegotiations();
-  }, [fetchNegotiations]);
+  }, [serviceId, userId]);
 
-  const fetchNegotiations = useCallback(async () => {
+  const fetchNegotiations = async () => {
     try {
       let query = supabase
         .from('negotiation_history')
@@ -49,11 +48,11 @@ export const NegotiationHistory = ({ serviceId, userId }: NegotiationHistoryProp
       if (error) throw error;
       setNegotiations(data || []);
     } catch (error) {
-      logger.error('Error fetching negotiations', error, 'NegotiationHistory');
+      console.error('Error fetching negotiations:', error);
     } finally {
       setLoading(false);
     }
-  }, [serviceId, userId]);
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {

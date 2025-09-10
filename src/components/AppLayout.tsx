@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import PageNavigator from './PageNavigator';
 
 interface AppLayoutProps {
   children?: ReactNode;
@@ -21,7 +20,6 @@ export const AppLayout = ({ children, showHomeContent = false }: AppLayoutProps)
         ) : (
           children
         )}
-        <PageNavigator />
       </main>
       <Footer />
     </div>

@@ -5,7 +5,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase';
 import { Shield, AlertTriangle, CheckCircle, FileText, Upload } from 'lucide-react';
-import { logger } from '@/utils/logger';
 
 interface ComplianceGateProps {
   children: React.ReactNode;
@@ -59,7 +58,7 @@ export const ComplianceGate = ({ children, requireCompliance = true }: Complianc
       setIsCompliant(hasAllRequired);
       setDocuments(data || []);
     } catch (error) {
-      logger.error('Error checking compliance', error, 'ComplianceGate');
+      console.error('Error checking compliance:', error);
     } finally {
       setLoading(false);
     }

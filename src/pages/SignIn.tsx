@@ -29,7 +29,7 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { signIn, signInWithGoogle } = useAppContext();
+  const { signIn } = useAppContext();
   const navigate = useNavigate();
 
   const {
@@ -153,18 +153,6 @@ const SignIn = () => {
                   Get Started
                 </Link>
               </p>
-            </div>
-
-            <div className="mt-6">
-              <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
-                Sign in with Google
-              </Button>
-            </div>
-
-            <div className="mt-4 text-center">
-              <Link to="/signup-phone" className="text-orange-600 hover:text-orange-700 font-medium">
-                Sign in with phone
-              </Link>
             </div>
           </CardContent>
         </Card>

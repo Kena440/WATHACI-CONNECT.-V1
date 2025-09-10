@@ -1,32 +1,16 @@
-# Accessibility and Testing
+# Jest + jest-axe Accessibility Testing
 
-This project provides multiple testing approaches for accessibility and SEO compliance.
+This project now includes automated accessibility testing using Jest and jest-axe.
 
-## Node.js Native Testing
+## Overview
 
-For environments that need to run without external dependencies, we provide lightweight tests using Node's built-in test runner:
+We've added Jest alongside the existing Node.js testing framework to provide accessibility testing capabilities using jest-axe. This allows us to automatically test components for accessibility violations according to WCAG guidelines.
 
-### Available Scripts
-
-- `npm test` – run all tests using Node.js native test runner
-- `npm run test:accessibility` – verify the HTML document has a language attribute and images include `alt` text
-- `npm run test:lighthouse` – perform basic SEO checks for a meta description tag and the existence of `robots.txt`
-
-These tests run in environments without network access or additional CLI tools.
-
-## Jest + jest-axe Accessibility Testing
-
-For comprehensive component testing and accessibility validation, this project also includes Jest and jest-axe configuration.
-
-### Overview
-
-Jest is configured alongside the Node.js testing framework to provide accessibility testing capabilities using jest-axe. This allows us to automatically test components for accessibility violations according to WCAG guidelines.
-
-### Setup
+## Setup
 
 The following has been configured:
 
-#### Dependencies Added
+### Dependencies Added
 - `jest` - Testing framework
 - `jest-axe` - Accessibility testing utilities
 - `@testing-library/react` - React testing utilities
@@ -34,20 +18,26 @@ The following has been configured:
 - `ts-jest` - TypeScript support for Jest
 - Various supporting packages for TypeScript and React integration
 
-#### Configuration Files
+### Configuration Files
 - `jest.config.cjs` - Main Jest configuration
 - `jest.setup.ts` - Test setup with jest-axe integration
 - `babel.config.cjs` - Babel configuration for Jest
 - Type definitions in `src/@types/` for TypeScript support
 
-### Available Scripts
+## Available Scripts
 
 ```bash
+# Run existing Node.js tests
+npm test
+
 # Run Jest tests
 npm run test:jest
 
 # Run Jest tests in watch mode
 npm run test:jest:watch
+
+# Run only accessibility tests
+npm run test:accessibility
 ```
 
 ## Writing Accessibility Tests

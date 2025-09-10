@@ -11,8 +11,6 @@ import { IntegratedMarketplace } from '@/components/marketplace/IntegratedMarket
 import { ComplianceGate } from '@/components/marketplace/ComplianceGate';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 
-const DEBUG = import.meta.env.DEV;
-
 // Products will be fetched from database in production
 
 const Marketplace = () => {
@@ -32,15 +30,15 @@ const Marketplace = () => {
   };
 
   const handleViewDetails = (product: any) => {
-    if (DEBUG) console.log('View product details:', product);
+    console.log('View product details:', product);
   };
 
   const handleSelectRecommendation = (recommendation: any) => {
-    if (DEBUG) console.log('Selected recommendation:', recommendation);
+    console.log('Selected recommendation:', recommendation);
   };
 
   const handlePriceSelect = (price: number) => {
-    if (DEBUG) console.log('Selected price:', price);
+    console.log('Selected price:', price);
   };
 
   return (
