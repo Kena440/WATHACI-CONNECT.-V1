@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Smartphone, CreditCard, Banknote, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { logger } from '@/utils/logger';
 
 interface LencoPaymentProps {
   amount: string | number;
@@ -21,29 +20,8 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
   const [paymentMethod, setPaymentMethod] = useState<string>('mobile_money');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [provider, setProvider] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvv, setCvv] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-
-  const handleCardNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 16);
-    setCardNumber(value);
-  };
-
-  const handleExpiryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '').slice(0, 4);
-    if (value.length >= 3) {
-      value = value.slice(0, 2) + '/' + value.slice(2);
-    }
-    setExpiry(value);
-  };
-
-  const handleCvvChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-    setCvv(value);
-  };
 
   // Calculate fee breakdown
   const totalAmount = typeof amount === 'string' ? parseFloat(amount.toString().replace(/[^\d.]/g, '')) : parseFloat(amount.toString());
@@ -60,31 +38,8 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
       return;
     }
 
-    if (paymentMethod === 'card') {
-      const cleanCard = cardNumber.replace(/\s+/g, '');
-      const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
-
-      if (!cleanCard || !expiry || !cvv) {
-        toast({
-          title: "Missing Information",
-          description: "Please enter your card details",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (cleanCard.length < 12 || !expiryRegex.test(expiry) || cvv.length < 3) {
-        toast({
-          title: "Invalid Card",
-          description: "Please check your card number, expiry, and CVV",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
     setLoading(true);
-
+    
     try {
       const { data, error } = await supabase.functions.invoke('lenco-payment', {
         body: {
@@ -92,15 +47,12 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
           paymentMethod,
           phoneNumber,
           provider,
-          description,
-          cardNumber: cardNumber.replace(/\s+/g, ''),
-          expiry,
-          cvv,
+          description
         }
       });
 
       if (error) {
-        logger.error('Supabase function error', error, 'LencoPayment');
+        console.error('Supabase function error:', error);
         throw new Error(error.message || 'Network error occurred');
       }
       
@@ -111,10 +63,10 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
         });
         onSuccess?.();
       } else {
-        throw new Error(data?.error || 'Payment was declined or card details were invalid');
+        throw new Error(data?.error || 'Payment was declined');
       }
     } catch (error: any) {
-      logger.error('Payment error', error, 'LencoPayment');
+      console.error('Payment error:', error);
       const errorMessage = error.message || 'Payment failed. Please check your connection and try again.';
       onError?.(error);
       toast({
@@ -204,45 +156,6 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
               />
-            </div>
-          </>
-        )}
-
-        {paymentMethod === 'card' && (
-          <>
-            <div>
-              <Label>Card Number</Label>
-              <Input
-                type="password"
-                inputMode="numeric"
-                autoComplete="off"
-                placeholder="1234567812345678"
-                value={cardNumber}
-                onChange={handleCardNumberChange}
-              />
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Label>Expiry (MM/YY)</Label>
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="MM/YY"
-                  value={expiry}
-                  onChange={handleExpiryChange}
-                />
-              </div>
-              <div className="w-24">
-                <Label>CVV</Label>
-                <Input
-                  type="password"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="123"
-                  value={cvv}
-                  onChange={handleCvvChange}
-                />
-              </div>
             </div>
           </>
         )}

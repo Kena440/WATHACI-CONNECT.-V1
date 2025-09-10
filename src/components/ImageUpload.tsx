@@ -101,10 +101,7 @@ export const ImageUpload = ({
       
       <div className="flex items-center gap-4">
         <Avatar className="h-20 w-20">
-          <AvatarImage
-            src={previewUrl || undefined}
-            alt={label}
-          />
+          <AvatarImage src={previewUrl || undefined} />
           <AvatarFallback>
             {type === 'logo' ? 'LOGO' : 'IMG'}
           </AvatarFallback>

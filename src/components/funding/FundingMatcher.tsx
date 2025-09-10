@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase';
 import { Search, TrendingUp, DollarSign, Clock, Loader2 } from 'lucide-react';
-import { logger } from '@/utils/logger';
 
 export const FundingMatcher = () => {
   const [businessProfile, setBusinessProfile] = useState({
@@ -51,7 +50,7 @@ export const FundingMatcher = () => {
       if (error) throw error;
       setMatches(data.matches || []);
     } catch (error) {
-      logger.error('Error matching funding', error, 'FundingMatcher');
+      console.error('Error matching funding:', error);
       alert('Error finding matches. Please try again.');
     } finally {
       setLoading(false);

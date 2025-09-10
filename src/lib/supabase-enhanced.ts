@@ -3,56 +3,33 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { logger } from '@/utils/logger';
 
 // Environment validation
-const validateEnvironment = (): { url: string; key: string } | null => {
-  // Check if we're in test environment (Jest)
-  const isJestEnv =
-    typeof jest !== 'undefined' ||
-    (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test');
-  
-  let url: string;
-  let key: string;
-  
-  if (isJestEnv) {
-    // Use hardcoded test values for Jest environment
-    url = 'https://test.supabase.co';
-    key = 'test-key';
-  } else {
-    // For normal runtime, use import.meta.env
-    url = (import.meta as any).env?.VITE_SUPABASE_URL;
-    key = (import.meta as any).env?.VITE_SUPABASE_KEY;
+const validateEnvironment = (): { url: string; key: string } => {
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_KEY;
+
+  if (!url) {
+    throw new Error('Missing VITE_SUPABASE_URL environment variable');
   }
 
-  if (!url || !key) {
-    logger.error(
-      'Missing Supabase configuration',
-      { url, key },
-      'SupabaseClient'
-    );
-    return null;
+  if (!key) {
+    throw new Error('Missing VITE_SUPABASE_KEY environment variable');
   }
 
-  // Skip URL validation in test environment
-  if (!isJestEnv) {
-    try {
-      new URL(url);
-    } catch {
-      throw new Error('Invalid VITE_SUPABASE_URL format');
-    }
+  // Basic URL validation
+  try {
+    new URL(url);
+  } catch {
+    throw new Error('Invalid VITE_SUPABASE_URL format');
   }
 
   return { url, key };
 };
 
 // Create the enhanced Supabase client
-const createSupabaseClient = (): SupabaseClient | null => {
-  const env = validateEnvironment();
-
-  if (!env) return null;
-
-  const { url, key } = env;
+const createSupabaseClient = (): SupabaseClient => {
+  const { url, key } = validateEnvironment();
 
   const client = createClient(url, key, {
     auth: {
@@ -76,34 +53,15 @@ const createSupabaseClient = (): SupabaseClient | null => {
   return client;
 };
 
-// Fallback client that rejects all operations
-const createFallbackClient = (): SupabaseClient => {
-  const handler = () => {
-    throw new Error('Supabase client not configured');
-  };
-
-  return new Proxy({}, { get: () => handler }) as SupabaseClient;
-};
-
 // Initialize the client
 let supabaseClient: SupabaseClient;
-let supabaseInitError: Error | null = null;
 
 try {
-  const client = createSupabaseClient();
-  if (client) {
-    supabaseClient = client;
-  } else {
-    throw new Error('Missing Supabase environment variables');
-  }
+  supabaseClient = createSupabaseClient();
 } catch (error) {
-  supabaseInitError = error instanceof Error ? error : new Error(String(error));
-  logger.error('Failed to initialize Supabase client', supabaseInitError, 'SupabaseClient');
-  supabaseClient = createFallbackClient();
+  console.error('Failed to initialize Supabase client:', error);
+  throw error;
 }
-
-export const supabaseConfigurationError = supabaseInitError;
-export const isSupabaseConfigured = !supabaseInitError;
 
 // Connection testing function
 export const testConnection = async (): Promise<boolean> => {
@@ -114,13 +72,13 @@ export const testConnection = async (): Promise<boolean> => {
       .limit(1);
 
     if (error) {
-      logger.error('Supabase connection test failed', error, 'SupabaseClient');
+      console.error('Supabase connection test failed:', error);
       return false;
     }
 
     return true;
   } catch (error) {
-    logger.error('Supabase connection test error', error, 'SupabaseClient');
+    console.error('Supabase connection test error:', error);
     return false;
   }
 };
@@ -135,14 +93,14 @@ export const withErrorHandling = async <T>(
     
     if (result.error) {
       const error = new Error(`${context}: ${result.error.message}`);
-      logger.error('Supabase operation failed', error, context);
+      console.error(error);
       return { data: null, error };
     }
 
     return { data: result.data, error: null };
   } catch (error) {
     const wrappedError = new Error(`${context}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    logger.error('Supabase operation exception', wrappedError, context);
+    console.error(wrappedError);
     return { data: null, error: wrappedError };
   }
 };

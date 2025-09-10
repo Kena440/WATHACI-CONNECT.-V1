@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { ProfileForm } from '@/components/ProfileForm';
 import { DueDiligenceUpload } from '@/components/DueDiligenceUpload';
 import { useToast } from '@/hooks/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
-import { logger } from '@/utils/logger';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -33,9 +32,9 @@ export const ProfileSetup = () => {
     }
     
     checkExistingProfile();
-  }, [user, navigate, checkExistingProfile]);
+  }, [user, navigate]);
 
-  const checkExistingProfile = useCallback(async () => {
+  const checkExistingProfile = async () => {
     if (!user) return;
     
     try {
@@ -59,14 +58,14 @@ export const ProfileSetup = () => {
         }
       }
     } catch (error: any) {
-      logger.error('Error checking profile', error, 'ProfileSetup');
+      console.error('Error checking profile:', error);
       toast({
         title: "Error",
         description: "Failed to load profile data.",
         variant: "destructive",
       });
     }
-  }, [user, toast]);
+  };
 
   const handleAccountTypeSelect = async () => {
     if (!selectedAccountType || !user) return;
@@ -107,12 +106,11 @@ export const ProfileSetup = () => {
     setLoading(true);
     
     try {
-      let paymentData: Record<string, any> = {};
+      let paymentData = {};
       if (profileData.use_same_phone) {
         paymentData = {
           payment_phone: profileData.phone,
-          payment_method: 'phone',
-          mobile_money_provider: profileData.mobile_money_provider
+          payment_method: 'phone'
         };
       } else {
         if (profileData.payment_method === 'card') {
@@ -120,45 +118,23 @@ export const ProfileSetup = () => {
             payment_method: 'card',
             card_details: {
               number: profileData.card_number,
-              expiry: profileData.card_expiry,
-              holder_name: profileData.cardholder_name,
-              cvv: profileData.card_cvv
+              expiry: profileData.card_expiry
             }
-          };
-        } else if (profileData.payment_method === 'bank') {
-          paymentData = {
-            payment_method: 'bank',
-            bank_account_name: profileData.bank_account_name,
-            bank_account_number: profileData.bank_account_number,
-            bank_name: profileData.bank_name,
-            bank_branch: profileData.bank_branch,
-            bank_swift_code: profileData.bank_swift_code,
-            bank_currency: profileData.bank_currency
           };
         } else {
           paymentData = {
             payment_method: 'phone',
-            payment_phone: profileData.payment_phone,
-            mobile_money_provider: profileData.mobile_money_provider
+            payment_phone: profileData.payment_phone
           };
         }
       }
-
-      const {
-        card_number,
-        card_expiry,
-        cardholder_name,
-        card_cvv,
-        mobile_money_provider,
-        ...profileDataToSave
-      } = profileData;
 
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           email: user.email,
-          ...profileDataToSave,
+          ...profileData,
           ...paymentData,
           profile_completed: true,
           updated_at: new Date().toISOString()

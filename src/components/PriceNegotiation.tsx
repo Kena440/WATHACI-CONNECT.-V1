@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { LencoPayment } from './LencoPayment';
 import { NegotiationHistory } from './NegotiationHistory';
-import { logger } from '@/utils/logger';
 import ZRATaxCalculator from './ZRATaxCalculator';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
@@ -69,7 +68,7 @@ const PriceNegotiation = ({
 
       if (error) throw error;
     } catch (error) {
-      logger.error('Error saving negotiation', error, 'PriceNegotiation');
+      console.error('Error saving negotiation:', error);
     }
   };
 
@@ -148,7 +147,7 @@ const PriceNegotiation = ({
               amount={taxCalculation?.netAmount?.toString() || totalAmount.toString()}
               description={`Payment for ${serviceTitle} - ZRA tax compliant`}
               onSuccess={handlePaymentSuccess}
-              onError={(error) => logger.error('Payment failed', error, 'PriceNegotiation')}
+              onError={(error) => console.error('Payment failed:', error)}
             />
           </CardContent>
         </Card>

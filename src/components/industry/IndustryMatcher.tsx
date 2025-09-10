@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Target, Users, DollarSign, Handshake } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { logger } from '@/utils/logger';
 
 interface IndustryMatch {
   freelancers: string[];
@@ -50,7 +49,7 @@ const IndustryMatcher = () => {
       if (error) throw error;
       setMatches(data);
     } catch (error) {
-      logger.error('Error getting industry matches', error, 'IndustryMatcher');
+      console.error('Error getting industry matches:', error);
     } finally {
       setLoading(false);
     }

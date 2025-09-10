@@ -8,9 +8,6 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Star, MapPin, Clock, Search, Filter } from 'lucide-react';
 import PriceNegotiation from '@/components/PriceNegotiation';
 import { supabase } from '@/lib/supabase';
-import { logger } from '@/utils/logger';
-
-const DEBUG = import.meta.env.DEV;
 
 interface Freelancer {
   id: string;
@@ -51,7 +48,7 @@ export const FreelancerDirectory = () => {
       if (error) throw error;
       setFreelancers(data || []);
     } catch (error) {
-      logger.error('Error fetching freelancers', error, 'FreelancerDirectory');
+      console.error('Error fetching freelancers:', error);
     } finally {
       setLoading(false);
     }
@@ -200,7 +197,7 @@ export const FreelancerDirectory = () => {
                     serviceTitle={`${freelancer.name} - ${freelancer.title}`}
                     providerId={freelancer.id.toString()}
                     onNegotiationComplete={(finalPrice) => {
-                      if (DEBUG) console.log(`Negotiation complete: $${finalPrice}`);
+                      console.log(`Negotiation complete: $${finalPrice}`);
                     }}
                   />
                 </DialogContent>
@@ -235,4 +232,3 @@ export const FreelancerDirectory = () => {
     </div>
   );
 };
-

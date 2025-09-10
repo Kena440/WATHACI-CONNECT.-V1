@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { currencies } from '../data/countries';
 import { supabase } from '../lib/supabase';
-import { logger } from '@/utils/logger';
 
 interface ConversionResult {
   originalAmount: number;
@@ -36,9 +35,9 @@ export const CurrencyConverter: React.FC<CurrencyConverterProps> = ({
     if (amount > 0 && fromCurrency) {
       convertCurrency();
     }
-  }, [amount, fromCurrency, convertCurrency]);
+  }, [amount, fromCurrency]);
 
-  const convertCurrency = useCallback(async () => {
+  const convertCurrency = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('currency-converter', {
@@ -56,11 +55,11 @@ export const CurrencyConverter: React.FC<CurrencyConverterProps> = ({
         onConversionResult(data);
       }
     } catch (error) {
-      logger.error('Currency conversion failed', error, 'CurrencyConverter');
+      console.error('Currency conversion failed:', error);
     } finally {
       setLoading(false);
     }
-  }, [amount, fromCurrency, onConversionResult]);
+  };
 
   const formatCurrency = (amount: number, currency: string) => {
     const currencyInfo = currencies.find(c => c.code === currency);

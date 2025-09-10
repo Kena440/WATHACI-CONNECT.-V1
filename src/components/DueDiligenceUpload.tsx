@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/lib/supabase';
 import { Upload, FileText, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
-import { logger } from '@/utils/logger';
 
 interface Document {
   id: string;
@@ -43,7 +42,7 @@ export const DueDiligenceUpload = ({ onComplianceChange }: { onComplianceChange?
 
   useEffect(() => {
     checkCompliance();
-  }, [documents, checkCompliance]);
+  }, [documents]);
 
   const loadDocuments = async () => {
     try {
@@ -59,11 +58,11 @@ export const DueDiligenceUpload = ({ onComplianceChange }: { onComplianceChange?
       if (error) throw error;
       setDocuments(data || []);
     } catch (error) {
-      logger.error('Error loading documents', error, 'DueDiligenceUpload');
+      console.error('Error loading documents:', error);
     }
   };
 
-  const checkCompliance = useCallback(() => {
+  const checkCompliance = () => {
     const requiredDocs = REQUIRED_DOCUMENTS.filter(doc => doc.required);
     const uploadedRequiredDocs = requiredDocs.filter(reqDoc => 
       documents.some(doc => 
@@ -74,7 +73,7 @@ export const DueDiligenceUpload = ({ onComplianceChange }: { onComplianceChange?
     
     const isCompliant = uploadedRequiredDocs.length === requiredDocs.length;
     onComplianceChange?.(isCompliant);
-  }, [documents, onComplianceChange]);
+  };
 
   const handleFileUpload = async () => {
     if (!selectedFile || !selectedType) return;
@@ -120,7 +119,7 @@ export const DueDiligenceUpload = ({ onComplianceChange }: { onComplianceChange?
       // Reload documents
       await loadDocuments();
     } catch (error) {
-      logger.error('Error uploading document', error, 'DueDiligenceUpload');
+      console.error('Error uploading document:', error);
     } finally {
       setUploading(false);
     }

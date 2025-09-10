@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAppContext } from '@/contexts/AppContext';
@@ -29,9 +29,9 @@ export const ProfileReview = () => {
     }
 
     fetchProfile();
-  }, [user, navigate, fetchProfile]);
+  }, [user, navigate]);
 
-  const fetchProfile = useCallback(async () => {
+  const fetchProfile = async () => {
     if (!user) return;
     
     try {
@@ -52,7 +52,7 @@ export const ProfileReview = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  };
 
   const handleEditProfile = () => {
     navigate('/profile-setup');
@@ -98,12 +98,9 @@ export const ProfileReview = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage
-                    src={profile.profile_image_url || undefined}
-                    alt={profile.business_name || profile.email}
-                  />
+                  <AvatarImage src={profile.profile_image_url || undefined} />
                   <AvatarFallback className="text-lg">
-                    {profile.business_name ?
+                    {profile.business_name ? 
                       profile.business_name.substring(0, 2).toUpperCase() :
                       profile.email.substring(0, 2).toUpperCase()
                     }
@@ -249,57 +246,21 @@ export const ProfileReview = () => {
 
         {/* Payment Information */}
         <Card>
-        <CardHeader>
+          <CardHeader>
             <CardTitle>Payment Information</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
               <Phone className="h-5 w-5 text-muted-foreground" />
               <span>
-                Payment Method: {profile.payment_method === 'phone'
-                  ? 'Mobile Money'
-                  : profile.payment_method === 'card'
-                  ? 'Card'
-                  : 'Bank Transfer'}
+                Payment Method: {profile.payment_method === 'phone' ? 'Mobile Money' : 'Card'}
               </span>
             </div>
-            {profile.payment_method === 'phone' && (
-              <>
-                {profile.mobile_money_provider && (
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-muted-foreground">Provider:</span>
-                    <span>{profile.mobile_money_provider}</span>
-                  </div>
-                )}
-                {profile.payment_phone && (
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-muted-foreground">Payment Phone:</span>
-                    <span>{profile.payment_phone}</span>
-                  </div>
-                )}
-              </>
-            )}
-            {profile.payment_method === 'card' && profile.card_details && (
+            {profile.payment_phone && (
               <div className="flex items-center gap-3 mt-2">
-                <span className="text-muted-foreground">Card Holder:</span>
-                <span>{profile.card_details.holder_name}</span>
+                <span className="text-muted-foreground">Payment Phone:</span>
+                <span>{profile.payment_phone}</span>
               </div>
-            )}
-            {profile.payment_method === 'bank' && (
-              <>
-                {profile.bank_account_name && (
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-muted-foreground">Account Name:</span>
-                    <span>{profile.bank_account_name}</span>
-                  </div>
-                )}
-                {profile.bank_name && (
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-muted-foreground">Bank:</span>
-                    <span>{profile.bank_name}</span>
-                  </div>
-                )}
-              </>
             )}
           </CardContent>
         </Card>

@@ -26,7 +26,7 @@ export const GetStarted = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signUp, signInWithGoogle } = useAppContext();
+  const { signUp } = useAppContext();
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -83,17 +83,7 @@ export const GetStarted = () => {
               {error}
             </div>
           )}
-
-          <Button type="button" variant="outline" className="w-full" onClick={signInWithGoogle}>
-            Sign up with Google
-          </Button>
-
-          <div className="text-center text-sm text-gray-600">
-            <Link to="/signup-phone" className="text-blue-600 hover:underline font-medium">
-              Sign up with phone
-            </Link>
-          </div>
-
+          
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -187,8 +177,6 @@ export const GetStarted = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    aria-label="Toggle password visibility"
-                    aria-pressed={showPassword}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -210,8 +198,6 @@ export const GetStarted = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    aria-label="Toggle confirm password visibility"
-                    aria-pressed={showConfirmPassword}
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>

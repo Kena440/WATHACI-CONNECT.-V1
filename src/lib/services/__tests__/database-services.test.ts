@@ -1,12 +1,23 @@
 /**
- * Database services test
+ * Basic functionality test for database services
  */
+
+import { describe, it, expect, jest } from '@jest/globals';
 
 // Mock the environment variables before importing services
 const mockEnv = {
   VITE_SUPABASE_URL: 'https://test.supabase.co',
   VITE_SUPABASE_KEY: 'test-key'
 };
+
+// Mock import.meta.env
+Object.defineProperty(global, 'import', {
+  value: {
+    meta: {
+      env: mockEnv
+    }
+  }
+});
 
 // Mock Supabase client
 jest.mock('@supabase/supabase-js', () => ({
@@ -41,29 +52,27 @@ jest.mock('@supabase/supabase-js', () => ({
 describe('Database Services', () => {
   describe('Service Imports', () => {
     it('should import all services without errors', async () => {
-      const services = await import('../index');
-
+      const services = await import('../src/lib/services/index');
+      
       expect(services.userService).toBeDefined();
       expect(services.profileService).toBeDefined();
       expect(services.subscriptionService).toBeDefined();
       expect(services.transactionService).toBeDefined();
-      expect(services.serviceRequestService).toBeDefined();
       expect(services.supabase).toBeDefined();
     });
 
     it('should have proper service types', async () => {
-      const { userService, profileService, subscriptionService, serviceRequestService } = await import('../index');
-
+      const { userService, profileService, subscriptionService } = await import('../src/lib/services/index');
+      
       expect(typeof userService).toBe('object');
       expect(typeof profileService).toBe('object');
       expect(typeof subscriptionService).toBe('object');
-      expect(typeof serviceRequestService).toBe('object');
     });
   });
 
   describe('Service Methods', () => {
     it('should have expected methods on user service', async () => {
-      const { userService } = await import('../index');
+      const { userService } = await import('../src/lib/services/index');
       
       expect(typeof userService.getCurrentUser).toBe('function');
       expect(typeof userService.signIn).toBe('function');
@@ -72,7 +81,7 @@ describe('Database Services', () => {
     });
 
     it('should have expected methods on profile service', async () => {
-      const { profileService } = await import('../index');
+      const { profileService } = await import('../src/lib/services/index');
       
       expect(typeof profileService.getByUserId).toBe('function');
       expect(typeof profileService.createProfile).toBe('function');
@@ -82,48 +91,28 @@ describe('Database Services', () => {
     });
 
     it('should have expected methods on subscription service', async () => {
-      const { subscriptionService } = await import('../index');
+      const { subscriptionService } = await import('../src/lib/services/index');
       
       expect(typeof subscriptionService.getPlansByAccountType).toBe('function');
       expect(typeof subscriptionService.getCurrentUserSubscription).toBe('function');
       expect(typeof subscriptionService.createSubscription).toBe('function');
       expect(typeof subscriptionService.hasActiveSubscription).toBe('function');
     });
-
-    it('should have expected methods on service request service', async () => {
-      const { serviceRequestService } = await import('../index');
-
-      // User-friendly methods from service-requests branch
-      expect(typeof serviceRequestService.getRequestsByUser).toBe('function');
-      expect(typeof serviceRequestService.createRequest).toBe('function');
-      expect(typeof serviceRequestService.updateRequest).toBe('function');
-      expect(typeof serviceRequestService.deleteRequest).toBe('function');
-      
-      // Base service methods for flexibility
-      expect(typeof serviceRequestService.create).toBe('function');
-      expect(typeof serviceRequestService.findMany).toBe('function');
-      expect(typeof serviceRequestService.findById).toBe('function');
-      expect(typeof serviceRequestService.delete).toBe('function');
-    });
   });
 
   describe('Database Types', () => {
     it('should import database types without errors', async () => {
-      // Since these are TypeScript types, we can't test them at runtime
-      // Instead, let's test that the module imports without errors
-      expect(async () => {
-        await import('../../../@types/database');
-      }).not.toThrow();
+      const types = await import('../src/@types/database');
       
-      // Test that we can use the types in code (compile-time check)
-      const validAccountType: import('../../../@types/database').AccountType = 'sole_proprietor';
-      expect(validAccountType).toBe('sole_proprietor');
+      // Check that key types are available
+      expect(types).toHaveProperty('AccountType');
+      expect(types).toBeDefined();
     });
   });
 
   describe('Utility Functions', () => {
     it('should have utility functions available', async () => {
-      const { withErrorHandling, testConnection, healthCheck } = await import('../index');
+      const { withErrorHandling, testConnection, healthCheck } = await import('../src/lib/services/index');
       
       expect(typeof withErrorHandling).toBe('function');
       expect(typeof testConnection).toBe('function');

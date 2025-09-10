@@ -6,9 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 import { Search, MapPin, Users, TrendingUp, Heart, DollarSign } from 'lucide-react';
-import { logger } from '@/utils/logger';
-
-const DEBUG = import.meta.env.DEV;
 
 interface SME {
   id: string;
@@ -45,7 +42,7 @@ const SMEDirectory = () => {
       if (error) throw error;
       setSmes(data || []);
     } catch (error) {
-      logger.error('Error fetching SMEs', error, 'SMEDirectory');
+      console.error('Error fetching SMEs:', error);
     } finally {
       setLoading(false);
     }
@@ -60,7 +57,7 @@ const SMEDirectory = () => {
 
   const handleShowInterest = (smeId: string, type: 'investment' | 'donation') => {
     // This will be handled by the InterestModal component
-    if (DEBUG) console.log(`Showing ${type} interest in SME:`, smeId);
+    console.log(`Showing ${type} interest in SME:`, smeId);
   };
 
   if (loading) {

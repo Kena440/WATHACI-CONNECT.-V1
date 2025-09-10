@@ -22,9 +22,7 @@ const Header = () => {
     { name: 'Marketplace', href: '/marketplace' },
     { name: 'Freelancer Hub', href: '/freelancer-hub' },
     { name: 'Resources', href: '/resources' },
-    { name: 'Partnership Hub', href: '/partnership-hub' },
-    { name: 'Funding Hub', href: '/funding-hub' },
-    { name: 'About Us', href: '/about' }
+    { name: 'Partnership Hub', href: '/partnership-hub' }
   ];
 
   const handleSignOut = async () => {
@@ -40,7 +38,7 @@ const Header = () => {
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center space-x-3 cursor-pointer group">
             <img
-              src="/logo.svg"
+              src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png"
               alt="WATHACI CONNECT"
               loading="lazy"
               decoding="async"
@@ -122,8 +120,6 @@ const Header = () => {
 
           <button
             className="md:hidden p-2"
-            aria-label="Toggle navigation menu"
-            aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

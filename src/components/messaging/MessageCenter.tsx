@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,9 +33,9 @@ export const MessageCenter = () => {
 
   useEffect(() => {
     loadMessages();
-  }, [loadMessages]);
+  }, []);
 
-  const loadMessages = useCallback(async () => {
+  const loadMessages = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -55,7 +55,7 @@ export const MessageCenter = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  };
 
   const sendMessage = async () => {
     try {

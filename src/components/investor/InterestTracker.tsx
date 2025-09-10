@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { useAppContext } from '@/contexts/AppContext';
 import { Eye, MessageCircle, TrendingUp, Heart, Calendar } from 'lucide-react';
-import { logger } from '@/utils/logger';
 
 interface Interest {
   id: string;
@@ -31,9 +30,9 @@ const InterestTracker = () => {
     if (user) {
       fetchInterests();
     }
-  }, [user, fetchInterests]);
+  }, [user]);
 
-  const fetchInterests = useCallback(async () => {
+  const fetchInterests = async () => {
     try {
       const { data, error } = await supabase
         .from('investor_interests')
@@ -51,11 +50,11 @@ const InterestTracker = () => {
       if (error) throw error;
       setInterests(data || []);
     } catch (error) {
-      logger.error('Error fetching interests', error, 'InterestTracker');
+      console.error('Error fetching interests:', error);
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
