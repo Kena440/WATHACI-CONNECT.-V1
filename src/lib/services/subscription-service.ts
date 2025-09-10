@@ -1,9 +1,10 @@
 /**
- * Subscription service for handling subscription plans and user subscriptions
+ * Enhanced Subscription service for handling subscription plans and user subscriptions with Lenco payments
  */
 
 import { BaseService } from './base-service';
 import { supabase, withErrorHandling } from '@/lib/supabase-enhanced';
+import { lencoPaymentService } from './lenco-payment-service';
 import type { 
   SubscriptionPlan, 
   UserSubscription, 
@@ -18,8 +19,395 @@ export class SubscriptionService extends BaseService<UserSubscription> {
   }
 
   /**
-   * Get subscription plans for a specific account type
+   * Subscribe user to a plan with Lenco payment integration
    */
+  async subscribeToPlan(
+    userId: string,
+    planId: string,
+    paymentMethod: 'mobile_money' | 'card',
+    paymentDetails: {
+      email: string;
+      name: string;
+      phone?: string;
+      provider?: 'mtn' | 'airtel' | 'zamtel';
+    }
+  ): Promise<{
+    success: boolean;
+    subscription?: UserSubscription;
+    payment_url?: string;
+    error?: string;
+  }> {
+    try {
+      // Check if user already has an active subscription
+      const existingSubscription = await this.getCurrentUserSubscription(userId);
+      if (existingSubscription.data) {
+        throw new Error('User already has an active subscription. Please cancel current subscription first.');
+      }
+
+      // Get plan details
+      const planResult = await this.getPlanById(planId);
+      if (!planResult.data) {
+        throw new Error('Subscription plan not found');
+      }
+      const plan = planResult.data;
+
+      // Calculate subscription period
+      const startDate = new Date();
+      const endDate = this.calculateEndDate(startDate, plan.period);
+
+      // Create subscription record
+      const subscriptionData = {
+        user_id: userId,
+        plan_id: planId,
+        status: 'pending' as const,
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        payment_status: 'pending' as const,
+        auto_renew: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const subscriptionResult = await this.create(subscriptionData);
+      if (!subscriptionResult.data) {
+        throw new Error('Failed to create subscription record');
+      }
+
+      const subscription = subscriptionResult.data;
+
+      // Process payment
+      const paymentAmount = plan.lencoAmount / 100; // Convert from ngwee to kwacha
+      const paymentResponse = paymentMethod === 'mobile_money' 
+        ? await lencoPaymentService.processMobileMoneyPayment({
+            amount: paymentAmount,
+            phone: paymentDetails.phone!,
+            provider: paymentDetails.provider!,
+            email: paymentDetails.email,
+            name: paymentDetails.name,
+            description: `${plan.name} Subscription - ${plan.description || plan.price}`
+          })
+        : await lencoPaymentService.processCardPayment({
+            amount: paymentAmount,
+            email: paymentDetails.email,
+            name: paymentDetails.name,
+            description: `${plan.name} Subscription - ${plan.description || plan.price}`,
+            phone: paymentDetails.phone
+          });
+
+      if (!paymentResponse.success) {
+        // Clean up failed subscription
+        await this.delete(subscription.id);
+        throw new Error(paymentResponse.error || 'Payment failed');
+      }
+
+      // Update subscription with payment reference
+      await this.update(subscription.id, {
+        payment_reference: paymentResponse.data?.reference,
+        updated_at: new Date().toISOString()
+      });
+
+      // Create transaction record
+      await transactionService.createTransaction(
+        userId,
+        subscription.id,
+        paymentAmount,
+        paymentMethod === 'mobile_money' ? 'phone' : 'card',
+        paymentResponse.data?.reference || ''
+      );
+
+      return {
+        success: true,
+        subscription: subscription as UserSubscription,
+        payment_url: paymentResponse.data?.payment_url
+      };
+
+    } catch (error: any) {
+      console.error('Subscription error:', error);
+      return {
+        success: false,
+        error: error.message || 'Subscription failed'
+      };
+    }
+  }
+
+  /**
+   * Verify subscription payment and activate
+   */
+  async verifySubscriptionPayment(paymentReference: string): Promise<{
+    success: boolean;
+    subscription?: UserSubscription;
+    error?: string;
+  }> {
+    try {
+      // Verify payment with Lenco
+      const paymentStatus = await lencoPaymentService.verifyPayment(paymentReference);
+
+      // Update transaction record
+      const transactionResult = await transactionService.getByReference(paymentReference);
+      if (transactionResult.data) {
+        await transactionService.updateTransactionStatus(
+          transactionResult.data.id,
+          paymentStatus.status === 'success' ? 'completed' : 'failed'
+        );
+      }
+
+      if (paymentStatus.status === 'success') {
+        // Find subscription by payment reference
+        const { data: subscription, error } = await supabase
+          .from('user_subscriptions')
+          .select('*')
+          .eq('payment_reference', paymentReference)
+          .single();
+
+        if (error || !subscription) {
+          throw new Error('Subscription not found for payment reference');
+        }
+
+        // Activate subscription
+        const activatedResult = await this.activateSubscription(subscription.id);
+        if (!activatedResult.data) {
+          throw new Error('Failed to activate subscription');
+        }
+
+        return {
+          success: true,
+          subscription: activatedResult.data as UserSubscription
+        };
+      } else {
+        throw new Error('Payment verification failed');
+      }
+
+    } catch (error: any) {
+      console.error('Payment verification error:', error);
+      return {
+        success: false,
+        error: error.message || 'Payment verification failed'
+      };
+    }
+  }
+
+  /**
+   * Renew subscription with payment
+   */
+  async renewSubscriptionWithPayment(
+    subscriptionId: string,
+    paymentMethod: 'mobile_money' | 'card',
+    paymentDetails: {
+      email: string;
+      name: string;
+      phone?: string;
+      provider?: 'mtn' | 'airtel' | 'zamtel';
+    }
+  ): Promise<{
+    success: boolean;
+    payment_url?: string;
+    error?: string;
+  }> {
+    try {
+      // Get current subscription with plan details
+      const { data: subscription, error: subError } = await supabase
+        .from('user_subscriptions')
+        .select(`
+          *,
+          subscription_plans (*)
+        `)
+        .eq('id', subscriptionId)
+        .single();
+
+      if (subError || !subscription) {
+        throw new Error('Subscription not found');
+      }
+
+      const plan = (subscription as any).subscription_plans;
+      if (!plan) {
+        throw new Error('Subscription plan not found');
+      }
+
+      // Process renewal payment
+      const paymentAmount = plan.lencoAmount / 100;
+      const paymentResponse = paymentMethod === 'mobile_money'
+        ? await lencoPaymentService.processMobileMoneyPayment({
+            amount: paymentAmount,
+            phone: paymentDetails.phone!,
+            provider: paymentDetails.provider!,
+            email: paymentDetails.email,
+            name: paymentDetails.name,
+            description: `${plan.name} Subscription Renewal`
+          })
+        : await lencoPaymentService.processCardPayment({
+            amount: paymentAmount,
+            email: paymentDetails.email,
+            name: paymentDetails.name,
+            description: `${plan.name} Subscription Renewal`,
+            phone: paymentDetails.phone
+          });
+
+      if (!paymentResponse.success) {
+        throw new Error(paymentResponse.error || 'Renewal payment failed');
+      }
+
+      // Update subscription with new end date and payment reference
+      const currentEndDate = new Date(subscription.end_date);
+      const newEndDate = this.calculateEndDate(currentEndDate, plan.period);
+
+      await this.update(subscriptionId, {
+        end_date: newEndDate.toISOString(),
+        status: 'active',
+        payment_status: 'paid',
+        payment_reference: paymentResponse.data?.reference,
+        updated_at: new Date().toISOString()
+      });
+
+      // Create transaction record for renewal
+      await transactionService.createTransaction(
+        subscription.user_id,
+        subscriptionId,
+        paymentAmount,
+        paymentMethod === 'mobile_money' ? 'phone' : 'card',
+        paymentResponse.data?.reference || ''
+      );
+
+      return {
+        success: true,
+        payment_url: paymentResponse.data?.payment_url
+      };
+
+    } catch (error: any) {
+      console.error('Renewal error:', error);
+      return {
+        success: false,
+        error: error.message || 'Renewal failed'
+      };
+    }
+  }
+
+  /**
+   * Calculate subscription end date based on period
+   */
+  private calculateEndDate(startDate: Date, period: string): Date {
+    const endDate = new Date(startDate);
+
+    if (period.includes('3 months') || period.includes('/3 months')) {
+      endDate.setMonth(endDate.getMonth() + 3);
+    } else if (period.includes('year') || period.includes('/year')) {
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    } else {
+      // Default to 1 month for monthly plans
+      endDate.setMonth(endDate.getMonth() + 1);
+    }
+
+    return endDate;
+  }
+
+  /**
+   * Get subscription analytics
+   */
+  async getSubscriptionAnalytics(userId?: string): Promise<{
+    activeSubscriptions: number;
+    totalRevenue: number;
+    monthlyRevenue: number;
+    churnRate: number;
+  }> {
+    try {
+      let subscriptionsQuery = supabase.from('user_subscriptions').select('*');
+      
+      if (userId) {
+        subscriptionsQuery = subscriptionsQuery.eq('user_id', userId);
+      }
+
+      const { data: subscriptions } = await subscriptionsQuery;
+
+      if (!subscriptions) {
+        return {
+          activeSubscriptions: 0,
+          totalRevenue: 0,
+          monthlyRevenue: 0,
+          churnRate: 0
+        };
+      }
+
+      const activeCount = subscriptions.filter(s => s.status === 'active').length;
+      const cancelledCount = subscriptions.filter(s => s.status === 'cancelled').length;
+      
+      // Get transaction data for revenue calculation
+      let transactionsQuery = supabase
+        .from('transactions')
+        .select('amount, created_at, status')
+        .eq('status', 'completed');
+
+      if (userId) {
+        transactionsQuery = transactionsQuery.eq('user_id', userId);
+      }
+
+      const { data: transactions } = await transactionsQuery;
+
+      const totalRevenue = transactions?.reduce((sum, t) => sum + t.amount, 0) || 0;
+      
+      const currentMonth = new Date();
+      const monthlyTransactions = transactions?.filter(t => {
+        const transactionDate = new Date(t.created_at);
+        return transactionDate.getMonth() === currentMonth.getMonth() &&
+               transactionDate.getFullYear() === currentMonth.getFullYear();
+      }) || [];
+      
+      const monthlyRevenue = monthlyTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const churnRate = subscriptions.length > 0 ? (cancelledCount / subscriptions.length) * 100 : 0;
+
+      return {
+        activeSubscriptions: activeCount,
+        totalRevenue,
+        monthlyRevenue,
+        churnRate
+      };
+
+    } catch (error) {
+      console.error('Error getting subscription analytics:', error);
+      return {
+        activeSubscriptions: 0,
+        totalRevenue: 0,
+        monthlyRevenue: 0,
+        churnRate: 0
+      };
+    }
+  }
+
+  /**
+   * Process expired subscriptions (run as scheduled task)
+   */
+  async processExpiredSubscriptions(): Promise<number> {
+    try {
+      const { data: expiredSubscriptions, error } = await supabase
+        .from('user_subscriptions')
+        .select('id')
+        .eq('status', 'active')
+        .lt('end_date', new Date().toISOString());
+
+      if (error || !expiredSubscriptions) {
+        console.error('Error finding expired subscriptions:', error);
+        return 0;
+      }
+
+      let processedCount = 0;
+      for (const subscription of expiredSubscriptions) {
+        try {
+          await this.update(subscription.id, {
+            status: 'expired',
+            updated_at: new Date().toISOString()
+          });
+          processedCount++;
+        } catch (updateError) {
+          console.error(`Error updating subscription ${subscription.id}:`, updateError);
+        }
+      }
+
+      return processedCount;
+    } catch (error) {
+      console.error('Error processing expired subscriptions:', error);
+      return 0;
+    }
+  }
+
+  // Keep all existing methods from the original class
   async getPlansByAccountType(accountType: AccountType): Promise<DatabaseResponse<SubscriptionPlan[]>> {
     return withErrorHandling(
       () => supabase
@@ -31,9 +419,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Get all subscription plans
-   */
   async getAllPlans(): Promise<DatabaseResponse<SubscriptionPlan[]>> {
     return withErrorHandling(
       () => supabase
@@ -45,9 +430,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Get a specific subscription plan by ID
-   */
   async getPlanById(planId: string): Promise<DatabaseResponse<SubscriptionPlan>> {
     return withErrorHandling(
       () => supabase
@@ -59,9 +441,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Get user's current active subscription
-   */
   async getCurrentUserSubscription(userId: string): Promise<DatabaseResponse<UserSubscription | null>> {
     return withErrorHandling(
       () => supabase
@@ -86,9 +465,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Get all user subscriptions (including expired)
-   */
   async getUserSubscriptions(userId: string): Promise<DatabaseResponse<UserSubscription[]>> {
     return withErrorHandling(
       () => supabase
@@ -111,9 +487,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Create a new subscription for a user
-   */
   async createSubscription(
     userId: string,
     planId: string,
@@ -159,9 +532,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Activate a subscription (mark as active and paid)
-   */
   async activateSubscription(subscriptionId: string): Promise<DatabaseResponse<UserSubscription>> {
     return withErrorHandling(
       () => supabase
@@ -189,9 +559,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Cancel a subscription
-   */
   async cancelSubscription(subscriptionId: string): Promise<DatabaseResponse<UserSubscription>> {
     return withErrorHandling(
       () => supabase
@@ -218,16 +585,12 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Renew a subscription
-   */
   async renewSubscription(
     subscriptionId: string,
     durationMonths: number = 1
   ): Promise<DatabaseResponse<UserSubscription>> {
     return withErrorHandling(
       async () => {
-        // Get current subscription
         const { data: currentSub, error: fetchError } = await supabase
           .from('user_subscriptions')
           .select('*')
@@ -238,7 +601,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
           return { data: null, error: fetchError || new Error('Subscription not found') };
         }
 
-        // Calculate new end date
         const currentEndDate = new Date(currentSub.end_date);
         const newEndDate = new Date(currentEndDate);
         newEndDate.setMonth(newEndDate.getMonth() + durationMonths);
@@ -272,9 +634,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Check if user has active subscription
-   */
   async hasActiveSubscription(userId: string): Promise<DatabaseResponse<boolean>> {
     return withErrorHandling(
       async () => {
@@ -295,9 +654,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Get subscription features for a user
-   */
   async getUserSubscriptionFeatures(userId: string): Promise<DatabaseResponse<string[]>> {
     return withErrorHandling(
       async () => {
@@ -312,7 +668,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
           .single();
 
         if (error || !subscription) {
-          return { data: [], error: null }; // Return empty array for non-subscribers
+          return { data: [], error: null };
         }
 
         const features = (subscription as any).subscription_plans?.features || [];
@@ -322,9 +678,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Check if user has specific feature access
-   */
   async hasFeatureAccess(userId: string, feature: string): Promise<DatabaseResponse<boolean>> {
     return withErrorHandling(
       async () => {
@@ -343,9 +696,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Get expiring subscriptions (within 7 days)
-   */
   async getExpiringSubscriptions(): Promise<DatabaseResponse<UserSubscription[]>> {
     return withErrorHandling(
       () => {
@@ -368,9 +718,6 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     );
   }
 
-  /**
-   * Update subscription status (for webhooks/payment processing)
-   */
   async updateSubscriptionStatus(
     subscriptionId: string,
     status: 'pending' | 'active' | 'cancelled' | 'expired',
@@ -408,9 +755,6 @@ export class TransactionService extends BaseService<Transaction> {
     super('transactions');
   }
 
-  /**
-   * Create a new transaction
-   */
   async createTransaction(
     userId: string,
     subscriptionId: string,
@@ -422,7 +766,7 @@ export class TransactionService extends BaseService<Transaction> {
       user_id: userId,
       subscription_id: subscriptionId,
       amount,
-      currency: 'ZMW', // Zambian Kwacha
+      currency: 'ZMW',
       status: 'pending' as const,
       payment_method: paymentMethod,
       reference_number: referenceNumber,
@@ -433,9 +777,6 @@ export class TransactionService extends BaseService<Transaction> {
     return this.create(transactionData);
   }
 
-  /**
-   * Update transaction status
-   */
   async updateTransactionStatus(
     transactionId: string,
     status: 'pending' | 'completed' | 'failed' | 'refunded'
@@ -446,9 +787,6 @@ export class TransactionService extends BaseService<Transaction> {
     });
   }
 
-  /**
-   * Get user transactions
-   */
   async getUserTransactions(userId: string): Promise<DatabaseResponse<Transaction[]>> {
     return withErrorHandling(
       () => supabase
@@ -466,9 +804,6 @@ export class TransactionService extends BaseService<Transaction> {
     );
   }
 
-  /**
-   * Get transaction by reference number
-   */
   async getByReference(referenceNumber: string): Promise<DatabaseResponse<Transaction>> {
     return withErrorHandling(
       () => supabase
