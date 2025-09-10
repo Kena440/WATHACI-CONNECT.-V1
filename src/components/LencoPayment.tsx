@@ -6,10 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Smartphone, CreditCard, Banknote, Info, AlertCircle, Shield, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { lencoPaymentService } from '@/lib/services/lenco-payment-service';
 import { validatePhoneNumber, formatAmount } from '@/lib/payment-config';
 import { useAppContext } from '@/contexts/AppContext';
+import { PaymentStatusTracker } from '@/components/PaymentStatusTracker';
 
 interface LencoPaymentProps {
   amount: string | number;
@@ -26,6 +28,8 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showBreakdown, setShowBreakdown] = useState(true);
+  const [paymentReference, setPaymentReference] = useState<string | null>(null);
+  const [showStatusTracker, setShowStatusTracker] = useState(false);
   const { toast } = useToast();
   const { user } = useAppContext();
 
@@ -106,29 +110,31 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
       }
 
       if (paymentResponse.success && paymentResponse.data) {
+        setPaymentReference(paymentResponse.data.reference);
+        setShowStatusTracker(true);
+
         toast({
           title: "Payment Initialized",
-          description: "Redirecting to payment gateway...",
+          description: "Your payment is being processed. Track progress below.",
         });
 
         // For mobile money, show instructions
         if (paymentMethod === 'mobile_money') {
           toast({
             title: "Payment Instructions",
-            description: `Please check your ${provider.toUpperCase()} mobile money for a payment request of K${totalAmount.toFixed(2)}`,
+            description: `Please check your ${provider.toUpperCase()} mobile money for a payment request of ${formatAmount(totalAmount)}`,
             duration: 10000,
           });
         } else {
-          // Redirect to payment URL for card payments
+          // For card payments, redirect to payment URL
           if (paymentResponse.data.payment_url) {
             window.open(paymentResponse.data.payment_url, '_blank');
+            toast({
+              title: "Redirecting to Payment",
+              description: "Please complete payment in the new window",
+            });
           }
         }
-
-        // Start verification process
-        setTimeout(() => {
-          verifyPayment(paymentResponse.data!.reference);
-        }, 5000);
 
       } else {
         throw new Error(paymentResponse.error || 'Payment initialization failed');
@@ -147,30 +153,14 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
     }
   };
 
-  const verifyPayment = async (reference: string) => {
-    try {
-      const status = await lencoPaymentService.verifyPayment(reference);
-      
-      if (status.status === 'success') {
-        toast({
-          title: "Payment Successful",
-          description: `Payment completed. Transaction ID: ${status.transaction_id}`,
-        });
-        onSuccess?.(status);
-      } else if (status.status === 'pending') {
-        // Continue polling for 2 minutes
-        setTimeout(() => verifyPayment(reference), 10000);
-      } else {
-        throw new Error('Payment verification failed');
-      }
-    } catch (error: any) {
-      onError?.(error);
-      toast({
-        title: "Payment Verification Failed",
-        description: "Please contact support if money was deducted",
-        variant: "destructive",
-      });
-    }
+  const handlePaymentComplete = (paymentData: any) => {
+    setShowStatusTracker(false);
+    setPaymentReference(null);
+    onSuccess?.(paymentData);
+  };
+
+  const handlePaymentFailed = (paymentData: any) => {
+    onError?.(paymentData);
   };
 
   if (!isConfigured) {
@@ -189,156 +179,177 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-green-600" />
-          Secure Payment Portal
-        </CardTitle>
-        <p className="text-sm text-gray-600">{description}</p>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Payment Breakdown */}
-        {showBreakdown && (
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Info className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">Payment Breakdown</span>
-            </div>
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span>Total Amount:</span>
-                <span className="font-semibold">{formatAmount(paymentBreakdown.totalAmount)}</span>
+    <>
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-green-600" />
+            Secure Payment Portal
+          </CardTitle>
+          <p className="text-sm text-gray-600">{description}</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Payment Breakdown */}
+          {showBreakdown && (
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">Payment Breakdown</span>
               </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Platform Fee (2%):</span>
-                <span>{formatAmount(paymentBreakdown.platformFee)}</span>
-              </div>
-              <div className="flex justify-between text-green-600 font-semibold">
-                <span>Provider Receives:</span>
-                <span>{formatAmount(paymentBreakdown.providerReceives)}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Error Display */}
-        {errors.config && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{errors.config}</AlertDescription>
-          </Alert>
-        )}
-
-        {errors.user && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{errors.user}</AlertDescription>
-          </Alert>
-        )}
-
-        {errors.amount && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{errors.amount}</AlertDescription>
-          </Alert>
-        )}
-
-        {/* Payment Method Selection */}
-        <div>
-          <Label>Payment Method</Label>
-          <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-            <SelectTrigger className={errors.method ? 'border-red-500' : ''}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="mobile_money">
-                <div className="flex items-center gap-2">
-                  <Smartphone className="h-4 w-4" />
-                  Mobile Money
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span>Total Amount:</span>
+                  <span className="font-semibold">{formatAmount(paymentBreakdown.totalAmount)}</span>
                 </div>
-              </SelectItem>
-              <SelectItem value="card">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  Debit/Credit Card
+                <div className="flex justify-between text-gray-600">
+                  <span>Platform Fee (2%):</span>
+                  <span>{formatAmount(paymentBreakdown.platformFee)}</span>
                 </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Mobile Money Fields */}
-        {paymentMethod === 'mobile_money' && (
-          <>
-            <div>
-              <Label>Mobile Money Provider</Label>
-              <Select value={provider} onValueChange={setProvider}>
-                <SelectTrigger className={errors.provider ? 'border-red-500' : ''}>
-                  <SelectValue placeholder="Select provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mtn">MTN Mobile Money</SelectItem>
-                  <SelectItem value="airtel">Airtel Money</SelectItem>
-                  <SelectItem value="zamtel">Zamtel Kwacha</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.provider && <p className="text-red-500 text-sm mt-1">{errors.provider}</p>}
+                <div className="flex justify-between text-green-600 font-semibold">
+                  <span>Provider Receives:</span>
+                  <span>{formatAmount(paymentBreakdown.providerReceives)}</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <Label>Phone Number</Label>
-              <Input
-                type="tel"
-                placeholder="097XXXXXXX"
-                value={phoneNumber}
-                onChange={(e) => {
-                  setPhoneNumber(e.target.value);
-                  if (errors.phone) {
-                    const newErrors = { ...errors };
-                    delete newErrors.phone;
-                    setErrors(newErrors);
-                  }
-                }}
-                className={errors.phone ? 'border-red-500' : ''}
-              />
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-              <p className="text-xs text-gray-500 mt-1">
-                Format: 097XXXXXXX or 260097XXXXXXX
-              </p>
-            </div>
-          </>
-        )}
+          )}
 
-        {/* Security Notice */}
-        <div className="bg-green-50 p-3 rounded-lg">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium text-green-800">Secure Payment</span>
+          {/* Error Display */}
+          {errors.config && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{errors.config}</AlertDescription>
+            </Alert>
+          )}
+
+          {errors.user && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{errors.user}</AlertDescription>
+            </Alert>
+          )}
+
+          {errors.amount && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{errors.amount}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Payment Method Selection */}
+          <div>
+            <Label>Payment Method</Label>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger className={errors.method ? 'border-red-500' : ''}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mobile_money">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="h-4 w-4" />
+                    Mobile Money
+                  </div>
+                </SelectItem>
+                <SelectItem value="card">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Debit/Credit Card
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <p className="text-xs text-green-700 mt-1">
-            Your payment is secured with bank-level encryption and processed by Lenco.
-          </p>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-4">
-          <Button 
-            variant="outline" 
-            onClick={onCancel}
-            className="flex-1"
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handlePayment} 
-            disabled={loading || Object.keys(errors).length > 0}
-            className="flex-1"
-          >
-            {loading ? 'Processing...' : `Pay ${formatAmount(paymentBreakdown.totalAmount)}`}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          {/* Mobile Money Fields */}
+          {paymentMethod === 'mobile_money' && (
+            <>
+              <div>
+                <Label>Mobile Money Provider</Label>
+                <Select value={provider} onValueChange={setProvider}>
+                  <SelectTrigger className={errors.provider ? 'border-red-500' : ''}>
+                    <SelectValue placeholder="Select provider" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mtn">MTN Mobile Money</SelectItem>
+                    <SelectItem value="airtel">Airtel Money</SelectItem>
+                    <SelectItem value="zamtel">Zamtel Kwacha</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.provider && <p className="text-red-500 text-sm mt-1">{errors.provider}</p>}
+              </div>
+              <div>
+                <Label>Phone Number</Label>
+                <Input
+                  type="tel"
+                  placeholder="097XXXXXXX"
+                  value={phoneNumber}
+                  onChange={(e) => {
+                    setPhoneNumber(e.target.value);
+                    if (errors.phone) {
+                      const newErrors = { ...errors };
+                      delete newErrors.phone;
+                      setErrors(newErrors);
+                    }
+                  }}
+                  className={errors.phone ? 'border-red-500' : ''}
+                />
+                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                <p className="text-xs text-gray-500 mt-1">
+                  Format: 097XXXXXXX or 260097XXXXXXX
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Security Notice */}
+          <div className="bg-green-50 p-3 rounded-lg">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <span className="text-sm font-medium text-green-800">Secure Payment</span>
+            </div>
+            <p className="text-xs text-green-700 mt-1">
+              Your payment is secured with bank-level encryption and processed by Lenco.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={onCancel}
+              className="flex-1"
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handlePayment} 
+              disabled={loading || Object.keys(errors).length > 0}
+              className="flex-1"
+            >
+              {loading ? 'Processing...' : `Pay ${formatAmount(paymentBreakdown.totalAmount)}`}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Real-time Payment Status Tracker */}
+      <Dialog open={showStatusTracker} onOpenChange={setShowStatusTracker}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Payment Status</DialogTitle>
+          </DialogHeader>
+          {paymentReference && (
+            <PaymentStatusTracker
+              reference={paymentReference}
+              onComplete={handlePaymentComplete}
+              onFailed={handlePaymentFailed}
+              showDetails={true}
+              autoHide={false}
+              maxTrackingTime={300000} // 5 minutes
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
