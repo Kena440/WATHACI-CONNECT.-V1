@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect } from '@jest/globals';
+import '@testing-library/jest-dom';
 
 import { AppRoutes } from '../App';
 
@@ -42,7 +43,7 @@ describe('AppRoutes', () => {
         <AppRoutes />
       </MemoryRouter>
     );
-    expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.getByText(text)).toBeTruthy();
   });
 
   it('renders NotFound for unknown paths', () => {
@@ -51,6 +52,6 @@ describe('AppRoutes', () => {
         <AppRoutes />
       </MemoryRouter>
     );
-    expect(screen.getByText('Not Found')).toBeInTheDocument();
+    expect(screen.getByText('Not Found')).toBeTruthy();
   });
 });

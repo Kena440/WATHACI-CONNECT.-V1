@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, beforeEach } from '@jest/globals';
+import '@testing-library/jest-dom';
 
 import { Header } from '../Header';
 import { useAppContext } from '@/contexts/AppContext';
@@ -14,7 +15,7 @@ jest.mock('../NotificationCenter', () => ({
   NotificationCenter: () => <div data-testid="notification-center" />,
 }));
 
-vi.mock('../DonateButton', () => ({
+jest.mock('../DonateButton', () => ({
   DonateButton: () => <div>Donate</div>,
 }));
 
@@ -43,16 +44,17 @@ describe('Header', () => {
       profile: null,
       signIn: jest.fn(),
       signUp: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     renderHeader();
 
     const navLinks = ['Home', 'Marketplace', 'Freelancer Hub', 'Resources', 'Partnership Hub'];
     navLinks.forEach((text) => {
-      expect(screen.getByText(text)).toBeInTheDocument();
+      expect(screen.getByText(text)).toBeTruthy();
     });
 
-    expect(screen.getByText('Sign In')).toBeInTheDocument();
+    expect(screen.getByText('Sign In')).toBeTruthy();
   });
 
   it('shows sign out option for authenticated users', async () => {
@@ -65,6 +67,7 @@ describe('Header', () => {
       profile: null,
       signIn: jest.fn(),
       signUp: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     renderHeader();
@@ -72,7 +75,7 @@ describe('Header', () => {
     const userButton = screen.getByText('user');
     await userEvent.click(userButton);
 
-    expect(screen.getByText('Sign Out')).toBeInTheDocument();
+    expect(screen.getByText('Sign Out')).toBeTruthy();
   });
 
   it('toggles mobile menu', async () => {
@@ -85,6 +88,7 @@ describe('Header', () => {
       profile: null,
       signIn: jest.fn(),
       signUp: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     const { container } = renderHeader();
