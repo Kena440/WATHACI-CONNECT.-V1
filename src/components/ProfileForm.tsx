@@ -13,6 +13,7 @@ import { QualificationsInput } from '@/components/QualificationsInput';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ArrowLeft } from 'lucide-react';
 import { sectors, countries } from '../data/countries';
+import { validateZambianPhone } from '@/utils/phoneValidation';
 
 interface ProfileFormProps {
   accountType: string;
@@ -35,6 +36,39 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
     ...initialData
   });
 
+  const [phoneError, setPhoneError] = useState<string>('');
+  const [paymentPhoneError, setPaymentPhoneError] = useState<string>('');
+
+  const validatePhone = (phone: string, isPaymentPhone = false) => {
+    if (!phone.trim()) {
+      return { isValid: true, message: '' }; // Allow empty for optional validation
+    }
+
+    // Only validate Zambian numbers (check if it's a Zambian number)
+    if (formData.country === 'Zambia') {
+      const validation = validateZambianPhone(phone);
+      return validation;
+    }
+
+    return { isValid: true, message: '' }; // For non-Zambian numbers, skip validation
+  };
+
+  const handlePhoneChange = (phone: string) => {
+    setFormData(prev => ({ ...prev, phone }));
+    if (formData.country === 'Zambia') {
+      const validation = validatePhone(phone);
+      setPhoneError(validation.isValid ? '' : validation.message);
+    }
+  };
+
+  const handlePaymentPhoneChange = (phone: string) => {
+    setFormData(prev => ({ ...prev, payment_phone: phone }));
+    if (formData.country === 'Zambia') {
+      const validation = validatePhone(phone, true);
+      setPaymentPhoneError(validation.isValid ? '' : validation.message);
+    }
+  };
+
   // Auto-populate country code when country changes
   useEffect(() => {
     if (formData.country) {
@@ -54,11 +88,21 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
           setFormData(prev => ({ ...prev, payment_phone: `${phoneCode} ` }));
         }
       }
+      
+      // Clear validation errors when country changes
+      setPhoneError('');
+      setPaymentPhoneError('');
     }
   }, [formData.country]);
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+    if (field === 'phone') {
+      handlePhoneChange(value);
+    } else if (field === 'payment_phone') {
+      handlePaymentPhoneChange(value);
+    } else {
+      setFormData((prev: any) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleAddressChange = (address: string, coordinates?: { lat: number; lng: number }) => {
@@ -228,7 +272,16 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)} 
                 placeholder="Country code will be auto-filled"
+                className={phoneError ? 'border-red-500' : ''}
               />
+              {phoneError && (
+                <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+              )}
+              {formData.country === 'Zambia' && !phoneError && formData.phone && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Valid: 096, 076 (MTN), 097, 077 (Airtel), 095 (Zamtel)
+                </p>
+              )}
             </div>
             <div>
               <Label>Sector/Industry</Label>
@@ -301,14 +354,27 @@ export const ProfileForm = ({ accountType, onSubmit, onPrevious, loading, initia
                       value={formData.payment_phone}
                       onChange={(e) => handleInputChange('payment_phone', e.target.value)}
                       placeholder="Country code will be auto-filled"
+                      className={paymentPhoneError ? 'border-red-500' : ''}
                     />
+                    {paymentPhoneError && (
+                      <p className="text-sm text-red-500 mt-1">{paymentPhoneError}</p>
+                    )}
+                    {formData.country === 'Zambia' && !paymentPhoneError && formData.payment_phone && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Valid: 096, 076 (MTN), 097, 077 (Airtel), 095 (Zamtel)
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
             )}
           </div>
           
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={loading || (formData.country === 'Zambia' && (phoneError || paymentPhoneError))}
+          >
             {loading ? 'Saving Profile...' : 'Complete Profile'}
           </Button>
         </form>

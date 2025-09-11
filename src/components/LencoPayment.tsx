@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Smartphone, CreditCard, Banknote, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { validateZambianPhone, getExampleNumbers } from '@/utils/phoneValidation';
 
 interface LencoPaymentProps {
   amount: string | number;
@@ -21,6 +22,7 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
   const [phoneNumber, setPhoneNumber] = useState('');
   const [provider, setProvider] = useState('');
   const [loading, setLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState<string>('');
   const { toast } = useToast();
 
   // Calculate fee breakdown
@@ -28,11 +30,73 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
   const managementFee = totalAmount * 0.02;
   const providerAmount = totalAmount - managementFee;
 
+  // Get example numbers for display
+  const exampleNumbers = getExampleNumbers();
+
+  const validatePhoneNumber = (phone: string, selectedProvider?: string) => {
+    if (!phone.trim()) {
+      setPhoneError('Phone number is required');
+      return false;
+    }
+
+    const validation = validateZambianPhone(phone, selectedProvider);
+    if (!validation.isValid) {
+      setPhoneError(validation.message);
+      return false;
+    }
+
+    // Check if provider matches selected provider
+    if (selectedProvider && validation.provider?.code !== selectedProvider) {
+      setPhoneError(`Phone number doesn't match selected provider (${provider})`);
+      return false;
+    }
+
+    setPhoneError('');
+    return true;
+  };
+
+  const handlePhoneChange = (phone: string) => {
+    setPhoneNumber(phone);
+    if (phone.trim()) {
+      validatePhoneNumber(phone, provider);
+    } else {
+      setPhoneError('');
+    }
+  };
+
+  const handleProviderChange = (newProvider: string) => {
+    setProvider(newProvider);
+    if (phoneNumber.trim()) {
+      validatePhoneNumber(phoneNumber, newProvider);
+    }
+  };
+
+  const getPlaceholderForProvider = (providerCode: string) => {
+    const examples = exampleNumbers.find(ex => {
+      switch (providerCode) {
+        case 'mtn': return ex.provider === 'MTN Mobile Money';
+        case 'airtel': return ex.provider === 'Airtel Money';
+        case 'zamtel': return ex.provider === 'Zamtel Kwacha';
+        default: return false;
+      }
+    });
+    return examples?.examples.join(' or ') || '0XXXXXXXXX';
+  };
+
   const handlePayment = async () => {
     if (paymentMethod === 'mobile_money' && (!phoneNumber || !provider)) {
       toast({
         title: "Missing Information",
         description: "Please select a provider and enter your phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (paymentMethod === 'mobile_money' && !validatePhoneNumber(phoneNumber, provider)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: phoneError,
         variant: "destructive",
       });
       return;
@@ -137,7 +201,7 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
           <>
             <div>
               <Label>Mobile Money Provider</Label>
-              <Select value={provider} onValueChange={setProvider}>
+              <Select value={provider} onValueChange={handleProviderChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select provider" />
                 </SelectTrigger>
@@ -152,10 +216,19 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
               <Label>Phone Number</Label>
               <Input
                 type="tel"
-                placeholder="097XXXXXXX"
+                placeholder={provider ? getPlaceholderForProvider(provider) : '0XXXXXXXXX'}
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                className={phoneError ? 'border-red-500' : ''}
               />
+              {phoneError && (
+                <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+              )}
+              {provider && !phoneError && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Valid formats: {getPlaceholderForProvider(provider)}
+                </p>
+              )}
             </div>
           </>
         )}
