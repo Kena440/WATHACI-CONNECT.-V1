@@ -195,7 +195,7 @@ Process a mobile money payment.
 
 **Parameters:**
 - `amount` (number): Payment amount in Kwacha
-- `phone` (string): Phone number (format: 09XXXXXXXX)
+- `phone` (string): Zambian mobile number (096/076/097/077/095xxxxxxx)
 - `provider` (string): 'mtn', 'airtel', or 'zamtel'
 - `email` (string): User email address
 - `name` (string): User full name
@@ -386,7 +386,7 @@ import { PaymentTestComponent } from '@/components/PaymentTestComponent';
 | Code | Description | Solution |
 |------|-------------|----------|
 | `INVALID_AMOUNT` | Payment amount is invalid | Check min/max limits |
-| `INVALID_PHONE` | Phone number format invalid | Use format: 09XXXXXXXX |
+| `INVALID_PHONE` | Phone number format invalid | Use valid Zambian mobile format (e.g., 0961234567) |
 | `PROVIDER_UNAVAILABLE` | Mobile money provider unavailable | Try different provider |
 | `INSUFFICIENT_FUNDS` | User has insufficient funds | Ask user to add funds |
 | `NETWORK_ERROR` | Network connectivity issue | Retry request |

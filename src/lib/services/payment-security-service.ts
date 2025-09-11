@@ -236,7 +236,7 @@ export class PaymentSecurityService {
       const isMethodUnusual = !commonMethods.includes(paymentMethod);
 
       let riskScore = 1;
-      let reasons: string[] = [];
+      const reasons: string[] = [];
 
       if (isAmountUnusual) {
         riskScore += 3;
