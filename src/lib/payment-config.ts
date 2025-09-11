@@ -69,12 +69,12 @@ export const getPaymentConfig = (): PaymentConfig => {
 // Validate payment configuration
 export const validatePaymentConfig = (config: PaymentConfig): boolean => {
   if (!config.publicKey) {
-    console.error('Payment Error: Lenco public key not configured');
+    console.warn('Payment Warning: Lenco public key not configured - payment features will be disabled');
     return false;
   }
   
   if (!config.apiUrl) {
-    console.error('Payment Error: Lenco API URL not configured');
+    console.warn('Payment Warning: Lenco API URL not configured - payment features will be disabled');
     return false;
   }
 

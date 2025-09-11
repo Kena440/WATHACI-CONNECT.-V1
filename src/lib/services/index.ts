@@ -42,15 +42,15 @@ export const createServiceInstance = <T>(ServiceClass: new () => T): T => {
 };
 
 // Service registry for dependency injection if needed
-export const serviceRegistry = {
+export const getServiceRegistry = () => ({
   user: userService,
   profile: profileService,
   subscription: subscriptionService,
   transaction: transactionService,
-} as const;
+} as const);
 
-export type ServiceType = keyof typeof serviceRegistry;
+export type ServiceType = keyof ReturnType<typeof getServiceRegistry>;
 
-export const getService = <T extends ServiceType>(serviceName: T): typeof serviceRegistry[T] => {
-  return serviceRegistry[serviceName];
+export const getService = <T extends ServiceType>(serviceName: T): ReturnType<typeof getServiceRegistry>[T] => {
+  return getServiceRegistry()[serviceName];
 };
