@@ -51,7 +51,7 @@ export const IntegratedMarketplace = () => {
 
   useEffect(() => {
     loadServices();
-  }, [selectedCategory, selectedProviderType, selectedLocation, priceRange]);
+  }, [selectedCategory, selectedProviderType, selectedLocation, priceRange, loadServices]);
 
   const loadServices = async () => {
     setLoading(true);

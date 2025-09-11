@@ -29,7 +29,7 @@ export const ProfileReview = () => {
     }
 
     fetchProfile();
-  }, [user, navigate]);
+  }, [user, navigate, fetchProfile]);
 
   const fetchProfile = async () => {
     if (!user) return;

@@ -32,7 +32,7 @@ export const ProfileSetup = () => {
     }
     
     checkExistingProfile();
-  }, [user, navigate]);
+  }, [user, navigate, checkExistingProfile]);
 
   const checkExistingProfile = async () => {
     if (!user) return;

@@ -30,7 +30,7 @@ const InterestTracker = () => {
     if (user) {
       fetchInterests();
     }
-  }, [user]);
+  }, [user, fetchInterests]);
 
   const fetchInterests = async () => {
     try {

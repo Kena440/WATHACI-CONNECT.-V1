@@ -34,7 +34,7 @@ const AIRecommendations = ({
 
   useEffect(() => {
     fetchRecommendations();
-  }, [userProfile, searchHistory, activeTab]);
+  }, [userProfile, searchHistory, activeTab, fetchRecommendations]);
 
   const fetchRecommendations = async () => {
     setIsLoading(true);

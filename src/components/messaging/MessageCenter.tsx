@@ -33,7 +33,7 @@ export const MessageCenter = () => {
 
   useEffect(() => {
     loadMessages();
-  }, []);
+  }, [loadMessages]);
 
   const loadMessages = async () => {
     try {
