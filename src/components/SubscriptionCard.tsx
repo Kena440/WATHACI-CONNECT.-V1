@@ -3,10 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Check, CreditCard, Smartphone } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Loader2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { useAppContext } from '@/contexts/AppContext';
+import { subscriptionService } from '@/lib/services/subscription-service';
 import { LencoPayment } from '@/components/LencoPayment';
 
 interface SubscriptionPlan {
@@ -29,16 +32,32 @@ interface SubscriptionCardProps {
 
 export const SubscriptionCard = ({ plan, userType, compact = false }: SubscriptionCardProps) => {
   const [showPayment, setShowPayment] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'mobile_money' | 'card'>('mobile_money');
+  const [subscriptionResult, setSubscriptionResult] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAppContext();
 
-  const handleSelectPlan = async () => {
+  const handleSelectPlan = async (selectedPaymentMethod: 'mobile_money' | 'card') => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         navigate('/signin');
         return;
       }
+
+      // Check if user already has an active subscription
+      const activeSubscription = await subscriptionService.getCurrentUserSubscription(user.id);
+      if (activeSubscription.data) {
+        toast({
+          title: "Active Subscription Found",
+          description: "You already have an active subscription. Please cancel it first to subscribe to a new plan.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setPaymentMethod(selectedPaymentMethod);
       setShowPayment(true);
     } catch (error: any) {
       toast({
@@ -49,28 +68,98 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
     }
   };
 
-  const handlePaymentSuccess = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('subscriptions').upsert({
-          user_id: user.id,
-          plan_id: plan.id,
-          plan_name: plan.name,
-          amount: plan.price,
-          status: 'active',
-          created_at: new Date().toISOString()
-        });
+  const handleSubscription = async (paymentDetails: {
+    email: string;
+    name: string;
+    phone?: string;
+    provider?: 'mtn' | 'airtel' | 'zamtel';
+  }) => {
+    if (!user) return;
 
+    setLoading(true);
+    try {
+      const result = await subscriptionService.subscribeToPlan(
+        user.id,
+        plan.id,
+        paymentMethod,
+        paymentDetails
+      );
+
+      if (result.success) {
+        setSubscriptionResult(result);
+        
+        if (paymentMethod === 'card' && result.payment_url) {
+          // For card payments, redirect to payment gateway
+          window.open(result.payment_url, '_blank');
+          toast({
+            title: "Redirecting to Payment",
+            description: "Please complete payment in the new window",
+          });
+        } else {
+          // For mobile money, show instructions
+          toast({
+            title: "Payment Initiated",
+            description: "Please check your mobile money for payment instructions",
+            duration: 10000,
+          });
+        }
+
+        // Start payment verification polling
+        if (result.subscription?.payment_reference) {
+          setTimeout(() => {
+            pollPaymentStatus(result.subscription!.payment_reference!);
+          }, 5000);
+        }
+      } else {
+        throw new Error(result.error || 'Subscription failed');
+      }
+    } catch (error: any) {
+      console.error('Subscription error:', error);
+      toast({
+        title: "Subscription Failed",
+        description: error.message || 'Failed to create subscription',
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const pollPaymentStatus = async (paymentReference: string) => {
+    try {
+      const verificationResult = await subscriptionService.verifySubscriptionPayment(paymentReference);
+      
+      if (verificationResult.success) {
         toast({
           title: "Subscription Activated!",
           description: `Welcome to the ${plan.name} plan!`,
         });
-        
         setShowPayment(false);
+        setSubscriptionResult(null);
+        
+        // Refresh user data or redirect
+        window.location.reload();
+      } else {
+        // Continue polling for 2 minutes
+        setTimeout(() => pollPaymentStatus(paymentReference), 10000);
       }
     } catch (error) {
-      console.error('Subscription update error:', error);
+      console.error('Payment verification error:', error);
+      toast({
+        title: "Payment Verification Failed",
+        description: "Please contact support if payment was deducted",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentData: any) => {
+    try {
+      if (paymentData.reference) {
+        await pollPaymentStatus(paymentData.reference);
+      }
+    } catch (error) {
+      console.error('Payment success handler error:', error);
     }
   };
 
@@ -95,9 +184,14 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
               size="sm" 
               className="w-full mb-2" 
               variant={plan.popular ? 'default' : 'outline'}
-              onClick={handleSelectPlan}
+              onClick={() => handleSelectPlan('mobile_money')}
+              disabled={loading}
             >
-              <CreditCard className="w-4 h-4 mr-2" />
+              {loading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <CreditCard className="w-4 h-4 mr-2" />
+              )}
               Subscribe
             </Button>
             <p className="text-xs text-gray-500 text-center">
@@ -111,11 +205,24 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
             <DialogHeader>
               <DialogTitle>Subscribe to {plan.name}</DialogTitle>
             </DialogHeader>
+            
+            {subscriptionResult && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Subscription created! Complete payment to activate your plan.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <LencoPayment
-              amount={plan.price}
+              amount={plan.lencoAmount / 100}
               description={`${plan.name} Plan - ${plan.price}${plan.period}`}
               onSuccess={handlePaymentSuccess}
-              onCancel={() => setShowPayment(false)}
+              onCancel={() => {
+                setShowPayment(false);
+                setSubscriptionResult(null);
+              }}
             />
           </DialogContent>
         </Dialog>
@@ -152,19 +259,35 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
             <Button 
               className="w-full" 
               variant={plan.popular ? 'default' : 'outline'}
-              onClick={handleSelectPlan}
+              onClick={() => handleSelectPlan('card')}
+              disabled={loading}
             >
-              <CreditCard className="w-4 h-4 mr-2" />
+              {loading && paymentMethod === 'card' ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <CreditCard className="w-4 h-4 mr-2" />
+              )}
               Subscribe with Card
             </Button>
             <Button 
               className="w-full" 
               variant="outline"
-              onClick={handleSelectPlan}
+              onClick={() => handleSelectPlan('mobile_money')}
+              disabled={loading}
             >
-              <Smartphone className="w-4 h-4 mr-2" />
+              {loading && paymentMethod === 'mobile_money' ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Smartphone className="w-4 h-4 mr-2" />
+              )}
               Pay with Mobile Money
             </Button>
+          </div>
+          
+          <div className="text-center pt-2">
+            <p className="text-xs text-gray-500">
+              💳 Secure payments by Lenco | 🔒 Bank-level encryption
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -174,11 +297,24 @@ export const SubscriptionCard = ({ plan, userType, compact = false }: Subscripti
           <DialogHeader>
             <DialogTitle>Complete Your Subscription</DialogTitle>
           </DialogHeader>
+          
+          {subscriptionResult && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Subscription created! Complete payment to activate your {plan.name} plan.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <LencoPayment
-            amount={plan.price}
+            amount={plan.lencoAmount / 100}
             description={`${plan.name} Plan Subscription - ${plan.price}${plan.period}`}
             onSuccess={handlePaymentSuccess}
-            onCancel={() => setShowPayment(false)}
+            onCancel={() => {
+              setShowPayment(false);
+              setSubscriptionResult(null);
+            }}
           />
         </DialogContent>
       </Dialog>
