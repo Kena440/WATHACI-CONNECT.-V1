@@ -96,9 +96,13 @@ export const generatePaymentReference = (prefix: string = 'WC'): string => {
 // Validate phone number for mobile money
 export const validatePhoneNumber = (phone: string, country: string = 'ZM'): boolean => {
   if (country === 'ZM') {
-    // Zambian phone number validation (09XXXXXXXX or 26009XXXXXXXX)
-    const zambianRegex = /^(260)?(09[0-9]{8})$/;
-    return zambianRegex.test(phone.replace(/\s/g, ''));
+    // Zambian mobile number validation
+    // Supports MTN (096/076), Airtel (097/077) and Zamtel (095) prefixes
+    // Accepts optional country code +260
+    const sanitized = phone.replace(/\s/g, '');
+    const zambianRegex =
+      /^(?:0(95|96|97|76|77)\d{7}|(?:\+?260)(95|96|97|76|77)\d{7})$/;
+    return zambianRegex.test(sanitized);
   }
   return phone.length >= 10;
 };

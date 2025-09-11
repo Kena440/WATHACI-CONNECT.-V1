@@ -67,7 +67,7 @@ export const LencoPayment = ({ amount, description, onSuccess, onCancel, onError
       if (!phoneNumber) {
         newErrors.phone = 'Phone number is required for mobile money payments';
       } else if (!validatePhoneNumber(phoneNumber, 'ZM')) {
-        newErrors.phone = 'Please enter a valid Zambian phone number (09XXXXXXXX)';
+        newErrors.phone = 'Please enter a valid Zambian phone number (e.g., 0961234567)';
       }
     }
 
