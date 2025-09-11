@@ -42,7 +42,7 @@ describe('Header', () => {
 
     renderHeader();
 
-    const navLinks = ['Home', 'Marketplace', 'Freelancer Hub', 'Resources', 'Partnership Hub'];
+    const navLinks = ['Home', 'Marketplace', 'Freelancer Hub', 'Resources', 'Partnership Hub', 'Funding Hub', 'About Us'];
     navLinks.forEach((text) => {
       expect(screen.getByText(text)).toBeInTheDocument();
     });

@@ -13,12 +13,14 @@ import { SignIn } from "./pages/SignIn";
 import { GetStarted } from "./pages/GetStarted";
 import { SubscriptionPlans } from "./pages/SubscriptionPlans";
 import { PartnershipHub } from "./pages/PartnershipHub";
+import FundingHub from "./pages/FundingHub";
 import { ProfileSetup } from "./pages/ProfileSetup";
 import { ProfileReview } from "./components/ProfileReview";
 import FreelancerHub from "./pages/FreelancerHub";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -34,8 +36,10 @@ export const AppRoutes = () => (
     <Route path="/profile-review" element={<ProfileReview />} />
     <Route path="/subscription-plans" element={<SubscriptionPlans />} />
     <Route path="/partnership-hub" element={<PartnershipHub />} />
+    <Route path="/funding-hub" element={<FundingHub />} />
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
+    <Route path="/about-us" element={<AboutUs />} />
     <Route path="/messages" element={<Messages />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
