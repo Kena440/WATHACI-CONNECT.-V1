@@ -2,8 +2,6 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi } from 'vitest';
 
-import { AppRoutes } from '../App';
-
 vi.mock('../pages/Index', () => ({ default: () => <div>Home Page</div> }));
 vi.mock('../pages/Marketplace', () => ({ default: () => <div>Marketplace Page</div> }));
 vi.mock('../pages/Resources', () => ({ default: () => <div>Resources Page</div> }));
@@ -18,8 +16,16 @@ vi.mock('../pages/FreelancerHub', () => ({ default: () => <div>Freelancer Hub Pa
 vi.mock('../pages/PrivacyPolicy', () => ({ default: () => <div>Privacy Policy Page</div> }));
 vi.mock('../pages/TermsOfService', () => ({ default: () => <div>Terms Of Service Page</div> }));
 vi.mock('../pages/Messages', () => ({ default: () => <div>Messages Page</div> }));
+vi.mock('../pages/FundingHub', () => ({ default: () => <div>Funding Hub Page</div> }));
 
-const routes = [
+const appContextMock = vi.hoisted(() => ({ user: null }));
+vi.mock('@/contexts/AppContext', () => ({
+  useAppContext: () => ({ user: appContextMock.user, loading: false }),
+}));
+
+import { AppRoutes } from '../App.tsx';
+
+const publicRoutes = [
   { path: '/', text: 'Home Page' },
   { path: '/marketplace', text: 'Marketplace Page' },
   { path: '/freelancer-hub', text: 'Freelancer Hub Page' },
@@ -32,11 +38,16 @@ const routes = [
   { path: '/partnership-hub', text: 'Partnership Hub Page' },
   { path: '/privacy-policy', text: 'Privacy Policy Page' },
   { path: '/terms-of-service', text: 'Terms Of Service Page' },
+];
+
+const protectedRoutes = [
   { path: '/messages', text: 'Messages Page' },
+  { path: '/funding-hub', text: 'Funding Hub Page' },
 ];
 
 describe('AppRoutes', () => {
-  it.each(routes)('renders %s', ({ path, text }) => {
+  it.each(publicRoutes)('renders %s', ({ path, text }) => {
+    appContextMock.user = null;
     render(
       <MemoryRouter initialEntries={[path]}>
         <AppRoutes />
@@ -45,7 +56,30 @@ describe('AppRoutes', () => {
     expect(screen.getByText(text)).toBeInTheDocument();
   });
 
+  describe('protected routes', () => {
+    it.each(protectedRoutes)('redirects unauthenticated users from %s', async ({ path }) => {
+      appContextMock.user = null;
+      render(
+        <MemoryRouter initialEntries={[path]}>
+          <AppRoutes />
+        </MemoryRouter>
+      );
+      expect(await screen.findByText('Sign In Page')).toBeInTheDocument();
+    });
+
+    it.each(protectedRoutes)('renders %s when authenticated', ({ path, text }) => {
+      appContextMock.user = { id: '1' };
+      render(
+        <MemoryRouter initialEntries={[path]}>
+          <AppRoutes />
+        </MemoryRouter>
+      );
+      expect(screen.getByText(text)).toBeInTheDocument();
+    });
+  });
+
   it('renders NotFound for unknown paths', () => {
+    appContextMock.user = null;
     render(
       <MemoryRouter initialEntries={['/unknown']}>
         <AppRoutes />
