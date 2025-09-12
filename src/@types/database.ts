@@ -222,6 +222,17 @@ export interface Conversation {
 }
 
 // ================================
+// Resource Purchase Types
+// ================================
+
+export interface ResourcePurchase {
+  id: string;
+  user_id: string;
+  resource_id: number;
+  created_at: string;
+}
+
+// ================================
 // Database Response Types
 // ================================
 
