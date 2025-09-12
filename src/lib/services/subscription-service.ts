@@ -5,6 +5,7 @@
 import { BaseService } from './base-service';
 import { supabase, withErrorHandling } from '@/lib/supabase-enhanced';
 import { lencoPaymentService } from './lenco-payment-service';
+import { logger } from '../logger';
 import type { 
   SubscriptionPlan, 
   UserSubscription, 
@@ -37,6 +38,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     payment_url?: string;
     error?: string;
   }> {
+    let paymentReference: string | undefined;
     try {
       // Check if user already has an active subscription
       const existingSubscription = await this.getCurrentUserSubscription(userId);
@@ -77,7 +79,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
 
       // Process payment
       const paymentAmount = plan.lencoAmount / 100; // Convert from ngwee to kwacha
-      const paymentResponse = paymentMethod === 'mobile_money' 
+      const paymentResponse = paymentMethod === 'mobile_money'
         ? await lencoPaymentService.processMobileMoneyPayment({
             amount: paymentAmount,
             phone: paymentDetails.phone!,
@@ -106,6 +108,8 @@ export class SubscriptionService extends BaseService<UserSubscription> {
         updated_at: new Date().toISOString()
       });
 
+      paymentReference = paymentResponse.data?.reference;
+
       // Create transaction record
       await transactionService.createTransaction(
         userId,
@@ -122,7 +126,10 @@ export class SubscriptionService extends BaseService<UserSubscription> {
       };
 
     } catch (error: any) {
-      console.error('Subscription error:', error);
+      logger.error('Subscription error', error, {
+        userId,
+        paymentReference,
+      });
       return {
         success: false,
         error: error.message || 'Subscription failed'
@@ -138,6 +145,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     subscription?: UserSubscription;
     error?: string;
   }> {
+    let userId: string | undefined;
     try {
       // Verify payment with Lenco
       const paymentStatus = await lencoPaymentService.verifyPayment(paymentReference);
@@ -145,6 +153,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
       // Update transaction record
       const transactionResult = await transactionService.getByReference(paymentReference);
       if (transactionResult.data) {
+        userId = transactionResult.data.user_id;
         await transactionService.updateTransactionStatus(
           transactionResult.data.id,
           paymentStatus.status === 'success' ? 'completed' : 'failed'
@@ -169,6 +178,8 @@ export class SubscriptionService extends BaseService<UserSubscription> {
           throw new Error('Failed to activate subscription');
         }
 
+        userId = subscription.user_id;
+
         return {
           success: true,
           subscription: activatedResult.data as UserSubscription
@@ -178,7 +189,10 @@ export class SubscriptionService extends BaseService<UserSubscription> {
       }
 
     } catch (error: any) {
-      console.error('Payment verification error:', error);
+      logger.error('Payment verification error', error, {
+        userId,
+        paymentReference,
+      });
       return {
         success: false,
         error: error.message || 'Payment verification failed'
@@ -203,6 +217,8 @@ export class SubscriptionService extends BaseService<UserSubscription> {
     payment_url?: string;
     error?: string;
   }> {
+    let userId: string | undefined;
+    let paymentReference: string | undefined;
     try {
       // Get current subscription with plan details
       const { data: subscription, error: subError } = await supabase
@@ -217,6 +233,8 @@ export class SubscriptionService extends BaseService<UserSubscription> {
       if (subError || !subscription) {
         throw new Error('Subscription not found');
       }
+
+      userId = subscription.user_id;
 
       const plan = (subscription as any).subscription_plans;
       if (!plan) {
@@ -258,6 +276,8 @@ export class SubscriptionService extends BaseService<UserSubscription> {
         updated_at: new Date().toISOString()
       });
 
+      paymentReference = paymentResponse.data?.reference;
+
       // Create transaction record for renewal
       await transactionService.createTransaction(
         subscription.user_id,
@@ -273,7 +293,10 @@ export class SubscriptionService extends BaseService<UserSubscription> {
       };
 
     } catch (error: any) {
-      console.error('Renewal error:', error);
+      logger.error('Renewal error', error, {
+        userId,
+        paymentReference,
+      });
       return {
         success: false,
         error: error.message || 'Renewal failed'
@@ -361,7 +384,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
       };
 
     } catch (error) {
-      console.error('Error getting subscription analytics:', error);
+      logger.error('Error getting subscription analytics', error, { userId });
       return {
         activeSubscriptions: 0,
         totalRevenue: 0,
@@ -383,7 +406,7 @@ export class SubscriptionService extends BaseService<UserSubscription> {
         .lt('end_date', new Date().toISOString());
 
       if (error || !expiredSubscriptions) {
-        console.error('Error finding expired subscriptions:', error);
+        logger.error('Error finding expired subscriptions', error);
         return 0;
       }
 
@@ -396,13 +419,13 @@ export class SubscriptionService extends BaseService<UserSubscription> {
           });
           processedCount++;
         } catch (updateError) {
-          console.error(`Error updating subscription ${subscription.id}:`, updateError);
+          logger.error(`Error updating subscription ${subscription.id}`, updateError);
         }
       }
 
       return processedCount;
     } catch (error) {
-      console.error('Error processing expired subscriptions:', error);
+      logger.error('Error processing expired subscriptions', error);
       return 0;
     }
   }

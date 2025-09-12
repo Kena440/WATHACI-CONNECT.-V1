@@ -3,10 +3,10 @@
  * Handles all Lenco payment gateway interactions
  */
 
-import { 
-  PaymentConfig, 
-  LencoPaymentRequest, 
-  LencoPaymentResponse, 
+import {
+  PaymentConfig,
+  LencoPaymentRequest,
+  LencoPaymentResponse,
   PaymentStatus,
   getPaymentConfig,
   validatePaymentConfig,
@@ -14,6 +14,7 @@ import {
   validatePhoneNumber,
   calculatePlatformFee
 } from '../payment-config';
+import { logger } from '../logger';
 
 export class LencoPaymentService {
   private config: PaymentConfig;
@@ -28,6 +29,7 @@ export class LencoPaymentService {
    * Initialize payment with Lenco
    */
   async initializePayment(request: Omit<LencoPaymentRequest, 'reference'>): Promise<LencoPaymentResponse> {
+    let reference: string | undefined;
     try {
       if (!this.isConfigValid) {
         throw new Error('Payment configuration is invalid. Please check environment variables.');
@@ -40,7 +42,7 @@ export class LencoPaymentService {
       }
 
       // Generate reference
-      const reference = generatePaymentReference();
+      reference = generatePaymentReference();
       
       const paymentRequest: LencoPaymentRequest = {
         ...request,
@@ -69,7 +71,9 @@ export class LencoPaymentService {
       }
 
     } catch (error: any) {
-      console.error('Payment initialization error:', error);
+      logger.error('Payment initialization error', error, {
+        paymentReference: reference,
+      });
       return {
         success: false,
         error: error.message || 'Payment initialization failed'
@@ -96,7 +100,9 @@ export class LencoPaymentService {
       };
 
     } catch (error: any) {
-      console.error('Payment verification error:', error);
+      logger.error('Payment verification error', error, {
+        paymentReference: reference,
+      });
       return {
         reference,
         status: 'failed',

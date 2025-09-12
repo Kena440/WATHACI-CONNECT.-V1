@@ -4,6 +4,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { logger } from '../../src/lib/logger.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -58,7 +59,9 @@ serve(async (req) => {
       .eq('reference', reference);
 
     if (updateError) {
-      console.error('Database update error:', updateError);
+      logger.error('Database update error', updateError, {
+        paymentReference: reference,
+      });
     }
 
     return new Response(JSON.stringify({
