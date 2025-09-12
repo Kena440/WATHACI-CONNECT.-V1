@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { currencies } from '../data/countries';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase-enhanced';
 
 interface ConversionResult {
   originalAmount: number;

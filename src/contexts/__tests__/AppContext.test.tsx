@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { AppProvider, useAppContext } from '../AppContext';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-enhanced';
 import { toast } from '@/components/ui/use-toast';
 
-jest.mock('@/lib/supabase', () => {
+jest.mock('@/lib/supabase-enhanced', () => {
   const auth = {
     getUser: jest.fn(),
     signInWithPassword: jest.fn(),

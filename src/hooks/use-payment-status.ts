@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-enhanced';
 import { useToast } from '@/hooks/use-toast';
 
 export interface PaymentStatus {

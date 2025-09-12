@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { TrendingUp, DollarSign, BarChart3, Lightbulb } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-enhanced';
 
 interface PricingSuggestion {
   suggestedPrice: number;

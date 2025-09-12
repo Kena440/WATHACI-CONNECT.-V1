@@ -11,7 +11,7 @@ jest.mock('@/hooks/use-toast', () => ({
 
 // Mock Supabase
 const mockInvoke = jest.fn();
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/lib/supabase-enhanced', () => ({
   supabase: {
     functions: {
       invoke: mockInvoke

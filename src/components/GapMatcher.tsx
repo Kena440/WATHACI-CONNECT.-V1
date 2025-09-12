@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Textarea } from './ui/textarea';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase-enhanced';
 import { useAppContext } from '../contexts/AppContext';
 
 export const GapMatcher: React.FC = () => {

@@ -295,9 +295,9 @@ jest.mock('@/lib/services', () => ({
 
 ## Migration from Legacy Code
 
-The enhanced setup maintains backward compatibility with existing code:
+The enhanced setup standardizes Supabase usage across the codebase:
 
-1. **Imports**: The original `@/lib/supabase` import still works
+1. **Imports**: Use `@/lib/supabase-enhanced` directly
 2. **API**: All existing Supabase operations continue to work
 3. **Gradual Migration**: You can migrate to the service layer incrementally
 
