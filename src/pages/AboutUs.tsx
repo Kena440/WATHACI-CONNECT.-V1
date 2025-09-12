@@ -19,6 +19,7 @@ export default function AboutUs() {
       bio: "Amukena Mukumbuta is a results-driven SME champion with 15+ years’ experience in operations, compliance, and donor-funded project management. Amukena has overseen £2M+ SME-focused programmes, cutting compliance risks and building systems that help entrepreneurs thrive. Amukena is passionate about unlocking growth for SMEs through practical support—whether it’s compliance guidance, access to finance, or digital transformation. Beyond his corporate role, he leads Wathaci Corporate Services and 440 A.M. Enterprises, platforms designed to equip Zambian SMEs with the tools, networks, and strategies they need to scale sustainably.",
       email: "amukena@wathaci.com",
       phone: "+260 966 123 456",
+      image: "https://wathaci.com/public_html/Images/Amukena.jpeg",
       linkedin_url: "https://www.linkedin.com/in/amukena-mukumbuta/",
     },
     {
