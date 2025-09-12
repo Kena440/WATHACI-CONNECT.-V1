@@ -18,8 +18,8 @@ export default function AboutUs() {
       title: "Team Lead",
       bio: "Amukena Mukumbuta is a results-driven SME champion with 15+ years’ experience in operations, compliance, and donor-funded project management. Amukena has overseen £2M+ SME-focused programmes, cutting compliance risks and building systems that help entrepreneurs thrive. Amukena is passionate about unlocking growth for SMEs through practical support—whether it’s compliance guidance, access to finance, or digital transformation. Beyond his corporate role, he leads Wathaci Corporate Services and 440 A.M. Enterprises, platforms designed to equip Zambian SMEs with the tools, networks, and strategies they need to scale sustainably.",
       email: "amukena@wathaci.com",
-      phone: "0972896005",
-      image: "https://wathaci.com/public_html/Images/Amukena.jpeg",
+      phone: "260 972 896005",
+      image: "/images/Amukena.jpeg",
       linkedin_url: "https://www.linkedin.com/in/amukena-mukumbuta/",
     },
     {
@@ -27,8 +27,8 @@ export default function AboutUs() {
       title: "Lead Consultant",
       bio: "Kasamwa Kachomba is a seasoned economist and contracts specialist known for steering complex donor-funded initiatives with precision. As Lead Consultant, he blends sharp analytical insight with hands-on project management, ensuring compliance, fostering stakeholder relationships, and unlocking funding for SMEs and institutions. His strengths include proposal development, donor engagement, team leadership, and establishing robust systems that drive sustainable growth. Passionate about empowering businesses, Kasamwa is committed to building strategic partnerships and delivering measurable impact.",
       email: "kasamwa@wathaci.com",
-      phone: "0964283538",
-      image: "https://wathaci.com/public_html/Images/Kasamwa.jpg",
+      phone: "+260 964 283 538",
+      image: "/images/Kasamwa.jpg",
       linkedin_url: "https://www.linkedin.com/in/kasamwa-kachomba",
     },
   ];
@@ -73,7 +73,7 @@ export default function AboutUs() {
                 <p className="text-gray-600">{member.title}</p>
               </CardHeader>
               <CardContent className="relative z-10">
-                <p className="text-sm text-gray-600 text-justify">
+                <p className="text-sm text-gray-600">
                   {member.bio}
                 </p>
                 <div className="text-sm text-gray-600 mt-4">
