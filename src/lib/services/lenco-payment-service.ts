@@ -206,6 +206,21 @@ export class LencoPaymentService {
       return { isValid: false, error: 'Payment description is required' };
     }
 
+    // Sanitize description length and remove potential HTML tags
+    const sanitizedDescription = request.description.replace(/<[^>]*>/g, '').trim();
+    const MAX_DESCRIPTION_LENGTH = 200;
+    request.description = sanitizedDescription.slice(0, MAX_DESCRIPTION_LENGTH);
+
+    if (request.payment_method === 'mobile_money') {
+      if (!request.provider) {
+        return { isValid: false, error: 'Mobile money provider is required' };
+      }
+
+      if (!request.phone || !validatePhoneNumber(request.phone, this.config.country)) {
+        return { isValid: false, error: 'Valid mobile money phone number is required' };
+      }
+    }
+
     return { isValid: true };
   }
 
