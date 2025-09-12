@@ -10,6 +10,12 @@ import AIAssistant from '@/components/marketplace/AIAssistant';
 import { IntegratedMarketplace } from '@/components/marketplace/IntegratedMarketplace';
 import { ComplianceGate } from '@/components/marketplace/ComplianceGate';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { LencoPayment } from '@/components/LencoPayment';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
+import { useAppContext } from '@/contexts/AppContext';
+import { PaymentStatusTracker } from '@/components/PaymentStatusTracker';
 
 // Products will be fetched from database in production
 
@@ -19,6 +25,39 @@ const Marketplace = () => {
   const [searchFilters, setSearchFilters] = useState({});
   const [cart, setCart] = useState<any[]>([]);
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [trackingReference, setTrackingReference] = useState<string | null>(null);
+  const { toast } = useToast();
+  const { user } = useAppContext();
+
+  const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+
+  const handleCheckoutSuccess = async (paymentData: any) => {
+    try {
+      if (paymentData?.reference) {
+        await supabase.from('marketplace_orders').insert({
+          user_id: user?.id,
+          items: cart,
+          total_amount: total,
+          payment_reference: paymentData.reference,
+        });
+        setTrackingReference(paymentData.reference);
+      }
+      setCart([]);
+      setIsCheckoutOpen(false);
+      toast({
+        title: 'Payment successful',
+        description: 'Your order has been placed.',
+      });
+    } catch (error: any) {
+      console.error('Error saving order:', error);
+      toast({
+        title: 'Order save failed',
+        description: 'Please contact support if payment was deducted.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleSearch = (query: string, filters: any) => {
     setSearchQuery(query);
@@ -145,7 +184,10 @@ const Marketplace = () => {
           </Button>
           
           {cart.length > 0 && (
-            <Button className="rounded-full w-14 h-14 shadow-lg relative">
+            <Button
+              className="rounded-full w-14 h-14 shadow-lg relative"
+              onClick={() => setIsCheckoutOpen(true)}
+            >
               <ShoppingCart className="w-6 h-6" />
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
                 {cart.length}
@@ -153,6 +195,47 @@ const Marketplace = () => {
             </Button>
           )}
         </div>
+
+        <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Checkout</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {cart.map((item, idx) => (
+                <div key={idx} className="flex justify-between text-sm">
+                  <span>{item.name}</span>
+                  <span>K{item.price}</span>
+                </div>
+              ))}
+              <div className="flex justify-between font-semibold border-t pt-2">
+                <span>Total</span>
+                <span>K{total}</span>
+              </div>
+              <LencoPayment
+                amount={total}
+                description="Marketplace purchase"
+                onSuccess={handleCheckoutSuccess}
+                onCancel={() => setIsCheckoutOpen(false)}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {trackingReference && (
+          <Dialog open onOpenChange={() => setTrackingReference(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Payment Status</DialogTitle>
+              </DialogHeader>
+              <PaymentStatusTracker
+                reference={trackingReference}
+                onComplete={() => setTrackingReference(null)}
+                autoHide
+              />
+            </DialogContent>
+          </Dialog>
+        )}
 
         <AIAssistant
           isOpen={isAIAssistantOpen}
