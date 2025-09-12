@@ -24,6 +24,7 @@ export const MessageCenter = () => {
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [showCompose, setShowCompose] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [markingAsRead, setMarkingAsRead] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [composeForm, setComposeForm] = useState({
@@ -75,7 +76,10 @@ export const MessageCenter = () => {
   };
 
   const markAsRead = async (messageId: string) => {
+    if (markingAsRead === messageId) return; // Prevent multiple simultaneous calls
+    
     try {
+      setMarkingAsRead(messageId);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -93,12 +97,19 @@ export const MessageCenter = () => {
       setMessages(prev => 
         prev.map(msg => msg.id === messageId ? { ...msg, read: true } : msg)
       );
+      
+      // Update selected message if it's the one being marked as read
+      setSelectedMessage(prev => 
+        prev?.id === messageId ? { ...prev, read: true } : prev
+      );
     } catch (error: any) {
       toast({
         title: "Error marking message as read",
         description: error.message,
         variant: "destructive"
       });
+    } finally {
+      setMarkingAsRead(null);
     }
   };
 
@@ -161,7 +172,7 @@ export const MessageCenter = () => {
                 selectedMessage?.id === message.id
                   ? 'bg-primary/10'
                   : 'hover:bg-gray-50'
-              }`}
+              } ${markingAsRead === message.id ? 'opacity-75' : ''}`}
               onClick={() => {
                 setSelectedMessage(message);
                 // Mark unread messages as read when selected
@@ -169,12 +180,30 @@ export const MessageCenter = () => {
                   markAsRead(message.id);
                 }
               }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Message from ${message.sender.full_name}: ${message.subject}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedMessage(message);
+                  if (!message.read) {
+                    markAsRead(message.id);
+                  }
+                }
+              }}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-sm">
                   {message.sender.full_name}
                 </span>
-                {!message.read && <Badge variant="secondary">New</Badge>}
+                <div className="flex items-center gap-2">
+                  {markingAsRead === message.id && (
+                    <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin" 
+                         aria-label="Marking as read" />
+                  )}
+                  {!message.read && !markingAsRead && <Badge variant="secondary">New</Badge>}
+                </div>
               </div>
               <p className="text-sm text-gray-600 truncate">{message.subject}</p>
               <p className="text-xs text-gray-400">
