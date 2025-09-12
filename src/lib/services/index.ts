@@ -60,3 +60,6 @@ export type ServiceType = keyof ReturnType<typeof getServiceRegistry>;
 export const getService = <T extends ServiceType>(serviceName: T): ReturnType<typeof getServiceRegistry>[T] => {
   return getServiceRegistry()[serviceName];
 };
+
+// AI-powered services
+export { getCollaborationSuggestions } from './collaboration-service';
