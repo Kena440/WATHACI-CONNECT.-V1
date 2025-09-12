@@ -89,6 +89,26 @@ export const MessageCenter = () => {
     }
   };
 
+  const markAsRead = async (messageId: string) => {
+    try {
+      await supabase.functions.invoke('messaging-system', {
+        body: { action: 'mark_as_read', message_id: messageId }
+      });
+      setMessages(prev =>
+        prev.map(m => (m.id === messageId ? { ...m, read: true } : m))
+      );
+      setSelectedMessage(prev =>
+        prev?.id === messageId ? { ...prev, read: true } : prev
+      );
+    } catch (error: any) {
+      toast({
+        title: 'Error updating message',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center p-8">Loading messages...</div>;
   }
@@ -114,7 +134,12 @@ export const MessageCenter = () => {
                   ? 'bg-primary/10'
                   : 'hover:bg-gray-50'
               }`}
-              onClick={() => setSelectedMessage(message)}
+              onClick={() => {
+                setSelectedMessage(message);
+                if (!message.read) {
+                  markAsRead(message.id);
+                }
+              }}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-sm">

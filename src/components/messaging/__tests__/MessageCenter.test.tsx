@@ -34,13 +34,13 @@ describe('MessageCenter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (supabase.auth.getUser as any).mockResolvedValue({ data: { user: { id: 'u1' } } });
+  });
+
+  it('renders messages, sends new message, and resets form', async () => {
     (supabase.functions.invoke as any)
       .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null })
       .mockResolvedValueOnce({ data: {}, error: null })
       .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null });
-  });
-
-  it('renders messages, sends new message, and resets form', async () => {
     render(<MessageCenter />);
 
     // Messages render
@@ -77,6 +77,33 @@ describe('MessageCenter', () => {
     expect(screen.getByPlaceholderText('Recipient ID')).toHaveValue('');
     expect(screen.getByPlaceholderText('Subject')).toHaveValue('');
     expect(screen.getByPlaceholderText('Message content...')).toHaveValue('');
+  });
+
+  it('marks messages as read when opened', async () => {
+    (supabase.functions.invoke as any)
+      .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null })
+      .mockResolvedValueOnce({ data: {}, error: null });
+
+    render(<MessageCenter />);
+
+    expect(await screen.findByText('Hello')).toBeInTheDocument();
+    expect(screen.getByText('New')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Hello'));
+
+    await waitFor(() => {
+      expect(supabase.functions.invoke).toHaveBeenLastCalledWith(
+        'messaging-system',
+        expect.objectContaining({
+          body: expect.objectContaining({
+            action: 'mark_as_read',
+            message_id: '1'
+          })
+        })
+      );
+    });
+
+    expect(screen.queryByText('New')).not.toBeInTheDocument();
   });
 });
 
