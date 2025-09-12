@@ -71,8 +71,14 @@ export const GetStarted = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-600 to-emerald-600 rounded-lg flex items-center justify-center mb-4">
-            <span className="text-white font-bold text-xl">W</span>
+          <div className="mx-auto mb-4">
+            <img
+              src="https://d64gsuwffb70l.cloudfront.net/686a39ec793daf0c658a746a_1753699300137_a4fb9790.png"
+              alt="WATHACI CONNECT"
+              loading="lazy"
+              decoding="async"
+              className="h-12 w-auto mx-auto drop-shadow-lg"
+            />
           </div>
           <CardTitle className="text-2xl">Get Started</CardTitle>
           <CardDescription>Create your WATHACI account</CardDescription>
