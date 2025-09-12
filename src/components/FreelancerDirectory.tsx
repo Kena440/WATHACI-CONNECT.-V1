@@ -129,8 +129,12 @@ export const FreelancerDirectory = () => {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredFreelancers.map((freelancer) => (
-          <Card key={freelancer.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="text-center">
+          <Card
+            key={freelancer.id}
+            className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+          >
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-white/40 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <CardHeader className="text-center relative z-10">
               <img
                 src={freelancer.profile_image_url || '/placeholder.svg'}
                 alt={freelancer.name}
@@ -141,7 +145,7 @@ export const FreelancerDirectory = () => {
               <CardTitle className="text-xl">{freelancer.name}</CardTitle>
               <p className="text-gray-600">{freelancer.title}</p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -153,7 +157,7 @@ export const FreelancerDirectory = () => {
                   <span>{freelancer.location}</span>
                 </div>
               </div>
-              
+
               <div className="mb-4">
                 <div className="flex flex-wrap gap-1 mb-2">
                   {freelancer.skills.slice(0, 3).map((skill, idx) => (
@@ -167,8 +171,13 @@ export const FreelancerDirectory = () => {
                     </Badge>
                   )}
                 </div>
+                {freelancer.bio && (
+                  <p className="text-sm text-gray-600 transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
+                    {freelancer.bio}
+                  </p>
+                )}
               </div>
-              
+
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <span className="text-2xl font-bold text-blue-600">${freelancer.hourly_rate}</span>
@@ -176,19 +185,23 @@ export const FreelancerDirectory = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="w-4 h-4 text-gray-400" />
-                  <span className={`text-sm ${freelancer.availability_status === 'available' ? 'text-green-600' : 'text-orange-600'}`}>
+                  <span
+                    className={`text-sm ${freelancer.availability_status === 'available' ? 'text-green-600' : 'text-orange-600'}`}
+                  >
                     {freelancer.availability_status === 'available' ? 'Available' : 'Busy'}
                   </span>
                 </div>
               </div>
-              
+
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button 
-                    className="w-full bg-orange-600 hover:bg-orange-700" 
+                  <Button
+                    className="w-full bg-orange-600 hover:bg-orange-700"
                     disabled={freelancer.availability_status !== 'available'}
                   >
-                    {freelancer.availability_status === 'available' ? 'Hire & Negotiate' : 'Join Waitlist'}
+                    {freelancer.availability_status === 'available'
+                      ? 'Hire & Negotiate'
+                      : 'Join Waitlist'}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl">
