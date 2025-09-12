@@ -3,7 +3,7 @@
  * React hook for tracking payment status in real-time
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
@@ -26,11 +26,13 @@ export interface PaymentStatusHookReturn {
   startTracking: (reference: string) => void;
   stopTracking: () => void;
   refresh: () => Promise<void>;
+  pollingStartTime: number | null;
 }
 
 export const usePaymentStatus = (
   autoToast: boolean = true,
-  onStatusChange?: (status: PaymentStatus) => void
+  onStatusChange?: (status: PaymentStatus) => void,
+  pendingTimeoutMs: number = 5 * 60 * 1000
 ): PaymentStatusHookReturn => {
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,6 +40,8 @@ export const usePaymentStatus = (
   const [currentReference, setCurrentReference] = useState<string | null>(null);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
   const [realtimeChannel, setRealtimeChannel] = useState<any>(null);
+  const [pollingStartTime, setPollingStartTime] = useState<number | null>(null);
+  const pollStartTimeRef = useRef<number | null>(null);
   const { toast } = useToast();
 
   const fetchPaymentStatus = useCallback(async (reference: string): Promise<PaymentStatus | null> => {
@@ -130,23 +134,40 @@ export const usePaymentStatus = (
       });
 
     setRealtimeChannel(channel);
-  }, [updateStatus]);
+  }, [updateStatus, stopTracking]);
 
   const startPolling = useCallback((reference: string) => {
+    const startTime = Date.now();
+    setPollingStartTime(startTime);
+    pollStartTimeRef.current = startTime;
+
     const interval = setInterval(async () => {
       const status = await fetchPaymentStatus(reference);
       if (status) {
         updateStatus(status);
-        
-        // Stop polling if payment is complete or failed
+
         if (['completed', 'failed', 'cancelled'].includes(status.status)) {
           stopTracking();
+        } else if (status.status === 'pending' && pollStartTimeRef.current) {
+          const elapsed = Date.now() - pollStartTimeRef.current;
+          if (elapsed >= pendingTimeoutMs) {
+            const message = 'Payment is still pending. Please try again later.';
+            setError(message);
+            if (autoToast) {
+              toast({
+                title: 'Payment Pending',
+                description: message,
+                variant: 'destructive',
+              });
+            }
+            stopTracking();
+          }
         }
       }
     }, 5000); // Poll every 5 seconds
 
     setPollingInterval(interval);
-  }, [fetchPaymentStatus, updateStatus]);
+  }, [fetchPaymentStatus, updateStatus, stopTracking, pendingTimeoutMs, autoToast, toast]);
 
   const startTracking = useCallback((reference: string) => {
     if (currentReference === reference) {
@@ -178,7 +199,7 @@ export const usePaymentStatus = (
       setError(err.message || 'Failed to fetch payment status');
       setLoading(false);
     });
-  }, [currentReference, fetchPaymentStatus, updateStatus, setupRealtimeSubscription, startPolling]);
+  }, [currentReference, fetchPaymentStatus, updateStatus, setupRealtimeSubscription, startPolling, stopTracking]);
 
   const stopTracking = useCallback(() => {
     if (pollingInterval) {
@@ -191,6 +212,8 @@ export const usePaymentStatus = (
       setRealtimeChannel(null);
     }
 
+    pollStartTimeRef.current = null;
+    setPollingStartTime(null);
     setCurrentReference(null);
     setLoading(false);
   }, [pollingInterval, realtimeChannel]);
@@ -224,7 +247,8 @@ export const usePaymentStatus = (
     error,
     startTracking,
     stopTracking,
-    refresh
+    refresh,
+    pollingStartTime
   };
 };
 
