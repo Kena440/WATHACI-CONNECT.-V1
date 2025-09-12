@@ -156,11 +156,11 @@ export class SubscriptionService extends BaseService<UserSubscription> {
         userId = transactionResult.data.user_id;
         await transactionService.updateTransactionStatus(
           transactionResult.data.id,
-          paymentStatus.status === 'success' ? 'completed' : 'failed'
+          paymentStatus.status === 'completed' ? 'completed' : 'failed'
         );
       }
 
-      if (paymentStatus.status === 'success') {
+      if (paymentStatus.status === 'completed') {
         // Find subscription by payment reference
         const { data: subscription, error } = await supabase
           .from('user_subscriptions')
