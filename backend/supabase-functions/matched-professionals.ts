@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { professionals, fundingOpportunities } from './funding-data.ts';
+import { fetchProfessionals, fetchFundingOpportunities } from './funding-data.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,12 +14,14 @@ serve(async (req) => {
 
   try {
     const { opportunityId } = await req.json();
-    const opportunity = fundingOpportunities.find(o => o.id === opportunityId);
+    const opportunities = await fetchFundingOpportunities();
+    const opportunity = opportunities.find(o => o.id === opportunityId);
     if (!opportunity) {
       throw new Error('Opportunity not found');
     }
 
-    const matches = professionals.map((prof) => {
+    const profs = await fetchProfessionals();
+    const matches = profs.map((prof) => {
       const overlap = prof.expertise.filter(skill =>
         opportunity.sectors.includes(skill.toLowerCase()) || opportunity.sectors.includes('all')
       );

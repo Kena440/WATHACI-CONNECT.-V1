@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { fundingOpportunities } from './funding-data.ts';
+import { fetchFundingOpportunities } from './funding-data.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -42,20 +42,26 @@ serve(async (req) => {
     try {
       opportunities = await fetchGrantsGov();
     } catch (err) {
-      console.error('External fetch failed, using static data:', err);
-      opportunities = fundingOpportunities.map((opp) => ({
-        id: opp.id,
-        title: opp.title,
-        organization: opp.organization,
-        amount: `Up to $${opp.amount.toLocaleString()}`,
-        deadline: opp.deadline,
-        sectors: opp.sectors,
-        countries: opp.countries,
-        type: opp.type,
-        matchScore: 80,
-        successRate: 0.6,
-        requirements: opp.requirements
-      }));
+      console.error('External fetch failed, using database data:', err);
+      try {
+        const fallback = await fetchFundingOpportunities();
+        opportunities = fallback.map((opp) => ({
+          id: opp.id,
+          title: opp.title,
+          organization: opp.organization,
+          amount: `Up to $${opp.amount.toLocaleString()}`,
+          deadline: opp.deadline,
+          sectors: opp.sectors,
+          countries: opp.countries,
+          type: opp.type,
+          matchScore: 80,
+          successRate: 0.6,
+          requirements: opp.requirements,
+        }));
+      } catch (dbErr) {
+        console.error('Database fetch failed:', dbErr);
+        opportunities = [];
+      }
     }
 
     return new Response(

@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { fundingOpportunities } from './funding-data.ts';
+import { fetchFundingOpportunities } from './funding-data.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -29,7 +29,9 @@ serve(async (req) => {
   try {
     const { businessProfile, fundingNeeds }: { businessProfile: BusinessProfile; fundingNeeds: FundingNeeds } = await req.json();
 
-    const matches = fundingOpportunities.map((opp) => {
+    const opportunities = await fetchFundingOpportunities();
+
+    const matches = opportunities.map((opp) => {
       let score = 0;
       const reasons: string[] = [];
 
