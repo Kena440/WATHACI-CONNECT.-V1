@@ -21,6 +21,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
 import AboutUs from "./pages/AboutUs";
+import TestError from "./pages/TestError";
 import { PrivateRoute } from "./components/PrivateRoute";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ export const AppRoutes = () => (
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
     <Route path="/about-us" element={<AboutUs />} />
+    <Route path="/test-error" element={<TestError />} />
     <Route
       path="/messages"
       element={
