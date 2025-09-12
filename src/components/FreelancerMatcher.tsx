@@ -151,7 +151,7 @@ export const FreelancerMatcher = () => {
                     </div>
 
                     {freelancer.bio && (
-                      <p className="text-gray-700 mb-3 transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
+                      <p className="text-gray-700 text-justify mb-3 transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
                         {freelancer.bio}
                       </p>
                     )}

@@ -184,7 +184,7 @@ export const FreelancerDirectory = () => {
                   )}
                 </div>
                 {freelancer.bio && (
-                  <p className="text-sm text-gray-600 transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
+                  <p className="text-sm text-gray-600 text-justify transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
                     {freelancer.bio}
                   </p>
                 )}

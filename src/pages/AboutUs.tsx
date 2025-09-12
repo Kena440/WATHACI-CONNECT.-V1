@@ -73,7 +73,7 @@ export default function AboutUs() {
                 <p className="text-gray-600">{member.title}</p>
               </CardHeader>
               <CardContent className="relative z-10">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 text-justify">
                   {member.bio}
                 </p>
                 <div className="text-sm text-gray-600 mt-4">
