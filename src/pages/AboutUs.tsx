@@ -1,13 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface TeamMember {
-  name: string;
-  title: string;
-  bio: string;
-  email: string;
-  phone: string;
-  image?: string;
-}
+import { TeamBioCard, type TeamMember } from "@/components/TeamBioCard";
 
 export default function AboutUs() {
   const teamMembers: TeamMember[] = [
@@ -43,32 +35,7 @@ export default function AboutUs() {
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-6">
           {teamMembers.map((member, idx) => (
-            <Card
-              key={idx}
-              className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-white/40 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <CardHeader className="text-center relative z-10">
-                <img
-                  src={member.image || "/placeholder.svg"}
-                  alt={member.name}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
-                />
-                <CardTitle className="text-xl">{member.name}</CardTitle>
-                <p className="text-gray-600">{member.title}</p>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-sm text-gray-600 transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
-                  {member.bio}
-                </p>
-                <p className="text-sm text-gray-600 mt-4">
-                  📧 {member.email}
-                  <br />📱 {member.phone}
-                </p>
-              </CardContent>
-            </Card>
+            <TeamBioCard key={idx} member={member} />
           ))}
         </CardContent>
       </Card>
