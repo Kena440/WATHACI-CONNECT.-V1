@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lightbulb, Users, TrendingUp, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getCollaborationSuggestions, CollaborationSuggestion } from '@/lib/services/collaboration-service';
 
 interface Suggestion {
   id: string;
@@ -27,17 +28,31 @@ export const CollaborationSuggestions = ({ userProfile }: { userProfile?: any })
 
   const generateSuggestions = async () => {
     setLoading(true);
-    
+
     try {
-      // TODO: Replace with actual AI-powered suggestion generation
-      // For now, return empty array for launch
-      setSuggestions([]);
+      const aiSuggestions = await getCollaborationSuggestions(userProfile);
+      const mapped: Suggestion[] = aiSuggestions.map((s: CollaborationSuggestion) => ({
+        id: s.id,
+        type: s.type,
+        title: s.title,
+        description: s.description,
+        matchScore: s.matchScore,
+        participants: s.participants ?? [],
+        tags: s.tags ?? [],
+        potentialValue: s.potentialValue ?? '',
+      }));
+      setSuggestions(mapped);
     } catch (error) {
       console.error('Error generating suggestions:', error);
+      toast({
+        title: 'Failed to load suggestions',
+        description: 'Please try again later.',
+        variant: 'destructive',
+      });
       setSuggestions([]);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleInterest = (suggestionId: string, action: 'interested' | 'not_interested') => {
