@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Linkedin } from "lucide-react";
+import { Linkedin, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface TeamMember {
   name: string;
@@ -35,6 +36,13 @@ export default function AboutUs() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
+      <Link
+        to="/"
+        className="inline-flex items-center text-sm text-blue-600 hover:underline"
+      >
+        <ArrowLeft className="mr-1 h-4 w-4" />
+        Back to Home
+      </Link>
       <Card>
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-center">About Us</CardTitle>
