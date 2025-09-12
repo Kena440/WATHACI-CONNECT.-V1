@@ -43,7 +43,8 @@ describe('MessageCenter', () => {
     (supabase.functions.invoke as any)
       .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null })
       .mockResolvedValueOnce({ data: {}, error: null })
-      .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null });
+      .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null })
+      .mockResolvedValueOnce({ data: {}, error: null }); // For mark as read
     (userService.searchUsers as any).mockResolvedValue({
       data: [{ id: 'u2', full_name: 'Charlie' }],
       error: null,
@@ -92,6 +93,34 @@ describe('MessageCenter', () => {
     expect(screen.getByPlaceholderText('Search users...')).toHaveValue('');
     expect(screen.getByPlaceholderText('Subject')).toHaveValue('');
     expect(screen.getByPlaceholderText('Message content...')).toHaveValue('');
+  });
+
+  it('marks unread messages as read when selected', async () => {
+    render(<MessageCenter />);
+
+    // Wait for messages to load
+    const messageElement = await screen.findByText('Hello');
+    expect(messageElement).toBeInTheDocument();
+
+    // Verify unread badge is present
+    expect(screen.getByText('New')).toBeInTheDocument();
+
+    // Click on the unread message
+    fireEvent.click(messageElement.closest('[data-testid], div[class*="cursor-pointer"]') || messageElement.parentElement!);
+
+    // Verify mark as read was called
+    await waitFor(() => {
+      expect(supabase.functions.invoke).toHaveBeenCalledWith(
+        'messaging-system',
+        expect.objectContaining({
+          body: expect.objectContaining({
+            action: 'mark_as_read',
+            message_id: '1',
+            user_id: 'u1',
+          }),
+        })
+      );
+    });
   });
 });
 
