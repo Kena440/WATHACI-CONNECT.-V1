@@ -19,6 +19,7 @@ import FreelancerHub from "./pages/FreelancerHub";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Messages from "./pages/Messages";
+import AuditLog from "./pages/admin/AuditLog";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ export const AppRoutes = () => (
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
     <Route path="/messages" element={<Messages />} />
+    <Route path="/admin/audit-log" element={<AuditLog />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

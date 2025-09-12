@@ -18,6 +18,7 @@ vi.mock('../pages/FreelancerHub', () => ({ default: () => <div>Freelancer Hub Pa
 vi.mock('../pages/PrivacyPolicy', () => ({ default: () => <div>Privacy Policy Page</div> }));
 vi.mock('../pages/TermsOfService', () => ({ default: () => <div>Terms Of Service Page</div> }));
 vi.mock('../pages/Messages', () => ({ default: () => <div>Messages Page</div> }));
+vi.mock('../pages/admin/AuditLog', () => ({ default: () => <div>Audit Log Page</div> }));
 
 const routes = [
   { path: '/', text: 'Home Page' },
@@ -33,6 +34,7 @@ const routes = [
   { path: '/privacy-policy', text: 'Privacy Policy Page' },
   { path: '/terms-of-service', text: 'Terms Of Service Page' },
   { path: '/messages', text: 'Messages Page' },
+  { path: '/admin/audit-log', text: 'Audit Log Page' },
 ];
 
 describe('AppRoutes', () => {
