@@ -17,6 +17,12 @@ vi.mock('@/lib/supabase', () => {
 });
 
 import { supabase } from '@/lib/supabase';
+vi.mock('@/lib/services', () => ({
+  userService: {
+    searchUsers: vi.fn(),
+  },
+}));
+import { userService } from '@/lib/services';
 
 describe('MessageCenter', () => {
   const mockMessages = [
@@ -38,6 +44,10 @@ describe('MessageCenter', () => {
       .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null })
       .mockResolvedValueOnce({ data: {}, error: null })
       .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null });
+    (userService.searchUsers as any).mockResolvedValue({
+      data: [{ id: 'u2', full_name: 'Charlie' }],
+      error: null,
+    });
   });
 
   it('renders messages, sends new message, and resets form', async () => {
@@ -48,7 +58,12 @@ describe('MessageCenter', () => {
 
     // Compose message
     fireEvent.click(screen.getByRole('button', { name: /compose/i }));
-    fireEvent.change(screen.getByPlaceholderText('Recipient ID'), { target: { value: 'u2' } });
+    fireEvent.change(screen.getByPlaceholderText('Search users...'), { target: { value: 'Cha' } });
+    await waitFor(() => {
+      expect(userService.searchUsers).toHaveBeenCalledWith('Cha');
+    });
+    fireEvent.click(await screen.findByText('Charlie'));
+    expect(screen.getByPlaceholderText('Search users...')).toHaveValue('Charlie');
     fireEvent.change(screen.getByPlaceholderText('Subject'), { target: { value: 'New Subject' } });
     fireEvent.change(screen.getByPlaceholderText('Message content...'), { target: { value: 'New Content' } });
 
@@ -74,7 +89,7 @@ describe('MessageCenter', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: /compose/i }));
-    expect(screen.getByPlaceholderText('Recipient ID')).toHaveValue('');
+    expect(screen.getByPlaceholderText('Search users...')).toHaveValue('');
     expect(screen.getByPlaceholderText('Subject')).toHaveValue('');
     expect(screen.getByPlaceholderText('Message content...')).toHaveValue('');
   });
