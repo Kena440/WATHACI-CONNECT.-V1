@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
-import { Search, MapPin, DollarSign, Star, Loader2 } from 'lucide-react';
+import { Search, MapPin, DollarSign, Star, Loader2, Linkedin } from 'lucide-react';
 
 interface Freelancer {
   avatar?: string;
@@ -19,6 +19,7 @@ interface Freelancer {
   hourly_rate?: number;
   rating?: number;
   reviews_count?: number;
+  linkedin_url?: string;
 }
 
 export const FreelancerMatcher = () => {
@@ -132,6 +133,17 @@ export const FreelancerMatcher = () => {
                       <div>
                         <h3 className="font-semibold text-lg">{freelancer.name}</h3>
                         <p className="text-gray-600">{freelancer.title}</p>
+                        {freelancer.linkedin_url && (
+                          <a
+                            href={freelancer.linkedin_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:underline mt-1 text-sm"
+                          >
+                            <Linkedin className="w-4 h-4 mr-1" />
+                            LinkedIn
+                          </a>
+                        )}
                       </div>
                       <Badge className="bg-green-100 text-green-800">
                         {freelancer.match_score}% Match
