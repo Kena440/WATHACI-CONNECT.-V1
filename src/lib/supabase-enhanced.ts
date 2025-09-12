@@ -41,7 +41,7 @@ const createSupabaseClient = (): SupabaseClient => {
     },
     global: {
       headers: {
-        'X-Client-Info': 'wathaci-connect-v1',
+        'X-Client-Info': 'wathaci-connect-v2',
       },
     },
     // Enhanced error handling
