@@ -8,12 +8,13 @@ This documentation provides comprehensive guidance for integrating and configuri
 
 1. [Quick Start](#quick-start)
 2. [Environment Configuration](#environment-configuration)
-3. [Payment Flow](#payment-flow)
-4. [API Reference](#api-reference)
-5. [Security Guidelines](#security-guidelines)
-6. [Testing](#testing)
-7. [Troubleshooting](#troubleshooting)
-8. [Advanced Features](#advanced-features)
+3. [Deployment](#deployment)
+4. [Payment Flow](#payment-flow)
+5. [API Reference](#api-reference)
+6. [Security Guidelines](#security-guidelines)
+7. [Testing](#testing)
+8. [Troubleshooting](#troubleshooting)
+9. [Advanced Features](#advanced-features)
 
 ## Quick Start
 
@@ -101,6 +102,46 @@ VITE_APP_NAME="WATHACI CONNECT"
 4. Copy the public and secret keys
 5. Set up webhook endpoint URL
 6. Configure webhook secret
+
+## Deployment
+
+### Edge Function Deployment
+
+1. **Install Supabase CLI**
+   ```bash
+   npm install -g supabase
+   ```
+2. **Authenticate**
+   ```bash
+   supabase login
+   ```
+3. **Deploy the payment webhook function**
+   ```bash
+   supabase functions deploy lenco-webhook
+   ```
+4. **Set function secrets**
+   ```bash
+   supabase secrets set LENCO_SECRET_KEY="<your-secret-key>" LENCO_WEBHOOK_SECRET="<your-webhook-secret>"
+   ```
+5. **Verify deployment** – note the generated URL:
+   `https://<project-ref>.functions.supabase.co/lenco-webhook`
+
+### Webhook URL Configuration
+
+1. Copy the edge function URL from the deployment step.
+2. In the Lenco dashboard, open **Developer > Webhooks**.
+3. Add the function URL as your webhook endpoint.
+4. Use the same `LENCO_WEBHOOK_SECRET` value to validate incoming requests.
+
+### Environment Variables
+
+1. Duplicate the sample file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Fill in all required variables, including Supabase and Lenco keys.
+3. For deployed edge functions, set variables using `supabase secrets set`.
+4. Redeploy the function whenever environment variables change.
 
 ## Payment Flow
 
@@ -380,6 +421,24 @@ import { PaymentTestComponent } from '@/components/PaymentTestComponent';
 - Check webhook endpoint accessibility
 - Validate webhook signature
 - Monitor webhook logs
+
+#### 5. Invalid API Keys
+
+**Symptoms:** Requests return `API_KEY_INVALID` or `401` errors
+
+**Solutions:**
+- Confirm keys match the target environment (test vs live)
+- Regenerate keys in the Lenco dashboard if compromised
+- Ensure secrets are correctly set in `.env` and Supabase function secrets
+
+#### 6. Payment Stuck in Pending
+
+**Symptoms:** Payment remains in `pending` status for an extended time
+
+**Solutions:**
+- Verify that the webhook endpoint is reachable
+- Check provider status in the Lenco dashboard
+- Retry verification using the payment reference
 
 ### Error Codes
 
