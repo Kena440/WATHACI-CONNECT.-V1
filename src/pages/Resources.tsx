@@ -6,6 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileText, Download, Eye, Calendar, User, Search } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { LencoPayment } from '@/components/LencoPayment';
+import { useAppContext } from '@/contexts/AppContext';
+import { useToast } from '@/hooks/use-toast';
+import { resourcePurchaseService } from '@/lib/services';
 
 const resources = [
   {
@@ -18,7 +23,8 @@ const resources = [
     date: '2024-01-15',
     author: 'WATHACI Team',
     fileSize: '2.3 MB',
-    isPremium: false
+    isPremium: false,
+    price: 0
   },
   {
     id: 2,
@@ -30,7 +36,8 @@ const resources = [
     date: '2024-01-10',
     author: 'Legal Team',
     fileSize: '1.1 MB',
-    isPremium: false
+    isPremium: false,
+    price: 0
   },
   {
     id: 3,
@@ -42,7 +49,8 @@ const resources = [
     date: '2024-01-08',
     author: 'Business Advisors',
     fileSize: '3.7 MB',
-    isPremium: true
+    isPremium: true,
+    price: 50
   },
   {
     id: 4,
@@ -54,7 +62,8 @@ const resources = [
     date: '2024-01-05',
     author: 'Risk Specialists',
     fileSize: '4.2 MB',
-    isPremium: true
+    isPremium: true,
+    price: 50
   },
   {
     id: 5,
@@ -66,7 +75,8 @@ const resources = [
     date: '2024-01-03',
     author: 'Legal Team',
     fileSize: '1.8 MB',
-    isPremium: false
+    isPremium: false,
+    price: 0
   },
   {
     id: 6,
@@ -78,7 +88,8 @@ const resources = [
     date: '2024-01-01',
     author: 'Training Team',
     fileSize: 'Online',
-    isPremium: true
+    isPremium: true,
+    price: 75
   }
 ];
 
@@ -90,7 +101,9 @@ const webinars = [
     time: '14:00 CAT',
     presenter: 'Sarah Mwanza',
     attendees: 156,
-    status: 'upcoming'
+    status: 'upcoming',
+    isPremium: true,
+    price: 75
   },
   {
     id: 2,
@@ -99,7 +112,9 @@ const webinars = [
     time: '15:30 CAT',
     presenter: 'James Banda',
     attendees: 89,
-    status: 'completed'
+    status: 'completed',
+    isPremium: false,
+    price: 0
   },
   {
     id: 3,
@@ -108,7 +123,9 @@ const webinars = [
     time: '13:00 CAT',
     presenter: 'Grace Phiri',
     attendees: 234,
-    status: 'upcoming'
+    status: 'upcoming',
+    isPremium: false,
+    price: 0
   }
 ];
 
@@ -117,6 +134,10 @@ const Resources = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all-categories');
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<(typeof resources)[number] | null>(null);
+  const [selectedWebinar, setSelectedWebinar] = useState<(typeof webinars)[number] | null>(null);
+  const { user } = useAppContext();
+  const { toast } = useToast();
 
   const filteredResources = resources.filter(resource => {
     const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,6 +146,67 @@ const Resources = () => {
     const matchesPremium = !showPremiumOnly || resource.isPremium;
     return matchesSearch && matchesCategory && matchesPremium;
   });
+
+  const downloadResource = (resource: (typeof resources)[number]) => {
+    // Placeholder for actual download logic
+    console.log('Downloading resource', resource.title);
+  };
+
+  const handleResourcePaymentSuccess = async () => {
+    if (selectedResource && user) {
+      const { error } = await resourcePurchaseService.recordPurchase(user.id, selectedResource.id);
+      if (error) {
+        toast({ title: 'Purchase Error', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: 'Purchase Successful', description: 'You can now download this resource.' });
+        downloadResource(selectedResource);
+      }
+    }
+    setSelectedResource(null);
+  };
+
+  const handleDownload = async (resource: (typeof resources)[number]) => {
+    if (!resource.isPremium) {
+      downloadResource(resource);
+      return;
+    }
+
+    if (!user) {
+      toast({ title: 'Sign in required', description: 'Please sign in to purchase this resource.', variant: 'destructive' });
+      return;
+    }
+
+    const { data: purchased, error } = await resourcePurchaseService.hasPurchased(user.id, resource.id);
+    if (error) {
+      toast({ title: 'Error', description: 'Could not verify purchase status.', variant: 'destructive' });
+      return;
+    }
+
+    if (purchased) {
+      downloadResource(resource);
+    } else {
+      setSelectedResource(resource);
+    }
+  };
+
+  const registerForWebinar = (webinar: (typeof webinars)[number]) => {
+    console.log('Registered for webinar', webinar.title);
+  };
+
+  const handleWebinarPaymentSuccess = () => {
+    if (selectedWebinar) {
+      registerForWebinar(selectedWebinar);
+    }
+    setSelectedWebinar(null);
+  };
+
+  const handleRegister = (webinar: (typeof webinars)[number]) => {
+    if (webinar.isPremium) {
+      setSelectedWebinar(webinar);
+    } else {
+      registerForWebinar(webinar);
+    }
+  };
 
   return (
     <AppLayout>
@@ -229,7 +311,7 @@ const Resources = () => {
                           <Eye className="w-4 h-4 mr-2" />
                           Preview
                         </Button>
-                        <Button size="sm" variant="outline" className="flex-1">
+                        <Button size="sm" variant="outline" className="flex-1" onClick={() => handleDownload(resource)}>
                           <Download className="w-4 h-4 mr-2" />
                           Download
                         </Button>
@@ -273,7 +355,10 @@ const Resources = () => {
                           </div>
                         </div>
                         <div className="ml-4">
-                          <Button variant={webinar.status === 'upcoming' ? 'default' : 'outline'}>
+                          <Button
+                            variant={webinar.status === 'upcoming' ? 'default' : 'outline'}
+                            onClick={() => handleRegister(webinar)}
+                          >
                             {webinar.status === 'upcoming' ? 'Register' : 'Watch Recording'}
                           </Button>
                         </div>
@@ -319,6 +404,39 @@ const Resources = () => {
             </div>
           )}
         </div>
+
+        <Dialog open={!!selectedResource} onOpenChange={(open) => !open && setSelectedResource(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Purchase Resource</DialogTitle>
+            </DialogHeader>
+            {selectedResource && (
+              <LencoPayment
+                amount={selectedResource.price}
+                description={`Access to ${selectedResource.title}`}
+                onSuccess={handleResourcePaymentSuccess}
+                onCancel={() => setSelectedResource(null)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!selectedWebinar} onOpenChange={(open) => !open && setSelectedWebinar(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Register for Webinar</DialogTitle>
+            </DialogHeader>
+            {selectedWebinar && (
+              <LencoPayment
+                amount={selectedWebinar.price}
+                description={`Registration for ${selectedWebinar.title}`}
+                onSuccess={handleWebinarPaymentSuccess}
+                onCancel={() => setSelectedWebinar(null)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
       </div>
     </AppLayout>
   );
