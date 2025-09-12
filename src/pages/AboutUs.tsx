@@ -18,7 +18,7 @@ export default function AboutUs() {
       title: "Team Lead",
       bio: "Amukena Mukumbuta is a results-driven SME champion with 15+ years’ experience in operations, compliance, and donor-funded project management. Amukena has overseen £2M+ SME-focused programmes, cutting compliance risks and building systems that help entrepreneurs thrive. Amukena is passionate about unlocking growth for SMEs through practical support—whether it’s compliance guidance, access to finance, or digital transformation. Beyond his corporate role, he leads Wathaci Corporate Services and 440 A.M. Enterprises, platforms designed to equip Zambian SMEs with the tools, networks, and strategies they need to scale sustainably.",
       email: "amukena@wathaci.com",
-      phone: "+260 966 123 456",
+      phone: "260 972 896005",
       image: "https://wathaci.com/public_html/Images/Amukena.jpeg",
       linkedin_url: "https://www.linkedin.com/in/amukena-mukumbuta/",
     },
@@ -29,7 +29,7 @@ export default function AboutUs() {
       email: "kasamwa@wathaci.com",
       phone: "+260 964 283 538",
       image: "https://wathaci.com/public_html/Images/Kasamwa.jpg",
-      linkedin_url: "https://www.linkedin.com/in/kasamwa-kachomba/",
+      linkedin_url: "https://www.linkedin.com/in/kasamwa-kachomba",
     },
   ];
 
@@ -73,7 +73,7 @@ export default function AboutUs() {
                 <p className="text-gray-600">{member.title}</p>
               </CardHeader>
               <CardContent className="relative z-10">
-                <p className="text-sm text-gray-600 transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
+                <p className="text-sm text-gray-600">
                   {member.bio}
                 </p>
                 <div className="text-sm text-gray-600 mt-4">
