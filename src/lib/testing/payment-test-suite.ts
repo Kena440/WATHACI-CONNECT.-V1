@@ -54,6 +54,32 @@ export class PaymentTestSuite {
       category: 'validation'
     },
     {
+      name: 'Missing Provider',
+      description: 'Test mobile money payment without provider',
+      testData: {
+        amount: 50,
+        phone: '0978123456',
+        email: 'test@example.com',
+        name: 'Test User',
+        description: 'Test payment'
+      },
+      expectedResult: 'failure',
+      category: 'validation'
+    },
+    {
+      name: 'Missing Phone Number',
+      description: 'Test mobile money payment without phone number',
+      testData: {
+        amount: 50,
+        provider: 'mtn',
+        email: 'test@example.com',
+        name: 'Test User',
+        description: 'Test payment'
+      },
+      expectedResult: 'failure',
+      category: 'validation'
+    },
+    {
       name: 'Invalid Email',
       description: 'Test payment with invalid email',
       testData: {
