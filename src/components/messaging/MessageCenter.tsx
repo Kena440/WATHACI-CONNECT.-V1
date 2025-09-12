@@ -74,6 +74,34 @@ export const MessageCenter = () => {
     }
   };
 
+  const markAsRead = async (messageId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase.functions.invoke('messaging-system', {
+        body: {
+          action: 'mark_as_read',
+          message_id: messageId,
+          user_id: user.id
+        }
+      });
+
+      if (error) throw error;
+
+      // Update local state
+      setMessages(prev => 
+        prev.map(msg => msg.id === messageId ? { ...msg, read: true } : msg)
+      );
+    } catch (error: any) {
+      toast({
+        title: "Error marking message as read",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   const sendMessage = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -134,7 +162,13 @@ export const MessageCenter = () => {
                   ? 'bg-primary/10'
                   : 'hover:bg-gray-50'
               }`}
-              onClick={() => setSelectedMessage(message)}
+              onClick={() => {
+                setSelectedMessage(message);
+                // Mark unread messages as read when selected
+                if (!message.read) {
+                  markAsRead(message.id);
+                }
+              }}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-sm">
