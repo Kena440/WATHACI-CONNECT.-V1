@@ -40,11 +40,18 @@ describe('MessageCenter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (supabase.auth.getUser as any).mockResolvedValue({ data: { user: { id: 'u1' } } });
-    (supabase.functions.invoke as any)
-      .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null })
-      .mockResolvedValueOnce({ data: {}, error: null })
-      .mockResolvedValueOnce({ data: { messages: mockMessages }, error: null })
-      .mockResolvedValueOnce({ data: {}, error: null }); // For mark as read
+    (supabase.functions.invoke as any).mockImplementation((functionName, { body }) => {
+      if (body.action === 'get_messages') {
+        return Promise.resolve({ data: { messages: mockMessages }, error: null });
+      }
+      if (body.action === 'send_message') {
+        return Promise.resolve({ data: {}, error: null });
+      }
+      if (body.action === 'mark_as_read') {
+        return Promise.resolve({ data: {}, error: null });
+      }
+      return Promise.resolve({ data: {}, error: null });
+    });
     (userService.searchUsers as any).mockResolvedValue({
       data: [{ id: 'u2', full_name: 'Charlie' }],
       error: null,
