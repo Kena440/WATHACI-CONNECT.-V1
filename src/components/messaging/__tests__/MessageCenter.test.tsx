@@ -48,9 +48,16 @@ describe('MessageCenter', () => {
 
     // Compose message
     fireEvent.click(screen.getByRole('button', { name: /compose/i }));
-    fireEvent.change(screen.getByPlaceholderText('Recipient ID'), { target: { value: 'u2' } });
-    fireEvent.change(screen.getByPlaceholderText('Subject'), { target: { value: 'New Subject' } });
-    fireEvent.change(screen.getByPlaceholderText('Message content...'), { target: { value: 'New Content' } });
+    const recipientInput = screen.getByLabelText(/recipient id/i);
+    const subjectInput = screen.getByLabelText(/subject/i);
+    const contentTextarea = screen.getByLabelText(/message content/i);
+    expect(recipientInput).toBeInTheDocument();
+    expect(subjectInput).toBeInTheDocument();
+    expect(contentTextarea).toBeInTheDocument();
+
+    fireEvent.change(recipientInput, { target: { value: 'u2' } });
+    fireEvent.change(subjectInput, { target: { value: 'New Subject' } });
+    fireEvent.change(contentTextarea, { target: { value: 'New Content' } });
 
     fireEvent.click(screen.getByRole('button', { name: /send/i }));
 
@@ -74,9 +81,9 @@ describe('MessageCenter', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: /compose/i }));
-    expect(screen.getByPlaceholderText('Recipient ID')).toHaveValue('');
-    expect(screen.getByPlaceholderText('Subject')).toHaveValue('');
-    expect(screen.getByPlaceholderText('Message content...')).toHaveValue('');
+    expect(screen.getByLabelText(/recipient id/i)).toHaveValue('');
+    expect(screen.getByLabelText(/subject/i)).toHaveValue('');
+    expect(screen.getByLabelText(/message content/i)).toHaveValue('');
   });
 });
 
