@@ -66,7 +66,7 @@ VITE_SUPABASE_KEY="your-anon-key"
 VITE_LENCO_PUBLIC_KEY="pk_test_your_lenco_public_key"
 LENCO_SECRET_KEY="sk_test_your_lenco_secret_key"
 LENCO_WEBHOOK_SECRET="whsec_your_webhook_secret"
-VITE_LENCO_API_URL="https://api.lenco.ng/v1"
+VITE_LENCO_API_URL="https://api.lenco.ng/v2"
 
 # Payment Configuration
 VITE_PAYMENT_CURRENCY="ZMK"
