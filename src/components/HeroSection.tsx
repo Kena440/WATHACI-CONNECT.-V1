@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Users, TrendingUp, Award } from 'lucide-react';
+import { ArrowRight, Users, TrendingUp, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
@@ -40,31 +40,52 @@ const HeroSection = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mt-16">
-          <div className="text-center p-6 bg-white rounded-xl shadow-lg border border-orange-100 hover:shadow-xl transition-shadow">
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="w-8 h-8 text-white" />
+          <div
+            role="button"
+            tabIndex={0}
+            data-analytics-id="professional-network"
+            aria-label="Join the professional network"
+            title="Expand your professional contacts"
+            className="text-center p-6 bg-white rounded-xl shadow-lg border border-blue-100 hover:shadow-xl focus:shadow-xl transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users aria-hidden="true" className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Professional Network</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Connect with Pros</h3>
             <p className="text-gray-600">
               Connect with verified professionals and service providers across Zambia
             </p>
           </div>
 
-          <div className="text-center p-6 bg-white rounded-xl shadow-lg border border-green-100 hover:shadow-xl transition-shadow">
+          <div
+            role="button"
+            tabIndex={0}
+            data-analytics-id="business-growth"
+            aria-label="Grow your business"
+            title="Access tools to accelerate your business"
+            className="text-center p-6 bg-white rounded-xl shadow-lg border border-green-100 hover:shadow-xl focus:shadow-xl transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
             <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TrendingUp className="w-8 h-8 text-white" />
+              <TrendingUp aria-hidden="true" className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Business Growth</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Grow Your Business</h3>
             <p className="text-gray-600">
               Access tools and resources designed to accelerate your business growth
             </p>
           </div>
 
-          <div className="text-center p-6 bg-white rounded-xl shadow-lg border border-orange-100 hover:shadow-xl transition-shadow">
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Award className="w-8 h-8 text-white" />
+          <div
+            role="button"
+            tabIndex={0}
+            data-analytics-id="quality-assurance"
+            aria-label="Ensure quality"
+            title="Work with vetted, reliable professionals"
+            className="text-center p-6 bg-white rounded-xl shadow-lg border border-amber-100 hover:shadow-xl focus:shadow-xl transition-shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+          >
+            <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ShieldCheck aria-hidden="true" className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Quality Assurance</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Ensure Quality</h3>
             <p className="text-gray-600">
               All services and professionals are vetted for quality and reliability
             </p>
