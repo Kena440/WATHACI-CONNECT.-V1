@@ -5,6 +5,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { logger } from '../../src/lib/logger.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,6 +44,7 @@ serve(async (req) => {
     });
   }
 
+  let payload: WebhookPayload | undefined;
   try {
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -67,7 +69,7 @@ serve(async (req) => {
     );
     
     // Parse webhook payload
-    const payload: WebhookPayload = JSON.parse(rawBody);
+    payload = JSON.parse(rawBody) as WebhookPayload;
     
     console.log('Received webhook:', payload.event, payload.data.reference);
 
@@ -84,7 +86,10 @@ serve(async (req) => {
       .eq('reference', payload.data.reference);
 
     if (paymentUpdateError) {
-      console.error('Failed to update payment:', paymentUpdateError);
+      logger.error('Failed to update payment', paymentUpdateError, {
+        paymentReference: payload?.data.reference,
+        userId: payload?.data.metadata?.user_id,
+      });
     }
 
     // Handle subscription payments
@@ -132,29 +137,35 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Webhook processing error:', error);
-    
+    logger.error('Webhook processing error', error, {
+      paymentReference: payload?.data.reference,
+      userId: payload?.data.metadata?.user_id,
+    });
+
     // Log failed webhook
     try {
       const supabaseClient = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       );
-      
+
       await supabaseClient.from('webhook_logs').insert({
         event_type: 'unknown',
-        reference: 'unknown',
+        reference: payload?.data.reference || 'unknown',
         status: 'failed',
-        error_message: error.message,
+        error_message: (error as Error).message,
         processed_at: new Date().toISOString()
       });
     } catch (logError) {
-      console.error('Failed to log webhook error:', logError);
+      logger.error('Failed to log webhook error', logError, {
+        paymentReference: payload?.data.reference,
+        userId: payload?.data.metadata?.user_id,
+      });
     }
 
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: error.message 
+    return new Response(JSON.stringify({
+      success: false,
+      error: (error as Error).message
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
@@ -182,7 +193,9 @@ async function handleSubscriptionPaymentUpdate(
       .eq('id', subscriptionId);
 
     if (error) {
-      console.error('Failed to update subscription:', error);
+      logger.error('Failed to update subscription', error, {
+        paymentReference: reference,
+      });
     } else {
       console.log(`Subscription ${subscriptionId} updated to ${newStatus}`);
     }
@@ -197,7 +210,9 @@ async function handleSubscriptionPaymentUpdate(
       .eq('reference_number', reference);
 
   } catch (error) {
-    console.error('Error handling subscription payment update:', error);
+    logger.error('Error handling subscription payment update', error, {
+      paymentReference: reference,
+    });
   }
 }
 
@@ -219,13 +234,17 @@ async function handleServicePaymentUpdate(
       .eq('id', serviceId);
 
     if (error) {
-      console.error('Failed to update service booking:', error);
+      logger.error('Failed to update service booking', error, {
+        paymentReference: reference,
+      });
     } else {
       console.log(`Service booking ${serviceId} payment updated`);
     }
 
   } catch (error) {
-    console.error('Error handling service payment update:', error);
+    logger.error('Error handling service payment update', error, {
+      paymentReference: reference,
+    });
   }
 }
 
@@ -256,7 +275,10 @@ async function sendRealTimeNotification(
       .insert(notification);
 
     if (error) {
-      console.error('Failed to create notification:', error);
+      logger.error('Failed to create notification', error, {
+        userId,
+        paymentReference: paymentData.reference,
+      });
     }
 
     // Send real-time update via Supabase Realtime
@@ -269,7 +291,10 @@ async function sendRealTimeNotification(
       });
 
   } catch (error) {
-    console.error('Error sending real-time notification:', error);
+    logger.error('Error sending real-time notification', error, {
+      userId,
+      paymentReference: paymentData.reference,
+    });
   }
 }
 

@@ -6,6 +6,7 @@
 // This would typically be in supabase/functions/lenco-payment/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { logger } from '../../src/lib/logger.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,6 +38,9 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  let reference: string | undefined;
+  let userId: string | undefined;
+
   try {
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -54,11 +58,13 @@ serve(async (req) => {
       authHeader.replace('Bearer ', '')
     );
 
+    userId = user?.id;
+
     if (authError || !user) {
       throw new Error('Unauthorized');
     }
 
-    const { amount, paymentMethod, phoneNumber, provider, description, email, name, metadata }: PaymentRequest = 
+    const { amount, paymentMethod, phoneNumber, provider, description, email, name, metadata }: PaymentRequest =
       await req.json();
 
     // Validate payment request
@@ -75,7 +81,7 @@ serve(async (req) => {
     }
 
     // Generate payment reference
-    const reference = `WC_${Date.now()}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    reference = `WC_${Date.now()}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
     // Prepare Lenco payment request
     const lencoRequest = {
@@ -113,7 +119,10 @@ serve(async (req) => {
     const lencoData = await lencoResponse.json();
 
     if (!lencoResponse.ok) {
-      console.error('Lenco API Error:', lencoData);
+      logger.error('Lenco API Error', lencoData, {
+        userId,
+        paymentReference: reference,
+      });
       throw new Error(lencoData.message || 'Payment gateway error');
     }
 
@@ -139,7 +148,10 @@ serve(async (req) => {
       });
 
     if (dbError) {
-      console.error('Database Error:', dbError);
+      logger.error('Database Error', dbError, {
+        userId,
+        paymentReference: reference,
+      });
       throw new Error('Failed to store payment record');
     }
 
@@ -161,8 +173,11 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Payment Function Error:', error);
-    
+    logger.error('Payment Function Error', error, {
+      userId,
+      paymentReference: reference,
+    });
+
     const errorResponse: LencoApiResponse = {
       success: false,
       error: error.message || 'Internal server error'
