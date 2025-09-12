@@ -16,12 +16,18 @@ export {
 } from './user-service';
 
 // Subscription services
-export { 
-  SubscriptionService, 
-  TransactionService, 
-  subscriptionService, 
-  transactionService 
+export {
+  SubscriptionService,
+  TransactionService,
+  subscriptionService,
+  transactionService
 } from './subscription-service';
+
+// Resource purchase services
+export {
+  ResourcePurchaseService,
+  resourcePurchaseService
+} from './resource-purchase-service';
 
 // Enhanced Supabase client and utilities
 export { 
