@@ -12,19 +12,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useTranslation } from 'react-i18next';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut, loading } = useAppContext();
+  const { t, i18n } = useTranslation();
 
   const navItems = [
-    { name: 'Home', href: '/' },
-    { name: 'Marketplace', href: '/marketplace' },
-    { name: 'Freelancer Hub', href: '/freelancer-hub' },
-    { name: 'Resources', href: '/resources' },
-    { name: 'Partnership Hub', href: '/partnership-hub' },
-    { name: 'Funding Hub', href: '/funding-hub' },
-    { name: 'About Us', href: '/about-us' }
+    { key: 'home', href: '/' },
+    { key: 'marketplace', href: '/marketplace' },
+    { key: 'freelancerHub', href: '/freelancer-hub' },
+    { key: 'resources', href: '/resources' },
+    { key: 'partnershipHub', href: '/partnership-hub' },
+    { key: 'fundingHub', href: '/funding-hub' },
+    { key: 'aboutUs', href: '/about-us' }
   ];
 
   const handleSignOut = async () => {
@@ -51,11 +53,11 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
               <Link
-                key={item.name}
+                key={item.key}
                 to={item.href}
                 className="text-gray-800 hover:text-orange-600 font-semibold transition-colors text-lg"
               >
-                {item.name}
+                {t(item.key)}
               </Link>
             ))}
           </nav>
@@ -66,15 +68,26 @@ const Header = () => {
               <Link to="/messages">
                 <Button variant="ghost" size="sm" className="text-gray-700 hover:bg-orange-100">
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  Messages
+                  {t('messages')}
                 </Button>
               </Link>
             )}
             <DonateButton />
-            <Button variant="ghost" size="sm" className="text-gray-700 hover:bg-orange-100">
-              <Globe className="w-4 h-4 mr-2" />
-              EN
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-gray-700 hover:bg-orange-100">
+                  <Globe className="w-4 h-4 mr-2" />
+                  {i18n.language.toUpperCase()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {['en', 'fr', 'sw'].map((lng) => (
+                  <DropdownMenuItem key={lng} onSelect={() => i18n.changeLanguage(lng)}>
+                    {lng.toUpperCase()}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             {loading ? (
               <div className="w-20 h-9 bg-orange-200 animate-pulse rounded"></div>
@@ -88,33 +101,33 @@ const Header = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link to="/profile-review">View Profile</Link>
+                    <Link to="/profile-review">{t('viewProfile')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/profile-setup">Edit Profile</Link>
+                    <Link to="/profile-setup">{t('editProfile')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/subscription-plans">Subscription Plans</Link>
+                    <Link to="/subscription-plans">{t('subscriptionPlans')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
                     <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
+                    {t('signOut')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link to="/signin">
                 <Button variant="outline" size="sm" className="border-orange-300 hover:bg-orange-50">
-                  Sign In
+                  {t('signIn')}
                 </Button>
               </Link>
             )}
-            
+
             {showGetStarted && (
               <Link to="/get-started">
                 <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
-                  Get Started
+                  {t('getStarted')}
                 </Button>
               </Link>
             )}
@@ -133,12 +146,12 @@ const Header = () => {
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <Link
-                  key={item.name}
+                  key={item.key}
                   to={item.href}
                   className="text-gray-800 hover:text-orange-600 font-semibold"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {item.name}
+                  {t(item.key)}
                 </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4 border-t border-orange-200">
@@ -147,12 +160,27 @@ const Header = () => {
                   <Link to="/messages">
                     <Button variant="outline" size="sm" className="w-full border-orange-300">
                       <MessageCircle className="w-4 h-4 mr-2" />
-                      Messages
+                      {t('messages')}
                     </Button>
                   </Link>
                 )}
                 <DonateButton />
-                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="w-full border-orange-300">
+                      <Globe className="w-4 h-4 mr-2" />
+                      {i18n.language.toUpperCase()}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {['en', 'fr', 'sw'].map((lng) => (
+                      <DropdownMenuItem key={lng} onSelect={() => i18n.changeLanguage(lng)}>
+                        {lng.toUpperCase()}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 {loading ? (
                   <div className="w-full h-9 bg-orange-200 animate-pulse rounded"></div>
                 ) : user ? (
@@ -160,36 +188,36 @@ const Header = () => {
                     <Link to="/profile-review">
                       <Button variant="outline" size="sm" className="w-full border-orange-300">
                         <User className="w-4 h-4 mr-2" />
-                        View Profile
+                        {t('viewProfile')}
                       </Button>
                     </Link>
                     <Link to="/subscription-plans">
                       <Button variant="outline" size="sm" className="w-full border-orange-300">
-                        Subscription Plans
+                        {t('subscriptionPlans')}
                       </Button>
                     </Link>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="w-full text-red-600 border-red-300"
                       onClick={handleSignOut}
                     >
                       <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      {t('signOut')}
                     </Button>
                   </>
                 ) : (
                   <Link to="/signin">
                     <Button variant="outline" size="sm" className="w-full border-orange-300">
-                      Sign In
+                      {t('signIn')}
                     </Button>
                   </Link>
                 )}
-                
+
                 {showGetStarted && (
                   <Link to="/get-started">
                     <Button size="sm" className="bg-orange-600 hover:bg-orange-700 w-full">
-                      Get Started
+                      {t('getStarted')}
                     </Button>
                   </Link>
                 )}
