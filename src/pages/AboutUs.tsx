@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Linkedin } from "lucide-react";
 
 interface TeamMember {
   name: string;
@@ -7,6 +8,7 @@ interface TeamMember {
   email: string;
   phone: string;
   image?: string;
+  linkedin_url?: string;
 }
 
 export default function AboutUs() {
@@ -17,6 +19,7 @@ export default function AboutUs() {
       bio: "Kasamwa Kachomba is a seasoned economist and contracts specialist known for steering complex donor-funded initiatives with precision. As Lead Consultant, he blends sharp analytical insight with hands-on project management, ensuring compliance, fostering stakeholder relationships, and unlocking funding for SMEs and institutions. His strengths include proposal development, donor engagement, team leadership, and establishing robust systems that drive sustainable growth. Passionate about empowering businesses, Kasamwa is committed to building strategic partnerships and delivering measurable impact.",
       email: "kasamwa@wathaci.com",
       phone: "+260 964 283 538",
+      linkedin_url: "https://www.linkedin.com/in/kasamwa-kachomba/",
     },
   ];
 
@@ -63,10 +66,21 @@ export default function AboutUs() {
                 <p className="text-sm text-gray-600 transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
                   {member.bio}
                 </p>
-                <p className="text-sm text-gray-600 mt-4">
-                  📧 {member.email}
-                  <br />📱 {member.phone}
-                </p>
+                <div className="text-sm text-gray-600 mt-4">
+                  <p>📧 {member.email}</p>
+                  <p>📱 {member.phone}</p>
+                  {member.linkedin_url && (
+                    <a
+                      href={member.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-blue-600 hover:underline mt-2"
+                    >
+                      <Linkedin className="w-4 h-4 mr-1" />
+                      LinkedIn
+                    </a>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Star, MapPin, Clock, Search, Filter } from 'lucide-react';
+import { Star, MapPin, Clock, Search, Filter, Linkedin } from 'lucide-react';
 import PriceNegotiation from '@/components/PriceNegotiation';
 import { supabase } from '@/lib/supabase';
 
@@ -24,6 +24,7 @@ interface Freelancer {
   profile_image_url?: string;
   availability_status: string;
   years_experience: number;
+  linkedin_url?: string;
 }
 
 export const FreelancerDirectory = () => {
@@ -144,6 +145,17 @@ export const FreelancerDirectory = () => {
               />
               <CardTitle className="text-xl">{freelancer.name}</CardTitle>
               <p className="text-gray-600">{freelancer.title}</p>
+              {freelancer.linkedin_url && (
+                <a
+                  href={freelancer.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center text-blue-600 hover:underline mt-2 text-sm"
+                >
+                  <Linkedin className="w-4 h-4 mr-1" />
+                  LinkedIn
+                </a>
+              )}
             </CardHeader>
             <CardContent className="relative z-10">
               <div className="flex items-center justify-between mb-4">
