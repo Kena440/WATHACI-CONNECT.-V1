@@ -121,6 +121,21 @@ export class UserService extends BaseService<User> {
       'UserService.signOut'
     );
   }
+
+  /**
+   * Search users by name or email
+   */
+  async searchUsers(query: string): Promise<DatabaseResponse<Array<{ id: string; full_name: string; email: string }>>> {
+    return withErrorHandling(
+      () =>
+        supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
+          .limit(10),
+      'UserService.searchUsers'
+    );
+  }
 }
 
 export class ProfileService extends BaseService<Profile> {

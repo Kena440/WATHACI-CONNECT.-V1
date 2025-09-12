@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Send, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { userService } from '@/lib/services';
 
 interface Message {
   id: string;
@@ -30,6 +31,10 @@ export const MessageCenter = () => {
     subject: '',
     content: ''
   });
+
+  const [recipientQuery, setRecipientQuery] = useState('');
+  const [recipientResults, setRecipientResults] = useState<Array<{ id: string; full_name: string }>>([]);
+  const [selectedRecipient, setSelectedRecipient] = useState<{ id: string; full_name: string } | null>(null);
 
   useEffect(() => {
     loadMessages();
@@ -57,6 +62,18 @@ export const MessageCenter = () => {
     }
   };
 
+  const searchRecipients = async (query: string) => {
+    setRecipientQuery(query);
+    if (!query) {
+      setRecipientResults([]);
+      return;
+    }
+    const { data, error } = await userService.searchUsers(query);
+    if (!error) {
+      setRecipientResults(data || []);
+    }
+  };
+
   const sendMessage = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -78,6 +95,9 @@ export const MessageCenter = () => {
       });
 
       setComposeForm({ recipient_id: '', subject: '', content: '' });
+      setRecipientQuery('');
+      setRecipientResults([]);
+      setSelectedRecipient(null);
       setShowCompose(false);
       loadMessages();
     } catch (error: any) {
@@ -136,14 +156,34 @@ export const MessageCenter = () => {
           {showCompose ? (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Compose Message</h3>
-              <Input
-                placeholder="Recipient ID"
-                value={composeForm.recipient_id}
-                onChange={(e) => setComposeForm(prev => ({
-                  ...prev,
-                  recipient_id: e.target.value
-                }))}
-              />
+              <div className="relative">
+                <Input
+                  placeholder="Search users..."
+                  value={selectedRecipient ? selectedRecipient.full_name : recipientQuery}
+                  onChange={(e) => {
+                    setSelectedRecipient(null);
+                    setComposeForm(prev => ({ ...prev, recipient_id: '' }));
+                    searchRecipients(e.target.value);
+                  }}
+                />
+                {recipientResults.length > 0 && (
+                  <div className="absolute z-10 bg-white border w-full mt-1 max-h-40 overflow-auto">
+                    {recipientResults.map(user => (
+                      <div
+                        key={user.id}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setSelectedRecipient(user);
+                          setComposeForm(prev => ({ ...prev, recipient_id: user.id }));
+                          setRecipientResults([]);
+                        }}
+                      >
+                        {user.full_name}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <Input
                 placeholder="Subject"
                 value={composeForm.subject}
@@ -166,7 +206,16 @@ export const MessageCenter = () => {
                   <Send className="h-4 w-4 mr-2" />
                   Send
                 </Button>
-                <Button variant="outline" onClick={() => setShowCompose(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setComposeForm({ recipient_id: '', subject: '', content: '' });
+                    setRecipientQuery('');
+                    setRecipientResults([]);
+                    setSelectedRecipient(null);
+                    setShowCompose(false);
+                  }}
+                >
                   Cancel
                 </Button>
               </div>
