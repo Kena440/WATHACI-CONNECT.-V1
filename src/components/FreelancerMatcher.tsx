@@ -115,14 +115,18 @@ export const FreelancerMatcher = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Matched Freelancers</h2>
           {matches.map((freelancer: Freelancer, idx: number) => (
-            <Card key={idx}>
-              <CardContent className="p-6">
+            <Card
+              key={idx}
+              className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-white/40 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <CardContent className="p-6 relative z-10">
                 <div className="flex items-start gap-4">
                   <Avatar className="w-16 h-16">
                     <AvatarImage src={freelancer.avatar} alt={freelancer.name} />
                     <AvatarFallback>{freelancer.name?.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  
+
                   <div className="flex-1">
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -133,15 +137,19 @@ export const FreelancerMatcher = () => {
                         {freelancer.match_score}% Match
                       </Badge>
                     </div>
-                    
-                    <p className="text-gray-700 mb-3">{freelancer.bio}</p>
-                    
+
+                    {freelancer.bio && (
+                      <p className="text-gray-700 mb-3 transition-all duration-300 max-h-16 overflow-hidden group-hover:max-h-40">
+                        {freelancer.bio}
+                      </p>
+                    )}
+
                     <div className="flex flex-wrap gap-2 mb-3">
                       {freelancer.skills?.slice(0, 5).map((skill: string, skillIdx: number) => (
                         <Badge key={skillIdx} variant="outline">{skill}</Badge>
                       ))}
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
@@ -156,7 +164,7 @@ export const FreelancerMatcher = () => {
                         {freelancer.rating} ({freelancer.reviews_count} reviews)
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <Button className="flex-1">Contact Freelancer</Button>
                       <Button variant="outline">View Profile</Button>
@@ -170,4 +178,4 @@ export const FreelancerMatcher = () => {
       )}
     </div>
   );
-};
+}; 
