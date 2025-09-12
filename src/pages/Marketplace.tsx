@@ -12,7 +12,7 @@ import { ComplianceGate } from '@/components/marketplace/ComplianceGate';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { LencoPayment } from '@/components/LencoPayment';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-enhanced';
 import { useToast } from '@/hooks/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
 import { PaymentStatusTracker } from '@/components/PaymentStatusTracker';

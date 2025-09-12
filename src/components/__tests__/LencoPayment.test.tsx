@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 
 // Mock Supabase first
 const mockInvoke = jest.fn();
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/lib/supabase-enhanced', () => ({
   supabase: {
     functions: {
       invoke: mockInvoke

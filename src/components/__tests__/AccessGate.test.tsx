@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import React from 'react';
 import { AccessGate } from '../AccessGate';
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/lib/supabase-enhanced', () => ({
   supabase: {
     auth: {
       getUser: jest.fn(),
@@ -12,7 +12,7 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-enhanced';
 const mockGetUser = supabase.auth.getUser as jest.Mock;
 const mockFrom = supabase.from as jest.Mock;
 

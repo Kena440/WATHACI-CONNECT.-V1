@@ -3,7 +3,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
 import { MessageCenter } from '../MessageCenter';
 
-vi.mock('@/lib/supabase', () => {
+vi.mock('@/lib/supabase-enhanced', () => {
   return {
     supabase: {
       auth: {
@@ -16,7 +16,7 @@ vi.mock('@/lib/supabase', () => {
   };
 });
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-enhanced';
 vi.mock('@/lib/services', () => ({
   userService: {
     searchUsers: vi.fn(),
