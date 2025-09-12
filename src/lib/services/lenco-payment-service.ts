@@ -235,7 +235,7 @@ export class LencoPaymentService {
    */
   private mapLencoStatus(lencoStatus: string): PaymentStatus['status'] {
     const statusMap: Record<string, PaymentStatus['status']> = {
-      'success': 'success',
+      'success': 'completed',
       'failed': 'failed',
       'pending': 'pending',
       'cancelled': 'cancelled',

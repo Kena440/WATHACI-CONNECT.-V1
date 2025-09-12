@@ -41,7 +41,7 @@ export interface LencoPaymentResponse {
 
 export interface PaymentStatus {
   reference: string;
-  status: 'pending' | 'success' | 'failed' | 'cancelled';
+  status: 'pending' | 'completed' | 'failed' | 'cancelled';
   amount: number;
   currency: string;
   transaction_id?: string;
