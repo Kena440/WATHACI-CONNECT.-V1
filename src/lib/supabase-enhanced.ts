@@ -37,7 +37,7 @@ const createSupabaseClient = (): SupabaseClient => {
       persistSession: true,
       detectSessionInUrl: true,
       // Storage for auth tokens
-      storage: window.localStorage,
+      storage: window.sessionStorage,
     },
     global: {
       headers: {
