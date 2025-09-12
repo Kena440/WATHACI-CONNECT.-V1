@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { OpportunityCard } from './OpportunityCard';
 import { supabase } from '@/lib/supabase';
 import { Search, Filter, Sparkles } from 'lucide-react';
+import { InvestmentTips } from '@/components/InvestmentTips';
 
 interface FundingOpportunity {
   id: string;
@@ -101,6 +100,8 @@ export const FundingHub = () => {
           </Button>
         </div>
       </div>
+
+      <InvestmentTips opportunities={opportunities} />
 
       {loading ? (
         <div className="text-center py-8">Loading opportunities...</div>
