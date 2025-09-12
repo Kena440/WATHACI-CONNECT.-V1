@@ -1,49 +1,15 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
+import en from './locales/en.json';
+import fr from './locales/fr.json';
+import sw from './locales/sw.json';
+
 // Translation resources
 const resources = {
-  en: {
-    translation: {
-      // Common translations
-      welcome: "Welcome",
-      loading: "Loading...",
-      error: "An error occurred",
-      success: "Success",
-      cancel: "Cancel",
-      confirm: "Confirm",
-      save: "Save",
-      delete: "Delete",
-      edit: "Edit",
-      
-      // Navigation
-      home: "Home",
-      dashboard: "Dashboard",
-      profile: "Profile",
-      settings: "Settings",
-      logout: "Logout",
-      
-      // Forms
-      email: "Email",
-      password: "Password",
-      firstName: "First Name",
-      lastName: "Last Name",
-      phone: "Phone",
-      
-      // Messages
-      loginSuccess: "Successfully logged in",
-      loginError: "Login failed",
-      registrationSuccess: "Registration successful",
-      registrationError: "Registration failed",
-    }
-  },
-  // Add more languages as needed
-  // fr: {
-  //   translation: {
-  //     welcome: "Bienvenue",
-  //     // ... other translations
-  //   }
-  // }
+  en: { translation: en },
+  fr: { translation: fr },
+  sw: { translation: sw },
 };
 
 i18n
