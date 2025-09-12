@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
-import { Search, MapPin, DollarSign, Star, Loader2 } from 'lucide-react';
+import { Search, MapPin, DollarSign, Star, Loader2, Linkedin } from 'lucide-react';
 
 interface Freelancer {
   avatar?: string;
@@ -19,6 +19,7 @@ interface Freelancer {
   hourly_rate?: number;
   rating?: number;
   reviews_count?: number;
+  linkedin_url?: string;
 }
 
 export const FreelancerMatcher = () => {
@@ -135,6 +136,17 @@ export const FreelancerMatcher = () => {
                     </div>
                     
                     <p className="text-gray-700 mb-3">{freelancer.bio}</p>
+                    {freelancer.linkedin_url && (
+                      <a
+                        href={freelancer.linkedin_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center text-sm text-blue-600 hover:underline mb-3"
+                      >
+                        <Linkedin className="w-4 h-4 mr-1" />
+                        LinkedIn
+                      </a>
+                    )}
                     
                     <div className="flex flex-wrap gap-2 mb-3">
                       {freelancer.skills?.slice(0, 5).map((skill: string, skillIdx: number) => (

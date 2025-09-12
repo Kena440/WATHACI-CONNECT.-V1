@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Linkedin } from "lucide-react";
 
 export default function AboutUs() {
   return (
@@ -36,6 +37,16 @@ export default function AboutUs() {
           <p>
             📧 kasamwa@wathaci.com
             <br />📱 +260 964 283 538
+            <br />
+            <a
+              href="https://www.linkedin.com/in/kasamwa-kachomba/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-blue-600 hover:underline mt-2"
+            >
+              <Linkedin className="w-4 h-4 mr-1" />
+              LinkedIn
+            </a>
           </p>
         </CardContent>
       </Card>
