@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-enhanced';
 import IndustryMatcher from '@/components/industry/IndustryMatcher';
 import { Handshake, Users, TrendingUp, Award, Building, Globe, CheckCircle, Star, Target } from 'lucide-react';
 
