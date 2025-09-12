@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Send, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -190,51 +191,63 @@ export const MessageCenter = () => {
           {showCompose ? (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Compose Message</h3>
-              <div className="relative">
-                <Input
-                  placeholder="Search users..."
-                  value={selectedRecipient ? selectedRecipient.full_name : recipientQuery}
-                  onChange={(e) => {
-                    setSelectedRecipient(null);
-                    setComposeForm(prev => ({ ...prev, recipient_id: '' }));
-                    searchRecipients(e.target.value);
-                  }}
-                />
-                {recipientResults.length > 0 && (
-                  <div className="absolute z-10 bg-white border w-full mt-1 max-h-40 overflow-auto">
-                    {recipientResults.map(user => (
-                      <div
-                        key={user.id}
-                        className="p-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => {
-                          setSelectedRecipient(user);
-                          setComposeForm(prev => ({ ...prev, recipient_id: user.id }));
-                          setRecipientResults([]);
-                        }}
-                      >
-                        {user.full_name}
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div className="space-y-2">
+                <Label htmlFor="recipient-search">Search Recipients</Label>
+                <div className="relative">
+                  <Input
+                    id="recipient-search"
+                    placeholder="Search users..."
+                    value={selectedRecipient ? selectedRecipient.full_name : recipientQuery}
+                    onChange={(e) => {
+                      setSelectedRecipient(null);
+                      setComposeForm(prev => ({ ...prev, recipient_id: '' }));
+                      searchRecipients(e.target.value);
+                    }}
+                  />
+                  {recipientResults.length > 0 && (
+                    <div className="absolute z-10 bg-white border w-full mt-1 max-h-40 overflow-auto">
+                      {recipientResults.map(user => (
+                        <div
+                          key={user.id}
+                          className="p-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            setSelectedRecipient(user);
+                            setComposeForm(prev => ({ ...prev, recipient_id: user.id }));
+                            setRecipientResults([]);
+                          }}
+                        >
+                          {user.full_name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <Input
-                placeholder="Subject"
-                value={composeForm.subject}
-                onChange={(e) => setComposeForm(prev => ({
-                  ...prev,
-                  subject: e.target.value
-                }))}
-              />
-              <Textarea
-                placeholder="Message content..."
-                rows={10}
-                value={composeForm.content}
-                onChange={(e) => setComposeForm(prev => ({
-                  ...prev,
-                  content: e.target.value
-                }))}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Input
+                  id="subject"
+                  placeholder="Subject"
+                  value={composeForm.subject}
+                  onChange={(e) => setComposeForm(prev => ({
+                    ...prev,
+                    subject: e.target.value
+                  }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="message-content">Message Content</Label>
+                <Textarea
+                  id="message-content"
+                  placeholder="Message content..."
+                  rows={10}
+                  value={composeForm.content}
+                  onChange={(e) => setComposeForm(prev => ({
+                    ...prev,
+                    content: e.target.value
+                  }))}
+                />
+              </div>
               <div className="flex gap-2">
                 <Button onClick={sendMessage}>
                   <Send className="h-4 w-4 mr-2" />
