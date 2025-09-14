@@ -4,8 +4,15 @@ import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
   return (
-    <section className="bg-gradient-to-br from-orange-50 via-white to-green-50 py-20">
-      <div className="max-w-6xl mx-auto px-6">
+    <section
+      className="relative py-20 bg-center bg-cover"
+      style={{
+        backgroundImage:
+          "url('/images/ChatGPT%20Image%20Sep%2014%2C%202025%2C%2011_09_30%20PM.png')",
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/90 via-white/90 to-green-50/90" />
+      <div className="relative max-w-6xl mx-auto px-6">
         <div className="text-center mb-16">
           <div className="mb-8">
             <img
