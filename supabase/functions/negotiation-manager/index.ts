@@ -26,22 +26,37 @@ serve(async (req) => {
     );
     if (authError || !user) throw new Error('Unauthorized');
 
-    const { action, negotiationId, serviceId, providerId, initialPrice, serviceTitle, proposedPrice, message } = await req.json();
+    const { action, negotiationId, serviceId, providerId, clientId, initialPrice, serviceTitle, proposedPrice, message, notes } = await req.json();
     console.log('Negotiation action:', action, 'user:', user.id);
 
     switch (action) {
       case 'create': {
+        // Two entry points:
+        //  - marketplace: caller is the buyer (client), providerId is the seller
+        //  - offer-to-help: caller is the provider (freelancer), clientId is the SME who will pay
+        const isOfferToHelp = providerId === user.id && !!clientId;
+        const resolvedProviderId = isOfferToHelp ? user.id : providerId;
+        const resolvedClientId = isOfferToHelp ? clientId : user.id;
+
+        if (!resolvedProviderId || !resolvedClientId) {
+          throw new Error('providerId and clientId are required');
+        }
+        if (resolvedProviderId === resolvedClientId) {
+          throw new Error('Cannot negotiate with yourself');
+        }
+
         // Create new negotiation
         const { data: negotiation, error } = await supabase
           .from('negotiations')
           .insert({
-            service_id: serviceId,
-            provider_id: providerId,
-            client_id: user.id,
+            service_id: serviceId ?? null,
+            provider_id: resolvedProviderId,
+            client_id: resolvedClientId,
             service_title: serviceTitle,
             initial_price: initialPrice,
             current_price: initialPrice,
             status: 'pending',
+            notes: notes ?? null,
             expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
           })
           .select()
@@ -57,6 +72,22 @@ serve(async (req) => {
           proposed_price: initialPrice,
           message_type: 'message'
         });
+
+        // Notify the counterparty using the existing in-app notifications table
+        const recipientId = isOfferToHelp ? resolvedClientId : resolvedProviderId;
+        try {
+          await supabase.from('notifications').insert({
+            user_id: recipientId,
+            type: 'message',
+            title: isOfferToHelp ? 'New offer to help' : 'New negotiation request',
+            body: isOfferToHelp
+              ? `Someone offered to help with "${serviceTitle}" for K${initialPrice}.`
+              : `You have a new negotiation for "${serviceTitle}".`,
+            data: { negotiation_id: negotiation.id, url: '/messages' }
+          });
+        } catch (notifyError) {
+          console.error('Notification insert failed:', notifyError);
+        }
 
         return new Response(JSON.stringify({ success: true, data: negotiation }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }

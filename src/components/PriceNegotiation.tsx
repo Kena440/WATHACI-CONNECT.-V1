@@ -18,6 +18,7 @@ interface PriceNegotiationProps {
   serviceTitle: string;
   providerId: string;
   serviceId?: string;
+  existingNegotiationId?: string;
   onNegotiationComplete?: (finalPrice: number) => void;
 }
 
@@ -35,6 +36,7 @@ const PriceNegotiation = ({
   serviceTitle, 
   providerId, 
   serviceId = 'default',
+  existingNegotiationId,
   onNegotiationComplete 
 }: PriceNegotiationProps) => {
   const [currentPrice, setCurrentPrice] = useState(initialPrice);
@@ -44,7 +46,7 @@ const PriceNegotiation = ({
   const [showPayment, setShowPayment] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [taxCalculation, setTaxCalculation] = useState<any>(null);
-  const [negotiationId, setNegotiationId] = useState<string | null>(null);
+  const [negotiationId, setNegotiationId] = useState<string | null>(existingNegotiationId ?? null);
   const [messages, setMessages] = useState<NegotiationMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -56,12 +58,16 @@ const PriceNegotiation = ({
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-      if (user) {
+      if (!user) return;
+      if (existingNegotiationId) {
+        fetchMessages(existingNegotiationId);
+      } else {
         checkExistingNegotiation(user.id);
       }
     };
     getUser();
-  }, []);
+  }, [existingNegotiationId]);
+
 
   // Real-time subscription for negotiation messages
   useEffect(() => {

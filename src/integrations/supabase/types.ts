@@ -2676,7 +2676,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string | null
-          display_name?: string | null
+          display_name?: never
           id?: string | null
           industry_sector?: string | null
           is_profile_complete?: boolean | null
@@ -2699,7 +2699,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string | null
-          display_name?: string | null
+          display_name?: never
           id?: string | null
           industry_sector?: string | null
           is_profile_complete?: boolean | null
