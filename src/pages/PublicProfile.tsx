@@ -94,6 +94,16 @@ export default function PublicProfile() {
     'Anonymous';
   const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
+  const viewerType = (viewerProfile as { account_type?: string | null; role_type?: string | null } | null)?.account_type
+    ?? (viewerProfile as { role_type?: string | null } | null)?.role_type
+    ?? null;
+  const canOfferHelp =
+    !!user &&
+    !!profile.id &&
+    user.id !== profile.id &&
+    profile.account_type === 'sme' &&
+    (viewerType === 'freelancer' || viewerType === 'professional');
+
   return (
     <>
       <Helmet>
