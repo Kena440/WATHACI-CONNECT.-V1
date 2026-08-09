@@ -18,6 +18,7 @@ interface PriceNegotiationProps {
   serviceTitle: string;
   providerId: string;
   serviceId?: string;
+  existingNegotiationId?: string;
   onNegotiationComplete?: (finalPrice: number) => void;
 }
 
