@@ -203,12 +203,27 @@ export default function PublicProfile() {
                 )}
                 {profile.top_needs && profile.top_needs.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Looking For</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {profile.top_needs.map((need: string) => (
-                        <Badge key={need} variant="outline">{need}</Badge>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                      Needs / Gaps they're looking to fill
+                    </h3>
+                    <ul className="space-y-2">
+                      {profile.top_needs.map((need: string, index: number) => (
+                        <li
+                          key={need}
+                          className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                        >
+                          <span className="text-foreground">{need}</span>
+                          {canOfferHelp && (
+                            <OfferHelpDialog
+                              smeUserId={profile.id}
+                              smeName={displayName}
+                              need={need}
+                              needIndex={index}
+                            />
+                          )}
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                 )}
                 {profile.areas_served && profile.areas_served.length > 0 && (
