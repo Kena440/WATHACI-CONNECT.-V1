@@ -228,7 +228,7 @@ export default function PublicProfile() {
                           <span className="text-foreground">{need}</span>
                           {canOfferHelp && (
                             <OfferHelpDialog
-                              smeUserId={profile.id}
+                              smeUserId={profile.id as string}
                               smeName={displayName}
                               need={need}
                               needIndex={index}
