@@ -78,7 +78,7 @@ serve(async (req) => {
         try {
           await supabase.from('notifications').insert({
             user_id: recipientId,
-            type: isOfferToHelp ? 'offer_to_help' : 'negotiation',
+            type: 'message',
             title: isOfferToHelp ? 'New offer to help' : 'New negotiation request',
             body: isOfferToHelp
               ? `Someone offered to help with "${serviceTitle}" for K${initialPrice}.`
