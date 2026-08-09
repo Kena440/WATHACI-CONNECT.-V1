@@ -7,9 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Helmet } from 'react-helmet-async';
+import { useAuth } from '@/contexts/AuthContext';
+import { OfferHelpDialog } from '@/components/sme/OfferHelpDialog';
 
 export default function PublicProfile() {
   const { id } = useParams<{ id: string }>();
+  const { user, profile: viewerProfile } = useAuth();
 
   const { data: profile, isLoading, error } = useQuery({
     queryKey: ['public-profile', id],
