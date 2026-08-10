@@ -50,6 +50,30 @@ export type Database = {
         }
         Relationships: []
       }
+      business_categories: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       co_investment_participants: {
         Row: {
           amount_committed: number
@@ -397,6 +421,60 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "v_public_profiles_safe"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      freelancer_services: {
+        Row: {
+          category: string
+          created_at: string
+          currency: string
+          deliverable: string | null
+          freelancer_profile_id: string
+          id: string
+          is_active: boolean
+          price: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          currency?: string
+          deliverable?: string | null
+          freelancer_profile_id: string
+          id?: string
+          is_active?: boolean
+          price?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          currency?: string
+          deliverable?: string | null
+          freelancer_profile_id?: string
+          id?: string
+          is_active?: boolean
+          price?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freelancer_services_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "business_categories"
+            referencedColumns: ["name"]
+          },
+          {
+            foreignKeyName: "freelancer_services_freelancer_profile_id_fkey"
+            columns: ["freelancer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "freelancer_profiles"
+            referencedColumns: ["profile_id"]
           },
         ]
       }
@@ -2010,6 +2088,60 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      sme_needs: {
+        Row: {
+          budget_range_max: number | null
+          budget_range_min: number | null
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          sme_profile_id: string
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          budget_range_max?: number | null
+          budget_range_min?: number | null
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          sme_profile_id: string
+          updated_at?: string
+          urgency?: string
+        }
+        Update: {
+          budget_range_max?: number | null
+          budget_range_min?: number | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          sme_profile_id?: string
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sme_needs_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "business_categories"
+            referencedColumns: ["name"]
+          },
+          {
+            foreignKeyName: "sme_needs_sme_profile_id_fkey"
+            columns: ["sme_profile_id"]
+            isOneToOne: false
+            referencedRelation: "sme_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
       }
       sme_professional_matches: {
         Row: {
