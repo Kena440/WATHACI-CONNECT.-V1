@@ -43,7 +43,15 @@ export const smeProfileSchema = z.object({
   funding_needed: z.boolean().optional().default(false),
   funding_range: z.string().optional().nullable(),
   preferred_support: z.array(z.string()).optional().default([]),
-  sectors_of_interest: z.array(z.string()).optional().default([])
+  sectors_of_interest: z.array(z.string()).optional().default([]),
+  needs: z.array(z.object({
+    id: z.string().optional(),
+    category: z.string().min(1, 'Category is required'),
+    description: z.string().max(500).optional().nullable(),
+    budget_range_min: z.number().nullable().optional(),
+    budget_range_max: z.number().nullable().optional(),
+    urgency: z.enum(['low', 'medium', 'high']).default('medium')
+  })).optional().default([])
 });
 
 // Freelancer profile schema
@@ -64,7 +72,15 @@ export const freelancerProfileSchema = z.object({
   certifications: z.array(z.string()).optional().default([]),
   languages: z.array(z.string()).optional().default([]),
   past_clients: z.string().max(500).optional().nullable(),
-  preferred_industries: z.array(z.string()).optional().default([])
+  preferred_industries: z.array(z.string()).optional().default([]),
+  service_listings: z.array(z.object({
+    id: z.string().optional(),
+    category: z.string().min(1, 'Category is required'),
+    title: z.string().min(2, 'Service title is required').max(120),
+    deliverable: z.string().max(300).optional().nullable(),
+    price: z.number().nullable().optional(),
+    currency: z.string().default('ZMW')
+  })).optional().default([])
 });
 
 // Investor profile schema

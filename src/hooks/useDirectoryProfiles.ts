@@ -28,6 +28,8 @@ export interface DirectoryProfile {
   business_stage?: string | null;
   sme_services?: string | null;
   top_needs?: string[] | null;
+  need_categories?: string[] | null;
+  service_categories?: string[] | null;
   // Investor
   investor_type?: string | null;
   ticket_size_range?: string | null;
@@ -143,6 +145,38 @@ export function useDirectoryProfiles({ accountType, pageSize = 20 }: UseDirector
           mandate_areas: p.mandate_areas,
           services_or_programmes: p.services_or_programmes,
         }));
+
+      // Attach structured taxonomy tags (freelancer service categories / SME need categories)
+      const ids = validProfiles.map(p => p.id);
+      if (ids.length > 0) {
+        if (accountType === 'freelancer') {
+          const { data: rows } = await supabase
+            .from('freelancer_services')
+            .select('freelancer_profile_id, category')
+            .in('freelancer_profile_id', ids)
+            .eq('is_active', true);
+          const byId = new Map<string, string[]>();
+          (rows || []).forEach(r => {
+            const list = byId.get(r.freelancer_profile_id) || [];
+            if (!list.includes(r.category)) list.push(r.category);
+            byId.set(r.freelancer_profile_id, list);
+          });
+          validProfiles.forEach(p => { p.service_categories = byId.get(p.id) || []; });
+        } else if (accountType === 'sme') {
+          const { data: rows } = await supabase
+            .from('sme_needs')
+            .select('sme_profile_id, category')
+            .in('sme_profile_id', ids)
+            .eq('is_active', true);
+          const byId = new Map<string, string[]>();
+          (rows || []).forEach(r => {
+            const list = byId.get(r.sme_profile_id) || [];
+            if (!list.includes(r.category)) list.push(r.category);
+            byId.set(r.sme_profile_id, list);
+          });
+          validProfiles.forEach(p => { p.need_categories = byId.get(p.id) || []; });
+        }
+      }
 
       return {
         profiles: validProfiles,

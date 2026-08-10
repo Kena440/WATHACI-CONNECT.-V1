@@ -52,9 +52,13 @@ export function DirectoryCard({ profile }: DirectoryCardProps) {
   const getTags = (): string[] => {
     switch (profile.account_type) {
       case 'freelancer':
-        return profile.primary_skills?.slice(0, 3) || [];
+        return (profile.service_categories?.length
+          ? profile.service_categories
+          : profile.primary_skills || []).slice(0, 3);
       case 'sme':
-        return profile.top_needs?.slice(0, 3) || (profile.industry ? [profile.industry] : []);
+        return (profile.need_categories?.length
+          ? profile.need_categories
+          : profile.top_needs || (profile.industry ? [profile.industry] : [])).slice(0, 3);
       case 'investor':
         return profile.investor_sectors?.slice(0, 3) || [];
       case 'government':

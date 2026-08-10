@@ -222,11 +222,15 @@ export default function OnboardingProfile() {
 
           // Load role-specific data
           if (profileData.account_type === 'sme') {
-            const { data: smeData } = await supabase
-              .from('sme_profiles')
-              .select('*')
-              .eq('profile_id', user.id)
-              .maybeSingle();
+            const [{ data: smeData }, { data: needRows }] = await Promise.all([
+              supabase.from('sme_profiles').select('*').eq('profile_id', user.id).maybeSingle(),
+              supabase
+                .from('sme_needs')
+                .select('id, category, description, budget_range_min, budget_range_max, urgency')
+                .eq('sme_profile_id', user.id)
+                .eq('is_active', true)
+                .order('created_at', { ascending: true }),
+            ]);
             if (smeData) {
               smeForm.reset({
                 business_name: smeData.business_name || '',
@@ -241,14 +245,26 @@ export default function OnboardingProfile() {
                 funding_range: smeData.funding_range || '',
                 preferred_support: smeData.preferred_support || [],
                 sectors_of_interest: smeData.sectors_of_interest || [],
+                needs: (needRows || []).map((n) => ({
+                  id: n.id,
+                  category: n.category,
+                  description: n.description || '',
+                  budget_range_min: n.budget_range_min === null ? null : Number(n.budget_range_min),
+                  budget_range_max: n.budget_range_max === null ? null : Number(n.budget_range_max),
+                  urgency: (n.urgency as 'low' | 'medium' | 'high') || 'medium',
+                })),
               });
             }
           } else if (profileData.account_type === 'freelancer') {
-            const { data: freelancerData } = await supabase
-              .from('freelancer_profiles')
-              .select('*')
-              .eq('profile_id', user.id)
-              .maybeSingle();
+            const [{ data: freelancerData }, { data: serviceRows }] = await Promise.all([
+              supabase.from('freelancer_profiles').select('*').eq('profile_id', user.id).maybeSingle(),
+              supabase
+                .from('freelancer_services')
+                .select('id, category, title, deliverable, price, currency')
+                .eq('freelancer_profile_id', user.id)
+                .eq('is_active', true)
+                .order('created_at', { ascending: true }),
+            ]);
             if (freelancerData) {
               freelancerForm.reset({
                 professional_title: freelancerData.professional_title || '',
@@ -263,6 +279,14 @@ export default function OnboardingProfile() {
                 certifications: freelancerData.certifications || [],
                 languages: freelancerData.languages || [],
                 preferred_industries: freelancerData.preferred_industries || [],
+                service_listings: (serviceRows || []).map((s) => ({
+                  id: s.id,
+                  category: s.category,
+                  title: s.title,
+                  deliverable: s.deliverable || '',
+                  price: s.price === null ? null : Number(s.price),
+                  currency: s.currency || 'ZMW',
+                })),
               });
             }
           } else if (profileData.account_type === 'investor') {
@@ -619,6 +643,45 @@ export default function OnboardingProfile() {
     });
 
     if (result.success) {
+      // Sync structured needs / service listings (parent role rows now exist)
+      try {
+        if (accountType === 'sme' && user) {
+          const needs = ((roleData.needs as any[]) || []).filter((n) => n?.category);
+          await supabase.from('sme_needs').delete().eq('sme_profile_id', user.id);
+          if (needs.length > 0) {
+            await supabase.from('sme_needs').insert(
+              needs.map((n) => ({
+                sme_profile_id: user.id,
+                category: n.category,
+                description: n.description || null,
+                budget_range_min: n.budget_range_min ?? null,
+                budget_range_max: n.budget_range_max ?? null,
+                urgency: n.urgency || 'medium',
+              }))
+            );
+          }
+        } else if (accountType === 'freelancer' && user) {
+          const listings = ((roleData.service_listings as any[]) || []).filter(
+            (s) => s?.category && s?.title?.trim()
+          );
+          await supabase.from('freelancer_services').delete().eq('freelancer_profile_id', user.id);
+          if (listings.length > 0) {
+            await supabase.from('freelancer_services').insert(
+              listings.map((s) => ({
+                freelancer_profile_id: user.id,
+                category: s.category,
+                title: s.title.trim(),
+                deliverable: s.deliverable || null,
+                price: s.price ?? null,
+                currency: s.currency || 'ZMW',
+              }))
+            );
+          }
+        }
+      } catch (syncError) {
+        console.error('[Onboarding] Failed to sync structured listings', syncError);
+      }
+
       setShowSuccess(true);
       toast.success(isEditMode ? 'Profile updated successfully!' : 'Profile completed successfully!');
       

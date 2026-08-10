@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormSection } from '../FormSection';
 import { TagMultiSelect } from '../TagMultiSelect';
+import { FreelancerServicesEditor } from '../FreelancerServicesEditor';
 import { FreelancerProfileData } from '@/lib/validations/onboarding';
 import {
   freelancerSkills,
@@ -78,6 +79,27 @@ export function FreelancerStep({ form }: FreelancerStepProps) {
                   {...field}
                 />
               </FormControl>
+              <FormDescription>A short overview — add individual priced services below.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="service_listings"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Service Listings</FormLabel>
+              <FormControl>
+                <FreelancerServicesEditor
+                  value={(field.value as any) || []}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>
+                Each listing is tagged with a category so businesses can match it to their needs.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

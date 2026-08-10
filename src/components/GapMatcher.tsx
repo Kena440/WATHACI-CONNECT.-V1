@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Textarea } from './ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { PriceNegotiation } from './PriceNegotiation';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -9,6 +11,7 @@ export const GapMatcher: React.FC = () => {
   const [gaps, setGaps] = useState('');
   const [loading, setLoading] = useState(false);
   const [matches, setMatches] = useState<any[]>([]);
+  const [contactTarget, setContactTarget] = useState<any | null>(null);
   const { user } = useAuth();
 
   const findMatches = async () => {
@@ -62,15 +65,31 @@ export const GapMatcher: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <h4 className="font-medium">{match.full_name}</h4>
-                    <p className="text-sm text-gray-600">{match.expertise_areas?.join(', ')}</p>
-                    <p className="text-xs text-green-600">Match Score: {(match.score * 100).toFixed(0)}%</p>
+                    <p className="text-sm text-muted-foreground">{match.expertise_areas?.join(', ')}</p>
+                    <p className="text-xs text-primary">Match Score: {(match.score * 100).toFixed(0)}%</p>
                   </div>
-                  <Button size="sm">Contact</Button>
+                  <Button size="sm" onClick={() => setContactTarget(match)}>Contact</Button>
                 </div>
               </Card>
             ))}
           </div>
         )}
+
+        <Dialog open={!!contactTarget} onOpenChange={(open) => !open && setContactTarget(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Contact {contactTarget?.full_name || 'Professional'}</DialogTitle>
+            </DialogHeader>
+            {contactTarget && (
+              <PriceNegotiation
+                providerId={contactTarget.id ?? contactTarget.profile_id}
+                serviceTitle={`Help with: ${gaps.split(',')[0]?.trim() || 'business gap'}`}
+                initialPrice={Number(contactTarget.hourly_rate) || 0}
+                onNegotiationComplete={() => setContactTarget(null)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

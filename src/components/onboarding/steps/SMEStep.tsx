@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { FormSection } from '../FormSection';
 import { TagMultiSelect } from '../TagMultiSelect';
+import { SmeNeedsEditor } from '../SmeNeedsEditor';
 import { SMEProfileData } from '@/lib/validations/onboarding';
 import {
   industries,
@@ -135,6 +136,26 @@ export function SMEStep({ form }: SMEStepProps) {
                 />
               </FormControl>
               <FormDescription>Select up to 5 key needs</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="needs"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Detailed Needs</FormLabel>
+              <FormControl>
+                <SmeNeedsEditor
+                  value={(field.value as any) || []}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>
+                Add each need as its own entry with a category — professionals can offer help on a specific need.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -33,6 +33,36 @@ export default function PublicProfile() {
     enabled: !!id,
   });
 
+  const { data: smeNeedRows } = useQuery({
+    queryKey: ['sme-needs', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sme_needs')
+        .select('id, category, description, budget_range_min, budget_range_max, urgency')
+        .eq('sme_profile_id', id!)
+        .eq('is_active', true)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!id && profile?.account_type === 'sme',
+  });
+
+  const { data: freelancerServiceRows } = useQuery({
+    queryKey: ['freelancer-services', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('freelancer_services')
+        .select('id, category, title, deliverable, price, currency')
+        .eq('freelancer_profile_id', id!)
+        .eq('is_active', true)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!id && profile?.account_type === 'freelancer',
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -214,7 +244,45 @@ export default function PublicProfile() {
                     <p className="text-foreground">{profile.sme_services}</p>
                   </div>
                 )}
-                {profile.top_needs && profile.top_needs.length > 0 && (
+                {(smeNeedRows?.length ?? 0) > 0 ? (
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                      Needs / Gaps they're looking to fill
+                    </h3>
+                    <ul className="space-y-2">
+                      {(smeNeedRows || []).map((need, index) => (
+                        <li key={need.id} className="rounded-md border p-3 space-y-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge>{need.category}</Badge>
+                              {need.urgency && (
+                                <Badge variant="outline" className="capitalize">
+                                  {need.urgency} urgency
+                                </Badge>
+                              )}
+                              {(need.budget_range_min !== null || need.budget_range_max !== null) && (
+                                <Badge variant="secondary">
+                                  ZMW {need.budget_range_min ?? '—'} – {need.budget_range_max ?? '—'}
+                                </Badge>
+                              )}
+                            </div>
+                            {canOfferHelp && (
+                              <OfferHelpDialog
+                                smeUserId={profile.id as string}
+                                smeName={displayName}
+                                need={need.category}
+                                needIndex={index}
+                              />
+                            )}
+                          </div>
+                          {need.description && (
+                            <p className="text-sm text-muted-foreground">{need.description}</p>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : profile.top_needs && profile.top_needs.length > 0 ? (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-2">
                       Needs / Gaps they're looking to fill
@@ -238,7 +306,7 @@ export default function PublicProfile() {
                       ))}
                     </ul>
                   </div>
-                )}
+                ) : null}
                 {profile.areas_served && profile.areas_served.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-2">Areas Served</h3>
@@ -269,9 +337,36 @@ export default function PublicProfile() {
                     </div>
                   </div>
                 )}
+                {(freelancerServiceRows?.length ?? 0) > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Service Listings</h3>
+                    <ul className="space-y-2">
+                      {(freelancerServiceRows || []).map((service) => (
+                        <li key={service.id} className="rounded-md border p-3 space-y-1">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge>{service.category}</Badge>
+                              <span className="font-medium text-foreground">{service.title}</span>
+                            </div>
+                            {service.price !== null && (
+                              <Badge variant="secondary">
+                                {service.currency} {Number(service.price).toLocaleString()}
+                              </Badge>
+                            )}
+                          </div>
+                          {service.deliverable && (
+                            <p className="text-sm text-muted-foreground">{service.deliverable}</p>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {profile.freelancer_services && (
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Services Offered</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      {(freelancerServiceRows?.length ?? 0) > 0 ? 'About their services' : 'Services Offered'}
+                    </h3>
                     <p className="text-foreground">{profile.freelancer_services}</p>
                   </div>
                 )}
