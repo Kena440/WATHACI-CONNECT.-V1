@@ -74,6 +74,174 @@ export type Database = {
         }
         Relationships: []
       }
+      capital_readiness_actions: {
+        Row: {
+          action: string
+          assessment_id: string
+          category_key: string
+          created_at: string
+          gap: string
+          id: string
+          priority: string
+          question_key: string
+          sort_order: number
+        }
+        Insert: {
+          action: string
+          assessment_id: string
+          category_key: string
+          created_at?: string
+          gap: string
+          id?: string
+          priority: string
+          question_key: string
+          sort_order?: number
+        }
+        Update: {
+          action?: string
+          assessment_id?: string
+          category_key?: string
+          created_at?: string
+          gap?: string
+          id?: string
+          priority?: string
+          question_key?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_readiness_actions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "capital_readiness_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      capital_readiness_assessments: {
+        Row: {
+          created_at: string
+          id: string
+          overall_score: number | null
+          questionnaire_version: string
+          readiness_band: string | null
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          questionnaire_version?: string
+          readiness_band?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          questionnaire_version?: string
+          readiness_band?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      capital_readiness_category_scores: {
+        Row: {
+          assessment_id: string
+          category_key: string
+          category_percentage: number
+          category_weight: number
+          created_at: string
+          earned_points: number
+          id: string
+          max_points: number
+          weighted_score: number
+        }
+        Insert: {
+          assessment_id: string
+          category_key: string
+          category_percentage: number
+          category_weight: number
+          created_at?: string
+          earned_points: number
+          id?: string
+          max_points: number
+          weighted_score: number
+        }
+        Update: {
+          assessment_id?: string
+          category_key?: string
+          category_percentage?: number
+          category_weight?: number
+          created_at?: string
+          earned_points?: number
+          id?: string
+          max_points?: number
+          weighted_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_readiness_category_scores_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "capital_readiness_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      capital_readiness_responses: {
+        Row: {
+          answer_value: string
+          assessment_id: string
+          category_key: string
+          created_at: string
+          id: string
+          is_unknown: boolean
+          points: number
+          question_key: string
+          updated_at: string
+        }
+        Insert: {
+          answer_value: string
+          assessment_id: string
+          category_key: string
+          created_at?: string
+          id?: string
+          is_unknown?: boolean
+          points: number
+          question_key: string
+          updated_at?: string
+        }
+        Update: {
+          answer_value?: string
+          assessment_id?: string
+          category_key?: string
+          created_at?: string
+          id?: string
+          is_unknown?: boolean
+          points?: number
+          question_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_readiness_responses_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "capital_readiness_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       co_investment_participants: {
         Row: {
           amount_committed: number

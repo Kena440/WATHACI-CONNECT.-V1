@@ -33,6 +33,7 @@ import Messages from "./pages/Messages";
 import Wallet from "./pages/Wallet";
 import Donate from "./pages/Donate";
 import Install from "./pages/Install";
+import CapitalReadiness from "./pages/CapitalReadiness";
 import OnboardingProfile from "./pages/OnboardingProfile";
 import PublicProfile from "./pages/PublicProfile";
 import ProfessionalsDirectory from "./pages/ProfessionalsDirectory";
@@ -91,6 +92,11 @@ export const AppRoutes = () => (
     } />
     <Route path="/donate" element={<Donate />} />
     <Route path="/install" element={<Install />} />
+    <Route path="/capital/readiness" element={
+      <ProtectedRoute>
+        <CapitalReadiness />
+      </ProtectedRoute>
+    } />
     {/* Directory Routes */}
     <Route path="/professionals" element={<ProfessionalsDirectory />} />
     <Route path="/smes" element={<SMEDirectory />} />
