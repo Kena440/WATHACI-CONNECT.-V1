@@ -135,8 +135,8 @@ describe('scoring', () => {
       market: 30,
       capital_preparation: 30,
     });
-    // 65*.15 + 45*.20 + 70*.15 + 40*.15 + 70*.10 + 30*.10 + 30*.15 = 51.25
-    expect(r.overall_score).toBe(51.25);
+    // 65*.15 + 45*.20 + 70*.15 + 40*.15 + 70*.10 + 30*.10 + 30*.15 = 49.75
+    expect(r.overall_score).toBe(49.75);
     expect(r.band).toBe('developing');
     expect(r.actions.map((a) => a.question_key).sort()).toEqual(
       ['B4', 'B5', 'CP2', 'CP3', 'CP4', 'F4', 'F5', 'G5', 'MK3', 'MK4', 'MK5'].sort(),
