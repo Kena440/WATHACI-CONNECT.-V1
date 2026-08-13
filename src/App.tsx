@@ -34,6 +34,7 @@ import Wallet from "./pages/Wallet";
 import Donate from "./pages/Donate";
 import Install from "./pages/Install";
 import CapitalReadiness from "./pages/CapitalReadiness";
+import CapitalImprovementPlan from "./pages/CapitalImprovementPlan";
 import OnboardingProfile from "./pages/OnboardingProfile";
 import PublicProfile from "./pages/PublicProfile";
 import ProfessionalsDirectory from "./pages/ProfessionalsDirectory";
@@ -46,6 +47,7 @@ import RolesManager from "./pages/admin/RolesManager";
 import AuditLogs from "./pages/admin/AuditLogs";
 import AdminSettings from "./pages/admin/AdminSettings";
 import PaymentReconciliation from "./pages/admin/PaymentReconciliation";
+import CapitalImprovementPlans from "./pages/admin/CapitalImprovementPlans";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +99,11 @@ export const AppRoutes = () => (
         <CapitalReadiness />
       </ProtectedRoute>
     } />
+    <Route path="/capital/improvement-plan" element={
+      <ProtectedRoute>
+        <CapitalImprovementPlan />
+      </ProtectedRoute>
+    } />
     {/* Directory Routes */}
     <Route path="/professionals" element={<ProfessionalsDirectory />} />
     <Route path="/smes" element={<SMEDirectory />} />
@@ -109,6 +116,7 @@ export const AppRoutes = () => (
     <Route path="/admin/audit-logs" element={<AdminGuard><AuditLogs /></AdminGuard>} />
     <Route path="/admin/settings" element={<AdminGuard><AdminSettings /></AdminGuard>} />
     <Route path="/admin/payments" element={<AdminGuard><PaymentReconciliation /></AdminGuard>} />
+    <Route path="/admin/capital-readiness/improvement-plans" element={<AdminGuard><CapitalImprovementPlans /></AdminGuard>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

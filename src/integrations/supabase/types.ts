@@ -74,39 +74,169 @@ export type Database = {
         }
         Relationships: []
       }
+      capital_readiness_action_evidence: {
+        Row: {
+          action_id: string
+          created_at: string
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_comment: string | null
+          storage_path: string
+          updated_at: string
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          action_id: string
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_comment?: string | null
+          storage_path: string
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+        }
+        Update: {
+          action_id?: string
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_comment?: string | null
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_readiness_action_evidence_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "capital_readiness_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      capital_readiness_action_reviews: {
+        Row: {
+          action_id: string
+          actor_id: string | null
+          actor_role: string
+          comment: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          to_status: string | null
+        }
+        Insert: {
+          action_id: string
+          actor_id?: string | null
+          actor_role?: string
+          comment?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          to_status?: string | null
+        }
+        Update: {
+          action_id?: string
+          actor_id?: string | null
+          actor_role?: string
+          comment?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_readiness_action_reviews_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "capital_readiness_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       capital_readiness_actions: {
         Row: {
           action: string
           assessment_id: string
           category_key: string
+          completed_at: string | null
           created_at: string
           gap: string
           id: string
+          notes: string | null
+          plan_priority: string | null
           priority: string
           question_key: string
+          required_evidence: string | null
+          responsible_person: string | null
+          review_comment: string | null
+          reviewed_at: string | null
           sort_order: number
+          status: string
+          submitted_at: string | null
+          target_date: string | null
+          updated_at: string
         }
         Insert: {
           action: string
           assessment_id: string
           category_key: string
+          completed_at?: string | null
           created_at?: string
           gap: string
           id?: string
+          notes?: string | null
+          plan_priority?: string | null
           priority: string
           question_key: string
+          required_evidence?: string | null
+          responsible_person?: string | null
+          review_comment?: string | null
+          reviewed_at?: string | null
           sort_order?: number
+          status?: string
+          submitted_at?: string | null
+          target_date?: string | null
+          updated_at?: string
         }
         Update: {
           action?: string
           assessment_id?: string
           category_key?: string
+          completed_at?: string | null
           created_at?: string
           gap?: string
           id?: string
+          notes?: string | null
+          plan_priority?: string | null
           priority?: string
           question_key?: string
+          required_evidence?: string | null
+          responsible_person?: string | null
+          review_comment?: string | null
+          reviewed_at?: string | null
           sort_order?: number
+          status?: string
+          submitted_at?: string | null
+          target_date?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -192,6 +322,54 @@ export type Database = {
           {
             foreignKeyName: "capital_readiness_category_scores_assessment_id_fkey"
             columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "capital_readiness_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      capital_readiness_reassessment_requests: {
+        Row: {
+          completed_actions: number
+          created_at: string
+          id: string
+          new_assessment_id: string | null
+          source_assessment_id: string
+          status: string
+          total_actions: number
+          user_id: string
+        }
+        Insert: {
+          completed_actions?: number
+          created_at?: string
+          id?: string
+          new_assessment_id?: string | null
+          source_assessment_id: string
+          status?: string
+          total_actions?: number
+          user_id: string
+        }
+        Update: {
+          completed_actions?: number
+          created_at?: string
+          id?: string
+          new_assessment_id?: string | null
+          source_assessment_id?: string
+          status?: string
+          total_actions?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_readiness_reassessment_reques_source_assessment_id_fkey"
+            columns: ["source_assessment_id"]
+            isOneToOne: false
+            referencedRelation: "capital_readiness_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "capital_readiness_reassessment_requests_new_assessment_id_fkey"
+            columns: ["new_assessment_id"]
             isOneToOne: false
             referencedRelation: "capital_readiness_assessments"
             referencedColumns: ["id"]
