@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +40,7 @@ type View = 'intro' | 'questions' | 'results';
 const CapitalReadiness = () => {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const {
     draft,
     answers,
@@ -143,7 +144,12 @@ const CapitalReadiness = () => {
             </Card>
 
             {history.length > 0 && (
-              <HistoryList history={history} onOpen={openDetail} />
+              <>
+                <HistoryList history={history} onOpen={openDetail} />
+                <Button variant="outline" onClick={() => navigate('/capital/improvement-plan')}>
+                  Open my improvement plan
+                </Button>
+              </>
             )}
           </div>
         )}
@@ -273,6 +279,9 @@ const CapitalReadiness = () => {
           <div className="space-y-6">
             <ReadinessResults detail={detail} />
             <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={() => navigate(`/capital/improvement-plan?assessment=${detail.assessment.id}`)}>
+                Open improvement plan
+              </Button>
               <Button
                 variant="outline"
                 onClick={async () => {
